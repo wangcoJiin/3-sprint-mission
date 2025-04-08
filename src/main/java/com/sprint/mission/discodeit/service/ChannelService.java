@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface ChannelService {
 
     // 채널 생성
-    Channel createChannel(String channelName, UUID adminId, boolean isprivate, String password);
+    Channel createChannel(String channelName, UUID adminId, boolean isLock, String password);
 
     // 채널에 유저 추가
     boolean addUserToChannel(UUID channelId, UUID userId, String password);
@@ -26,7 +26,7 @@ public interface ChannelService {
     boolean updateChannelName(UUID channelId, String channelName, UUID userId, String password, String newChannelName);
 
     //채널 공개 유무 수정
-    boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean isprivate);
+    boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean isLock);
 
     //채널 삭제
     boolean deleteChannel(UUID channelId, String channelName, UUID userId, String password);

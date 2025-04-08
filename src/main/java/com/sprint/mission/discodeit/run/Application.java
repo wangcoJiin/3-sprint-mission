@@ -18,7 +18,8 @@ public class Application {
 
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService();
+//        MessageService messageService = new JCFMessageService();
+        MessageService messageService = new JCFMessageService(channelService);
 
         System.out.println("==============================유저 기능 테스트==============================");
 
@@ -101,13 +102,13 @@ public class Application {
         System.out.println("\n전체 채널 목록 조회:");
         List<Channel> allChannel = channelService.getAllChannels();
         for (Channel channel : allChannel) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
         // 특정 채널 조회 (단건 조회)
         System.out.println("\n특정 채널 조회: ");
         Channel oneChannel = channelService.getChannelUsingId(newChannel3.getId());
-        System.out.println("ID: " + oneChannel.getId() + ", 채널명: " + oneChannel.getChannelName() + ", 비공개 채널: " + oneChannel.isIsprivate());
+        System.out.println("ID: " + oneChannel.getId() + ", 채널명: " + oneChannel.getChannelName() + ", 비공개 채널: " + oneChannel.isLock());
 
 
         // 채널 이름 수정 (방장의 경우)
@@ -124,7 +125,7 @@ public class Application {
         System.out.println("\n변경된 채널 이름을 확인해보세요:");
         List<Channel> modifyChannelName = channelService.getAllChannels();
         for (Channel channel : modifyChannelName) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
 
@@ -142,7 +143,7 @@ public class Application {
         System.out.println("\n변경된 채널 이름을 확인해보세요:");
         List<Channel> modifyChannelName2 = channelService.getAllChannels();
         for (Channel channel : modifyChannelName2) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
         System.out.println("\n채널에 유저 추가:");
@@ -169,20 +170,31 @@ public class Application {
         System.out.println("\n채녈이 삭제된 결과를 확인해보세요: ");
         List<Channel> deleteChannel = channelService.getAllChannels();
         for (Channel channel : deleteChannel) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
 
         System.out.println("\n==============================메시지 기능 테스트==============================");
 
+//        // 메시지 생성
+//        System.out.println("\n메시지 생성: ");
+//        Message channel3_newMessage1 = messageService.CreateMessage(newChannel3.getId(), newUser3.getId(), "newUser3: new Message Create!");
+//        Message channel3_newMessage2 = messageService.CreateMessage(newChannel3.getId(), newUser3.getId(), "newUser3: HEllO!");
+//        Message channel3_newMessage3 = messageService.CreateMessage(newChannel3.getId(), newUser1.getId(), "newUser1: heyyyy~");
+//        Message channel1_newMessage1 = messageService.CreateMessage(newChannel1.getId(), newUser4.getId(), "newUser4: channel1's first message!");
+//        Message channel1_newMessage2 = messageService.CreateMessage(newChannel1.getId(), newUser5.getId(), "newUser5: my message!");
+//        System.out.println("메시지가 추가가 완료되었습니다.");
+
         // 메시지 생성
         System.out.println("\n메시지 생성: ");
-        Message channel3_newMessage1 = messageService.CreateMessage(newChannel3.getId(), newUser3.getId(), "newUser3: new Message Create!");
-        Message channel3_newMessage2 = messageService.CreateMessage(newChannel3.getId(), newUser3.getId(), "newUser3: HEllO!");
-        Message channel3_newMessage3 = messageService.CreateMessage(newChannel3.getId(), newUser1.getId(), "newUser1: heyyyy~");
-        Message channel1_newMessage1 = messageService.CreateMessage(newChannel1.getId(), newUser4.getId(), "newUser4: channel1's first message!");
-        Message channel1_newMessage2 = messageService.CreateMessage(newChannel1.getId(), newUser5.getId(), "newUser5: my message!");
-        System.out.println("메시지가 추가가 완료되었습니다.");
+        Message channel3_newMessage1 = messageService.CreateMessage(newChannel3.getId(), "0000",  newUser3.getId(), "newUser3: new Message Create!");
+        Message channel3_newMessage2 = messageService.CreateMessage(newChannel3.getId(), "0000", newUser3.getId(), "newUser3: HEllO!");
+        Message channel3_newMessage3 = messageService.CreateMessage(newChannel3.getId(), "0000", newUser5.getId(), "newUser5: heyyyy~");
+        Message channel1_newMessage1 = messageService.CreateMessage(newChannel1.getId(), "", newUser4.getId(), "newUser4: channel1's first message!");
+        Message channel1_newMessage2 = messageService.CreateMessage(newChannel1.getId(), "", newUser5.getId(), "newUser5: my message!");
+
+        // 비밀번호가 틀린 경우
+        Message channel3_newMessage4 = messageService.CreateMessage(newChannel3.getId(), "1111", newUser4.getId(), "newUser4: hey");
 
 
         // 전체 메시지 조회 (다건 조회)

@@ -12,8 +12,8 @@ public class JCFChannelService implements ChannelService {
 
     // 채널 생성
     @Override
-    public Channel createChannel(String channelName, UUID adminId, boolean isprivate, String password) {
-        Channel newChannel = new Channel(channelName, adminId, isprivate, password);
+    public Channel createChannel(String channelName, UUID adminId, boolean lockState, String password) {
+        Channel newChannel = new Channel(channelName, adminId, lockState, password);
         channels.put(newChannel.getId(), newChannel);
         return newChannel;
     }
@@ -48,7 +48,7 @@ public class JCFChannelService implements ChannelService {
                 System.out.println("채널 관리자로 확인되었습니다.");
 
                 // 비공개 채널인 경우
-                if ((channel.isIsprivate())) {
+                if ((channel.isLock())) {
                     System.out.println("비밀번호 확인중입니다.");
                     if (Objects.equals(channel.getPassword(), password)) {
                         channel.updateChannelName(newChannelName);
@@ -81,23 +81,23 @@ public class JCFChannelService implements ChannelService {
 
     //채널 공개/비공개 상태 수정
     @Override
-    public boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean isprivate) {
+    public boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean lockState) {
         Channel channel = channels.get(channelId);
 
         if (channel != null) {
 
             if (channel.getAdminId() == userId){
                 System.out.println("채널 관리자로 확인되었습니다.");
-                if ((channel.isIsprivate()) == isprivate){
+                if ((channel.isLock()) == lockState){
                     System.out.println("변경할 사항이 없습니다.");
                 }
                 else {
-                    if ((channel.isIsprivate())) {
+                    if ((channel.isLock())) {
                         System.out.println("비밀번호 확인중입니다.");
                         if (Objects.equals(channel.getPassword(), password)) {
-                            if (!isprivate){
+                            if (!lockState){
                                 System.out.println("공개 상태로 전환됩니다.");
-                                channel.updateIsprivate(false);
+                                channel.updateIsLock(false);
                                 channel.updatePassword("");
                                 channel.updateUpdatedAt(System.currentTimeMillis());
                                 System.out.println("채널 공개 상태가 수정되었습니다.");
@@ -107,7 +107,7 @@ public class JCFChannelService implements ChannelService {
                     }
                     else{
                         System.out.println("비공개 상태로 전환됩니다.");
-                        channel.updateIsprivate(true);
+                        channel.updateIsLock(true);
                         channel.updatePassword(password);
                         channel.updateUpdatedAt(System.currentTimeMillis());
                     }
@@ -135,7 +135,7 @@ public class JCFChannelService implements ChannelService {
                 System.out.println("채널 관리자로 확인되었습니다.");
 
                 // 비공개 채널인 경우
-                if ((channel.isIsprivate())) {
+                if ((channel.isLock())) {
                     System.out.println("비밀번호 확인중입니다.");
                     if (Objects.equals(channel.getPassword(), password)) {
                         channels.remove(channelId);
@@ -171,7 +171,7 @@ public class JCFChannelService implements ChannelService {
         Channel channel = channels.get(channelId);
 
         if (channel != null) {
-            if ((channel.isIsprivate())) {
+            if ((channel.isLock())) {
                 System.out.println("비밀번호 확인중입니다.");
                 if (Objects.equals(channel.getPassword(), password)) {
                     channel.addJoiningUser(userId);
@@ -202,7 +202,7 @@ public class JCFChannelService implements ChannelService {
 
             if (channel.getAdminId() == adminId) {
                 System.out.println("채널 관리자로 확인되었습니다.");
-                if ((channel.isIsprivate())) {
+                if ((channel.isLock())) {
                     System.out.println("비밀번호 확인중입니다.");
                     if (Objects.equals(channel.getPassword(), password)) {
                         channel.removeJoiningUser(userId);

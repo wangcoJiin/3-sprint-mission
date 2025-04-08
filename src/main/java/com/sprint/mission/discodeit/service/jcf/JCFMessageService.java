@@ -1,6 +1,29 @@
+//package com.sprint.mission.discodeit.service.jcf;
+//
+//import com.sprint.mission.discodeit.entity.Message;
+//import com.sprint.mission.discodeit.service.MessageService;
+//
+//import java.util.*;
+//import java.util.stream.Collectors;
+//
+//public class JCFMessageService implements MessageService {
+//
+//    private Map<UUID, Message> messages = new HashMap<>();
+//
+//    // 메시지 생성
+//    @Override
+//    public Message CreateMessage(UUID channelId, UUID senderId, String messageContent) {
+//
+//        Message newMessage = new Message(channelId, senderId, messageContent);
+//        messages.put(newMessage.getMessageId(), newMessage);
+//        return newMessage;
+//    }
+
+
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 
 import java.util.*;
@@ -10,14 +33,49 @@ public class JCFMessageService implements MessageService {
 
     private Map<UUID, Message> messages = new HashMap<>();
 
+    private ChannelService channelService;
+
+    // 생성자에서 ChannelService 주입
+    public JCFMessageService(ChannelService channelService) {
+        this.channelService = channelService;
+    }
+
     // 메시지 생성
     @Override
-    public Message CreateMessage(UUID channelId, UUID senderId, String messageContent) {
+    public Message CreateMessage(UUID channelId, String password, UUID senderId, String messageContent) {
 
-        Message newMessage = new Message(channelId, senderId, messageContent);
-        messages.put(newMessage.getMessageId(), newMessage);
-        return newMessage;
+        if(channelService.getChannelUsingId(channelId).getJoiningUsers().contains(senderId)){
+
+            if (channelService.getChannelUsingId(channelId).isLock()){
+                System.out.println("비공개 채널입니다. 비밀번호 확인중입니다...");
+
+                if (Objects.equals(channelService.getChannelUsingId(channelId).getPassword(), password)){
+                    System.out.println("비밀번호 확인에 성공했습니다.");
+
+                    Message newMessage = new Message(channelId, senderId, messageContent);
+                    messages.put(newMessage.getMessageId(), newMessage);
+                    System.out.println("메시지가 추가되었습니다.");
+                    return newMessage;
+
+                }
+                else{
+                    System.out.println("비밀번호가 일치하지 않습니다.");
+                    return null;
+                }
+            }
+            else{
+                Message newMessage = new Message(channelId, senderId, messageContent);
+                messages.put(newMessage.getMessageId(), newMessage);
+                System.out.println("메시지가 추가되었습니다.");
+                return newMessage;
+            }
+        }
+        else{
+            System.out.println("참여중인 채널이 아닙니다.");
+            return null;
+        }
     }
+
 
     // 메시지 수정
     @Override
