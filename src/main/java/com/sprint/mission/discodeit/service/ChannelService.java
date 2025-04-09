@@ -23,7 +23,7 @@ public interface ChannelService {
     Channel getChannelUsingId(UUID channelId);
 
     // 체널 이름 수정
-    boolean updateChannelName(UUID channelId, String channelName, UUID userId, String password, String newChannelName);
+    boolean updateChannelName(UUID channelId, UUID userId, String password, String newChannelName);
 
     //채널 공개 유무 수정
     boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean isLock);

@@ -24,6 +24,7 @@ public class JCFUserService implements UserService {
         users.put(user.getId(), user);
     }
 
+
     // 유저 아이디 이용해서 조회
     @Override
     public User getUserById(UUID id) {
@@ -46,6 +47,7 @@ public class JCFUserService implements UserService {
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
+
 
     // 유저 이름과 활동상태 둘 다 변경
     @Override

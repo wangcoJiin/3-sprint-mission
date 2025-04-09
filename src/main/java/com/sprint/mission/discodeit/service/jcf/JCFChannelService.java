@@ -26,6 +26,7 @@ public class JCFChannelService implements ChannelService {
         return new ArrayList<>(channels.values());
     }
 
+
     // 이름만으로 채널 조회
     @Override
     public List<Channel> getChannelUsingName(String channelName) {
@@ -39,6 +40,7 @@ public class JCFChannelService implements ChannelService {
     public Channel getChannelUsingId(UUID channelId) {
         return channels.get(channelId);
     }
+
 
     // 채널 이름 수정
     @Override
@@ -184,7 +186,6 @@ public class JCFChannelService implements ChannelService {
         }
         return false;
     }
-
 
     // 참여한 유저 삭제
     @Override
