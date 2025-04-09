@@ -15,6 +15,8 @@ public class JCFChannelService implements ChannelService {
     public Channel createChannel(String channelName, UUID adminId, boolean lockState, String password) {
         Channel newChannel = new Channel(channelName, adminId, lockState, password);
         channels.put(newChannel.getId(), newChannel);
+        // 채널 생성과 동시에 참여자에 관리자도 추가
+        addUserToChannel(newChannel.getId(), adminId, password);
         return newChannel;
     }
 
@@ -40,7 +42,7 @@ public class JCFChannelService implements ChannelService {
 
     // 채널 이름 수정
     @Override
-    public boolean updateChannelName(UUID channelId, String channelName, UUID userId, String password, String newChannelName) {
+    public boolean updateChannelName(UUID channelId, UUID userId, String password, String newChannelName) {
         Channel channel = channels.get(channelId);
 
         if (channel != null) {
@@ -68,12 +70,10 @@ public class JCFChannelService implements ChannelService {
                     return true;
                 }
 
-            }
-            else{
+            } else {
                 System.out.println("채널 이름 수정 권한이 없습니다.");
             }
-        }
-        else{
+        } else {
             System.out.println("채널이 비어있습니다");
         }
         return false;
@@ -86,16 +86,15 @@ public class JCFChannelService implements ChannelService {
 
         if (channel != null) {
 
-            if (channel.getAdminId() == userId){
+            if (channel.getAdminId() == userId) {
                 System.out.println("채널 관리자로 확인되었습니다.");
-                if ((channel.isLock()) == lockState){
+                if ((channel.isLock()) == lockState) {
                     System.out.println("변경할 사항이 없습니다.");
-                }
-                else {
+                } else {
                     if ((channel.isLock())) {
                         System.out.println("비밀번호 확인중입니다.");
                         if (Objects.equals(channel.getPassword(), password)) {
-                            if (!lockState){
+                            if (!lockState) {
                                 System.out.println("공개 상태로 전환됩니다.");
                                 channel.updateIsLock(false);
                                 channel.updatePassword("");
@@ -104,8 +103,7 @@ public class JCFChannelService implements ChannelService {
 
                             }
                         }
-                    }
-                    else{
+                    } else {
                         System.out.println("비공개 상태로 전환됩니다.");
                         channel.updateIsLock(true);
                         channel.updatePassword(password);
@@ -113,12 +111,10 @@ public class JCFChannelService implements ChannelService {
                     }
 
                 }
-            }
-            else{
+            } else {
                 System.out.println("채널 상태 수정 권한이 없습니다.");
             }
-        }
-        else{
+        } else {
             System.out.println("채널이 비어있습니다.");
         }
         return false;
@@ -153,12 +149,10 @@ public class JCFChannelService implements ChannelService {
                     return true;
                 }
 
-            }
-            else{
+            } else {
                 System.out.println("\n채널 삭제 권한이 없습니다.");
             }
-        }
-        else{
+        } else {
             System.out.println("\n채널이 비어있습니다");
         }
 
@@ -174,19 +168,18 @@ public class JCFChannelService implements ChannelService {
             if ((channel.isLock())) {
                 System.out.println("비밀번호 확인중입니다.");
                 if (Objects.equals(channel.getPassword(), password)) {
-                    channel.addJoiningUser(userId);
+                    channel.getJoiningUsers().add(userId);
                     System.out.println(userId + " 유저가 추가되었습니다");
                     channel.updateUpdatedAt(System.currentTimeMillis());
                 } else {
                     System.out.println("비밀번호가 일치하지 않습니다.");
                 }
             } else {
-                channel.addJoiningUser(userId);
+                channel.getJoiningUsers().add(userId);
                 System.out.println(userId + " 유저가 추가되었습니다");
                 channel.updateUpdatedAt(System.currentTimeMillis());
             }
-        }
-        else{
+        } else {
             System.out.println("채널이 비어있습니다.");
         }
         return false;
@@ -205,25 +198,21 @@ public class JCFChannelService implements ChannelService {
                 if ((channel.isLock())) {
                     System.out.println("비밀번호 확인중입니다.");
                     if (Objects.equals(channel.getPassword(), password)) {
-                        channel.removeJoiningUser(userId);
+                        channel.getJoiningUsers().remove(userId);
                         System.out.println(userId + " 유저가 삭제되었습니다");
                         channel.updateUpdatedAt(System.currentTimeMillis());
-                    }
-                    else {
+                    } else {
                         System.out.println("비밀번호가 일치하지 않습니다.");
                     }
-                }
-                else {
-                    channel.removeJoiningUser(userId);
+                } else {
+                    channel.getJoiningUsers().remove(userId);
                     System.out.println(userId + " 유저가 삭제되었습니다.");
                     channel.updateUpdatedAt(System.currentTimeMillis());
                 }
-            }
-            else{
+            } else {
                 System.out.println("유저 삭제 권한이 없습니다.");
             }
-        }
-        else{
+        } else {
             System.out.println("채널이 비어있습니다.");
         }
         return false;
