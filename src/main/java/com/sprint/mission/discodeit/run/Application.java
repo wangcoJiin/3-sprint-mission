@@ -201,7 +201,7 @@ public class Application {
         Message channel3_newMessage1 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(3).getId(), "User3: new Message Create!");
         Message channel3_newMessage2 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(1).getId(), "User1: HEllO!");
         Message channel3_newMessage3 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(0).getId(), "User0: heyyyy~");
-        Message channel3_newMessage4 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(0).getId(), "User0: heyyyy~");
+        Message channel3_newMessage4 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(0).getId(), "User0: how are you?");
         Message channel1_newMessage1 = messageService.CreateMessage(channels.get(0).getId(), "", users.get(3).getId(), "User3: channel1's first message!");
         Message channel1_newMessage2 = messageService.CreateMessage(channels.get(0).getId(), "", users.get(4).getId(), "User4: my message!");
 
