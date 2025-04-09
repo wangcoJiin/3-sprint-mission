@@ -8,13 +8,12 @@ import java.util.stream.Collectors;
 
 public class JCFUserService implements UserService {
 
-    private Map<UUID, User> users = new HashMap<>();
+    private Map<UUID, User> users = new LinkedHashMap<>();
 
     // 유저 생성
     @Override
     public User createUser(String name) {
         User newUser = new User(name, "초기값");
-//        newUser.updateId(userId);
         users.put(newUser.getId(), newUser);
         return newUser;
     }

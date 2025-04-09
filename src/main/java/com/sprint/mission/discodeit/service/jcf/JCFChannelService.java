@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class JCFChannelService implements ChannelService {
 
-    private Map<UUID, Channel> channels = new HashMap<>();
+    private Map<UUID, Channel> channels = new LinkedHashMap<>();
 
     // 채널 생성
     @Override
