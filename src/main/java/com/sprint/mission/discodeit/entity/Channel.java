@@ -89,14 +89,6 @@ public class Channel implements java.io.Serializable{
         this.password = password;
     }
 
-    public void addJoiningUser(UUID userId) {
-        joiningUsers.add(userId);
-    }
-
-    public void removeJoiningUser(UUID userId) {
-        joiningUsers.remove(userId);
-    }
-
     @Override
     public String toString() {
         return "Channel{" +
