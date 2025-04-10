@@ -114,7 +114,7 @@ public class Application {
         Channel newChannel4 = channelService.createChannel("fourth Channel", users.get(4).getId(), false, "");
         System.out.println("\n채널이 생성되었습니다.");
 
-      
+
         // 전체 채널 조회 (다건 조회)
         System.out.println("\n전체 채널 목록 조회:");
         List<Channel> allChannel = channelService.getAllChannels();
