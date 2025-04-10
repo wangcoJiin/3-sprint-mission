@@ -12,11 +12,13 @@ import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
 import java.util.*;
 
+
 public class Application {
     public static void main(String[] args) {
 
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
+
         MessageService messageService = new JCFMessageService(channelService, userService);
 
         //유저 테스트
@@ -27,7 +29,6 @@ public class Application {
 
     //유저 관리 메서드
     private static List<User> createUserManagement(UserService userService) {
-//        List<User> createdUsers = new ArrayList<>();
 
         System.out.println("\n==============================유저 기능 테스트==============================");
 
@@ -89,6 +90,7 @@ public class Application {
         System.out.println("\n사용자 삭제 newUser5:");
         userService.deleteUserById(newUser5.getId());
 
+
         // 최종 유저 목록 조회
         System.out.println("\n최종 사용자 목록:");
         List<User> totalUsers = userService.getAllUsers();
@@ -96,12 +98,12 @@ public class Application {
             System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + user.getCreatedAt() + ", 정보 수정 시점: " + user.getUpdatedAt() + ", 유저 활동 상태: " + user.getConnectState());
         }
 
+
         return totalUsers;
     }
 
     // 채널 관리 메서드
     private static List<Channel> createChannelManagement(ChannelService channelService, List<User> users) {
-
 
         System.out.println("\n==============================채널 기능 테스트==============================\n");
 
@@ -112,7 +114,7 @@ public class Application {
         Channel newChannel4 = channelService.createChannel("fourth Channel", users.get(4).getId(), false, "");
         System.out.println("\n채널이 생성되었습니다.");
 
-        
+      
         // 전체 채널 조회 (다건 조회)
         System.out.println("\n전체 채널 목록 조회:");
         List<Channel> allChannel = channelService.getAllChannels();
@@ -160,7 +162,8 @@ public class Application {
         for (Channel channel : modifyChannelName2) {
             System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
-
+      
+        // 채널에 유저 추가
         System.out.println("\n채널에 유저 추가:");
         channelService.addUserToChannel(newChannel1.getId(), users.get(3).getId(), "");
         channelService.addUserToChannel(newChannel1.getId(), users.get(4).getId(), "");
@@ -187,12 +190,12 @@ public class Application {
         for (Channel channel : deleteChannel) {
             System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
-
         return deleteChannel;
     }
 
     // 메시지 관리 메서드
     private static void createMessageManagement(MessageService messageService, List<User> users, List<Channel> channels) {
+
 
         System.out.println("\n==============================메시지 기능 테스트==============================");
 
@@ -267,15 +270,4 @@ public class Application {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
