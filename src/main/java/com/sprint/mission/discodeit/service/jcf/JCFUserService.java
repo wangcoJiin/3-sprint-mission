@@ -8,13 +8,12 @@ import java.util.stream.Collectors;
 
 public class JCFUserService implements UserService {
 
-    private Map<UUID, User> users = new HashMap<>();
+    private Map<UUID, User> users = new LinkedHashMap<>();
 
     // 유저 생성
     @Override
     public User createUser(String name) {
         User newUser = new User(name, "초기값");
-//        newUser.updateId(userId);
         users.put(newUser.getId(), newUser);
         return newUser;
     }
@@ -24,6 +23,7 @@ public class JCFUserService implements UserService {
     public void addUserToRepository(User user) {
         users.put(user.getId(), user);
     }
+
 
     // 유저 아이디 이용해서 조회
     @Override
@@ -47,6 +47,7 @@ public class JCFUserService implements UserService {
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
+
 
     // 유저 이름과 활동상태 둘 다 변경
     @Override

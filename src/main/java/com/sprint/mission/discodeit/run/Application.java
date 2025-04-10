@@ -10,24 +10,32 @@ import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
 import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
 import com.sprint.mission.discodeit.service.jcf.JCFUserService;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Application {
     public static void main(String[] args) {
 
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService();
+        MessageService messageService = new JCFMessageService(channelService, userService);
 
-        System.out.println("==============================유저 기능 테스트==============================");
+        //유저 테스트
+        List<User> users = createUserManagement(userService); // 유저 관리
+        List<Channel> channels = createChannelManagement(channelService, users); // 채널 관리
+        createMessageManagement(messageService, users, channels); // 메시지 관리
+    }
 
-        // 유저 생성
+    //유저 관리 메서드
+    private static List<User> createUserManagement(UserService userService) {
+
+        System.out.println("\n==============================유저 기능 테스트==============================");
+
         User newUser1 = userService.createUser("홍길동");
-        User newUser2 = userService.createUser("정길순");
-        User newUser3 = userService.createUser("이길석");
-        User newUser4 = userService.createUser("김민석");
+        User newUser2 = userService.createUser("조현지");
+        User newUser3 = userService.createUser("백은호");
+        User newUser4 = userService.createUser("정윤지");
         User newUser5 = userService.createUser("김이박");
+        User newUser6 = userService.createUser("이주용");
 
         System.out.println("\n유저가 생성되었습니다.");
 
@@ -77,8 +85,8 @@ public class Application {
         }
 
         // 유저 id 이용해서 삭제
-        System.out.println("\n사용자 삭제 newUser2:");
-        userService.deleteUserById(newUser2.getId());
+        System.out.println("\n사용자 삭제 newUser5:");
+        userService.deleteUserById(newUser5.getId());
 
         // 최종 유저 목록 조회
         System.out.println("\n최종 사용자 목록:");
@@ -87,71 +95,78 @@ public class Application {
             System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + user.getCreatedAt() + ", 정보 수정 시점: " + user.getUpdatedAt() + ", 유저 활동 상태: " + user.getConnectState());
         }
 
-        System.out.println("\n==============================채널 기능 테스트==============================");
+        return totalUsers;
+    }
+
+    // 채널 관리 메서드
+    private static List<Channel> createChannelManagement(ChannelService channelService, List<User> users) {
+
+
+        System.out.println("\n==============================채널 기능 테스트==============================\n");
 
         // 채널 생성
-        Channel newChannel1 = channelService.createChannel("first Channel", newUser1.getId(), false, "");
-        Channel newChannel2 = channelService.createChannel("second Channel", newUser3.getId(), true, "1111");
-        Channel newChannel3 = channelService.createChannel("third Channel", newUser1.getId(), true, "0000");
-        Channel newChannel4 = channelService.createChannel("fourth Channel", newUser5.getId(), false, "");
-
+        Channel newChannel1 = channelService.createChannel("first Channel", users.get(0).getId(), false, "");
+        Channel newChannel2 = channelService.createChannel("second Channel", users.get(1).getId(), true, "1111");
+        Channel newChannel3 = channelService.createChannel("third Channel", users.get(3).getId(), true, "0000");
+        Channel newChannel4 = channelService.createChannel("fourth Channel", users.get(4).getId(), false, "");
         System.out.println("\n채널이 생성되었습니다.");
+
 
         // 전체 채널 조회 (다건 조회)
         System.out.println("\n전체 채널 목록 조회:");
         List<Channel> allChannel = channelService.getAllChannels();
         for (Channel channel : allChannel) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
         // 특정 채널 조회 (단건 조회)
         System.out.println("\n특정 채널 조회: ");
-        Channel oneChannel = channelService.getChannelUsingId(newChannel3.getId());
-        System.out.println("ID: " + oneChannel.getId() + ", 채널명: " + oneChannel.getChannelName() + ", 비공개 채널: " + oneChannel.isIsprivate());
+        Channel oneChannel = channelService.getChannelUsingId(newChannel1.getId());
+        System.out.println("ID: " + oneChannel.getId() + ", 채널명: " + oneChannel.getChannelName() + ", 비공개 채널: " + oneChannel.isLock());
 
 
         // 채널 이름 수정 (방장의 경우)
         System.out.println("\n채널 이름 수정 (방장):");
-        channelService.updateChannelName(newChannel1.getId(), "first Channel", newUser1.getId(), "", "이름이 수정된 채널");
+        channelService.updateChannelName(newChannel1.getId(), users.get(0).getId(), "", "my first Channel");
 
 
         // 채널 이름 수정 (방장이 아닐 경우)
         System.out.println("\n채널 이름 수정 (방장이 아닌 경우):");
-        channelService.updateChannelName(newChannel1.getId(), "first Channel", newUser3.getId(), "", "이름이 수정된 채널");
+        channelService.updateChannelName(newChannel1.getId(), users.get(3).getId(), "", "edited: my first Channel");
 
 
         // 수정된 상태 확인을 위한 조회
         System.out.println("\n변경된 채널 이름을 확인해보세요:");
         List<Channel> modifyChannelName = channelService.getAllChannels();
         for (Channel channel : modifyChannelName) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
 
         // 비공개 채널 이름 수정
         System.out.println("\n비공개 채널 이름 수정 (비밀번호 일치):");
-        channelService.updateChannelName(newChannel2.getId(), "second Channel", newUser3.getId(), "1111", "이름이 수정된 두번째 채널");
+        channelService.updateChannelName(newChannel2.getId(), users.get(1).getId(), "1111", "my second Channel");
 
 
         // 비밀번호가 다를 경우
         System.out.println("\n비공개 채널 이름 수정 (비밀번호 불일치):");
-        channelService.updateChannelName(newChannel2.getId(), "second Channel", newUser3.getId(), "2222", "이름이 수정된 두번째 채널");
+        channelService.updateChannelName(newChannel2.getId(), users.get(1).getId(), "2222", "my second Channel");
 
 
         // 수정된 상태 확인을 위한 조회
         System.out.println("\n변경된 채널 이름을 확인해보세요:");
         List<Channel> modifyChannelName2 = channelService.getAllChannels();
         for (Channel channel : modifyChannelName2) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
         System.out.println("\n채널에 유저 추가:");
-        channelService.addUserToChannel(newChannel1.getId(), newUser4.getId(), "");
-        channelService.addUserToChannel(newChannel1.getId(), newUser5.getId(), "");
+        channelService.addUserToChannel(newChannel1.getId(), users.get(3).getId(), "");
+        channelService.addUserToChannel(newChannel1.getId(), users.get(4).getId(), "");
 
-        channelService.addUserToChannel(newChannel3.getId(), newUser3.getId(), "0000");
-        channelService.addUserToChannel(newChannel3.getId(), newUser4.getId(), "0000");
-        channelService.addUserToChannel(newChannel3.getId(), newUser5.getId(), "0000");
+        channelService.addUserToChannel(newChannel3.getId(), users.get(0).getId(), "0000");
+        channelService.addUserToChannel(newChannel3.getId(), users.get(1).getId(), "0000");
+        channelService.addUserToChannel(newChannel3.getId(), users.get(2).getId(), "0000");
 
 
         // 채널에 추가된 유저 확인
@@ -162,74 +177,104 @@ public class Application {
 
         // 채널 삭제
         System.out.println("\n채널 삭제: ");
-        channelService.deleteChannel(newChannel2.getId(), "이름이 수정된 두번째 채널", newUser3.getId(), "1111");
+        channelService.deleteChannel(newChannel2.getId(), "my second Channel", users.get(1).getId(), "1111");
 
 
         // 채널 삭제 확인을 위한 조회
         System.out.println("\n채녈이 삭제된 결과를 확인해보세요: ");
         List<Channel> deleteChannel = channelService.getAllChannels();
         for (Channel channel : deleteChannel) {
-            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isIsprivate());
+            System.out.println("ID: " + channel.getId() + ", 채널명: " + channel.getChannelName() + ", 비공개 채널: " + channel.isLock());
         }
 
+        return deleteChannel;
+    }
+
+    // 메시지 관리 메서드
+    private static void createMessageManagement(MessageService messageService, List<User> users, List<Channel> channels) {
 
         System.out.println("\n==============================메시지 기능 테스트==============================");
 
         // 메시지 생성
         System.out.println("\n메시지 생성: ");
-        Message channel3_newMessage1 = messageService.CreateMessage(newChannel3.getId(), newUser3.getId(), "newUser3: new Message Create!");
-        Message channel3_newMessage2 = messageService.CreateMessage(newChannel3.getId(), newUser3.getId(), "newUser3: HEllO!");
-        Message channel3_newMessage3 = messageService.CreateMessage(newChannel3.getId(), newUser1.getId(), "newUser1: heyyyy~");
-        Message channel1_newMessage1 = messageService.CreateMessage(newChannel1.getId(), newUser4.getId(), "newUser4: channel1's first message!");
-        Message channel1_newMessage2 = messageService.CreateMessage(newChannel1.getId(), newUser5.getId(), "newUser5: my message!");
-        System.out.println("메시지가 추가가 완료되었습니다.");
+        Message channel3_newMessage1 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(3).getId(), "User3: new Message Create!");
+        Message channel3_newMessage2 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(1).getId(), "User1: HEllO!");
+        Message channel3_newMessage3 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(0).getId(), "User0: heyyyy~");
+        Message channel3_newMessage4 = messageService.CreateMessage(channels.get(1).getId(), "0000", users.get(0).getId(), "User0: how are you?");
+        Message channel1_newMessage1 = messageService.CreateMessage(channels.get(0).getId(), "", users.get(3).getId(), "User3: channel1's first message!");
+        Message channel1_newMessage2 = messageService.CreateMessage(channels.get(0).getId(), "", users.get(4).getId(), "User4: my message!");
+
+
+        // 비밀번호가 틀린 경우
+        Message channel3_newMessage5 = messageService.CreateMessage(channels.get(1).getId(), "1111", users.get(0).getId(), "User0: hey");
 
 
         // 전체 메시지 조회 (다건 조회)
         System.out.println("\n전체 메시지 조회: ");
         List<Message> allMessage = messageService.getAllMessage();
-        for (Message message : allMessage){
+        for (Message message : allMessage) {
             System.out.println("채널 Id: " + message.getChannelId() + ", 보낸 사람: " + message.getSenderId() + ", 메시지 내용: " + message.getMessageContent());
         }
 
         //채널 3의 특정 메시지 조회 (단건 조회)
         System.out.println("\n특정 채널의 특정 메시지 조회: ");
-        Message messageInChannel = messageService.getMessageById(channel3_newMessage2.getMessageId(), newChannel3.getId());
+        Message messageInChannel = messageService.getMessageById(channels.get(1).getId(), users.get(0).getId(), "0000", channel3_newMessage2.getMessageId());
         System.out.println("보낸 사람: " + messageInChannel.getSenderId() + ", 메시지 내용: " + messageInChannel.getMessageContent());
 
 
+        // 특정 유저가 보낸 메시지 조회
+        System.out.println("\n특정 유저가 보낸 메시지 조회: ");
+        List<Message> userMessage = messageService.userMessage(users.get(0).getId(), "0000");
+        for(Message message : userMessage){
+            System.out.println("보낸 사람: " + message.getSenderId() + ", 메시지 내용: " + message.getMessageContent());
+        }
+
         //메시지 수정(본인의 메시지)
         System.out.println("\n메시지 수정: ");
-        messageService.updateMessage(channel1_newMessage2.getMessageId(), newUser5.getId(), "newUser5: modify message!");
+        messageService.updateMessage(channels.get(0).getId(), "", channel1_newMessage2.getMessageId(), users.get(4).getId(), "User4: modify message!");
 
 
         //메시지 수정(타인의 메시지)
         System.out.println("\n메시지 수정: ");
-        messageService.updateMessage(channel1_newMessage2.getMessageId(), newUser4.getId(), "newUser4: Can I edit your message?");
+        messageService.updateMessage(channels.get(0).getId(), "", channel1_newMessage2.getMessageId(), users.get(3).getId(), "User3: Can I edit your message?");
 
 
-        //수정된 결과 확인을 위한 조회
+        //수정된 결과 확인을 위한 해당 채널 메시지 조회
         System.out.println("\n수정된 결과 확인: ");
-        List<Message> modifyMessage = messageService.getMessageByChannel(newChannel1.getId());
-        for (Message message : modifyMessage){
+        List<Message> modifyMessage = messageService.getMessageByChannel(channels.get(0).getId(), users.get(3).getId(), "");
+        for (Message message : modifyMessage) {
             System.out.println("보낸 사람: " + message.getSenderId() + ", 메시지 내용: " + message.getMessageContent());
         }
 
         // 메시지 삭제(본인의 메시지)
         System.out.println("\n메시지 삭제: ");
-        messageService.deletedMessage(channel3_newMessage1.getMessageId(), newUser3.getId());
+        messageService.deletedMessage(channel3_newMessage2.getMessageId(), users.get(1).getId(), "0000");
 
 
         //메시지 삭제(타인의 메시지)
         System.out.println("\n메시지 삭제: ");
-        messageService.deletedMessage(channel1_newMessage1.getMessageId(), newUser3.getId());
+        messageService.deletedMessage(channel3_newMessage1.getMessageId(), users.get(0).getId(), "0000");
 
 
         //삭제된 결과 확인을 위한 조회
         System.out.println("\n삭제된 결과 확인: ");
         List<Message> deleteMessageTest = messageService.getAllMessage();
-        for (Message message : deleteMessageTest){
+        for (Message message : deleteMessageTest) {
             System.out.println("채널 Id: " + message.getChannelId() + ", 보낸 사람: " + message.getSenderId() + ", 메시지 내용: " + message.getMessageContent());
         }
+
     }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
