@@ -69,15 +69,16 @@ public class JCFUserService implements UserService {
             System.out.println("두 명 이상의 유저가 조회됐습니다.");
             return false;
         }
+
         if (users.isEmpty()) {
             System.out.println("조회된 유저가 없습니다.");
             return false;
-        } else {
-            for (User user : users) {
-                user.updateConnectState(newState);
-                user.updateUpdatedAt(System.currentTimeMillis());
-                return true;
-            }
+        }
+
+        for (User user : users) {
+            user.updateConnectState(newState);
+            user.updateUpdatedAt(System.currentTimeMillis());
+            return true;
         }
         return false;
     }
@@ -98,13 +99,13 @@ public class JCFUserService implements UserService {
     @Override
     public boolean deleteUserById(UUID id) {
         User user = users.get(id);
-        if (user !=null) {
-            users.remove(id);
-            System.out.println("유저가 삭제되었습니다.");
-            return true;
-        } else {
+        if (user == null) {
             System.out.println("조회된 유저가 없습니다.");
             return false;
-            }
+        }
+        users.remove(id);
+        System.out.println("유저가 삭제되었습니다.");
+        return true;
+
         }
 }
