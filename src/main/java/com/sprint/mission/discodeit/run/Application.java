@@ -1,4 +1,5 @@
 package com.sprint.mission.discodeit.run;
+import com.sprint.mission.discodeit.Factory.ServiceFactory;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -6,18 +7,18 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
-
 import java.util.*;
 
 public class Application {
     public static void main(String[] args) {
 
-        UserService userService = new JCFUserService();
-        ChannelService channelService = new JCFChannelService();
-        MessageService messageService = new JCFMessageService(channelService, userService);
+        // 팩토리 인스턴스 가져오기
+        ServiceFactory serviceFactory = ServiceFactory.getInstance();
+
+        // 서비스들 가져오기
+        UserService userService = serviceFactory.getUserService();
+        ChannelService channelService = serviceFactory.getChannelService();
+        MessageService messageService = serviceFactory.getMessageService();
 
         //유저 테스트
         List<User> users = createUserManagement(userService); // 유저 관리
