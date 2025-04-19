@@ -6,10 +6,6 @@ import java.util.UUID;
 
 public interface MessageService {
 
-//     // 메시지 생성
-//     Message CreateMessage(UUID channelId, UUID senderId, String messageContent);
-
-
     // 메시지 생성
     Message CreateMessage(UUID channelId, String password, UUID senderId, String messageContent);
 

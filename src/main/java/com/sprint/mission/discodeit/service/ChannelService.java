@@ -26,10 +26,10 @@ public interface ChannelService {
     boolean updateChannelName(UUID channelId, UUID userId, String password, String newChannelName);
 
     //채널 공개 유무 수정
-    boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean isLock);
+    boolean updateChannelPrivateState(UUID channelId, UUID userId, String password, boolean isLock);
 
     //채널 삭제
-    boolean deleteChannel(UUID channelId, String channelName, UUID userId, String password);
+    boolean deleteChannel(UUID channelId, UUID userId, String password);
 
     //채널 삭제
     boolean deleteUserInChannel(UUID channelId, UUID adminId, UUID userId, String password);
