@@ -6,6 +6,9 @@ import java.util.UUID;
 
 public class Channel implements java.io.Serializable{
 
+    private static final long serialVersionUID = 1L;
+
+
     private UUID id;
     private Long createdAt;
     private Long updatedAt;
