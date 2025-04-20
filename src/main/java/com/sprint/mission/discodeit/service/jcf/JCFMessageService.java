@@ -53,7 +53,7 @@ public class JCFMessageService implements MessageService {
         }
 
         Message newMessage = new Message(channelId, senderId, messageContent);
-        jcfMessageRepository.CreateMessage(newMessage);
+        jcfMessageRepository.createMessage(newMessage);
         System.out.println("메시지가 추가되었습니다.");
 
         return newMessage;

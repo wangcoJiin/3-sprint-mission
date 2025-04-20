@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface MessageRepository {
 
     // 메시지 생성
-    boolean CreateMessage(Message message);
+    boolean createMessage(Message message);
 
     // 메시지 수정
     boolean updateMessage(UUID messageId, String newMessageContent);

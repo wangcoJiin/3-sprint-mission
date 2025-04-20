@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface UserRepository {
 
     // 유저 저장
-    void saveUser(User user);
+    boolean saveUser(User user);
 
     // 전체 유저 조회
     List<User> findUserAll();
@@ -27,5 +27,5 @@ public interface UserRepository {
     boolean updateConnectState(User user, String connectState);
 
     // 유저 삭제
-    void deleteUser(UUID userId);
+    boolean deleteUser(UUID userId);
 }

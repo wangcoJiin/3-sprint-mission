@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.service.file;
+package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -8,30 +8,29 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
 
-import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FileMessageService implements MessageService {
+public class BasicMessageService implements MessageService {
 
     private static final String FILE_PATH = "message.ser";
 
     // 의존성
-    private final ChannelService fileChannelService;
-    private final UserService fileUserService;
-    private final MessageRepository fileMessageRepository;
+    private final ChannelService channelService;
+    private final UserService userService;
+    private final MessageRepository messageRepository;
 
-    public FileMessageService(UserService fileUserService, ChannelService fileChannelService, MessageRepository fileMessageRepository) {
-        this.fileUserService = fileUserService;
-        this.fileChannelService = fileChannelService;
-        this.fileMessageRepository = fileMessageRepository;
+    public BasicMessageService(UserService userService, ChannelService channelService, MessageRepository messageRepository) {
+        this.userService = userService;
+        this.channelService = channelService;
+        this.messageRepository = messageRepository;
     }
 
     //메시지 생성
     @Override
     public Message CreateMessage(UUID channelId, String password, UUID senderId, String messageContent) {
-        Channel channel = fileChannelService.getChannelUsingId(channelId);
-        User user = fileUserService.getUserById(senderId);
+        Channel channel = channelService.getChannelUsingId(channelId);
+        User user = userService.getUserById(senderId);
 
         if(isUserExist(user) &&
                 isChannelExist(channel) &&
@@ -41,7 +40,7 @@ public class FileMessageService implements MessageService {
             System.out.println("채널에 입장하셨습니다.");
 
             Message newMessage = new Message(channelId, senderId, messageContent);
-            fileMessageRepository.createMessage(newMessage);
+            messageRepository.createMessage(newMessage);
 
             System.out.println("메시지가 생성됐습니다.");
 
@@ -53,10 +52,10 @@ public class FileMessageService implements MessageService {
     // 메시지 수정
     @Override
     public boolean updateMessage(UUID channelId, String password, UUID messageId, UUID senderId, String newMessageContent) {
-        Channel channel = fileChannelService.getChannelUsingId(channelId);
-        User user = fileUserService.getUserById(senderId);
+        Channel channel = channelService.getChannelUsingId(channelId);
+        User user = userService.getUserById(senderId);
 
-        Message message = fileMessageRepository.findMessageById(messageId);
+        Message message = messageRepository.findMessageById(messageId);
 
         if (isUserExist(user) &&
                 isChannelExist(channel) &&
@@ -65,7 +64,7 @@ public class FileMessageService implements MessageService {
                 isSender(message, senderId)) {
             System.out.println("채널에 입장하셨습니다.");
 
-            fileMessageRepository.updateMessage(messageId, newMessageContent);
+            messageRepository.updateMessage(messageId, newMessageContent);
 
             System.out.println("메시지가 수정되었습니다.");
             return true;
@@ -76,14 +75,14 @@ public class FileMessageService implements MessageService {
     // 전체 메세지 조회
     @Override
     public List<Message> getAllMessage() {
-        return fileMessageRepository.findAllMessage();
+        return messageRepository.findAllMessage();
     }
 
     // 채널 메시지 조회
     @Override
     public List<Message> getMessageByChannel(UUID channelId, UUID userId, String password) {
-        Channel channel = fileChannelService.getChannelUsingId(channelId);
-        User user = fileUserService.getUserById(userId);
+        Channel channel = channelService.getChannelUsingId(channelId);
+        User user = userService.getUserById(userId);
 
         if (isUserExist(user) &&
                 isChannelExist(channel) &&
@@ -91,7 +90,7 @@ public class FileMessageService implements MessageService {
                 isChannelLock(channel, password)) {
             System.out.println("채널에 입장하셨습니다.");
 
-            return fileMessageRepository.findMessageByChannel(channelId);
+            return messageRepository.findMessageByChannel(channelId);
         }
         return null;
     }
@@ -99,10 +98,10 @@ public class FileMessageService implements MessageService {
     // 메시지 아이디 이용한 조회
     @Override
     public Message getMessageById(UUID channelId, UUID userId, String password, UUID messageId) {
-        Channel channel = fileChannelService.getChannelUsingId(channelId);
-        User user = fileUserService.getUserById(userId);
+        Channel channel = channelService.getChannelUsingId(channelId);
+        User user = userService.getUserById(userId);
 
-        Message message = fileMessageRepository.findMessageById(messageId);
+        Message message = messageRepository.findMessageById(messageId);
 
 
         if (isMessageExist(message) &&
@@ -119,38 +118,38 @@ public class FileMessageService implements MessageService {
     // 발송자를 이용해서 조회
     @Override
     public List<Message> userMessage(UUID senderId, String password) {
-        User user = fileUserService.getUserById(senderId);
+        User user = userService.getUserById(senderId);
 
-       List<Channel> foundChannel = fileChannelService.getAllChannels().stream()
-               .filter(channel -> channel.getJoiningUsers().contains(senderId))
-               .collect(Collectors.toList());
+        List<Channel> foundChannel = channelService.getAllChannels().stream()
+                .filter(channel -> channel.getJoiningUsers().contains(senderId))
+                .collect(Collectors.toList());
 
-       for(Channel channel : foundChannel){
-           if (isUserExist(user) &&
-                   isChannelExist(channel) &&
-                   isChannelLock(channel, password)) {
-               System.out.println("확인되었습니다.");
-           }
-       }
-        return fileMessageRepository.userMessage(senderId);
+        for(Channel channel : foundChannel){
+            if (isUserExist(user) &&
+                    isChannelExist(channel) &&
+                    isChannelLock(channel, password)) {
+                System.out.println("확인되었습니다.");
+            }
+        }
+        return messageRepository.userMessage(senderId);
     }
 
     // 메시지 삭제
     @Override
     public boolean deletedMessage(UUID messageId, UUID senderId, String password) {
-        Message message = fileMessageRepository.findMessageById(messageId);
+        Message message = messageRepository.findMessageById(messageId);
 
-        User user = fileUserService.getUserById(senderId);
+        User user = userService.getUserById(senderId);
 
         if (isMessageExist(message) &&
                 isUserExist(user) &&
-                isChannelExist(fileChannelService.getChannelUsingId(message.getChannelId())) &&
-                isParticipant(fileChannelService.getChannelUsingId(message.getChannelId()), senderId) &&
-                isChannelLock(fileChannelService.getChannelUsingId(message.getChannelId()), password) &&
+                isChannelExist(channelService.getChannelUsingId(message.getChannelId())) &&
+                isParticipant(channelService.getChannelUsingId(message.getChannelId()), senderId) &&
+                isChannelLock(channelService.getChannelUsingId(message.getChannelId()), password) &&
                 isSender(message, senderId)){
             System.out.println("확인되었습니다.");
 
-            fileMessageRepository.deletedMessage(messageId);
+            messageRepository.deletedMessage(messageId);
 
             System.out.println("메시지가 삭제되었습니다.");
             return true;
@@ -219,3 +218,4 @@ public class FileMessageService implements MessageService {
     }
 
 }
+
