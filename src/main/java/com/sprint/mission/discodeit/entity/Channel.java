@@ -6,25 +6,28 @@ import java.util.UUID;
 
 public class Channel implements java.io.Serializable{
 
+    private static final long serialVersionUID = 1L;
+
+
     private UUID id;
     private Long createdAt;
     private Long updatedAt;
     private String channelName;
     private UUID adminId;
-    private boolean isprivate;
+    private boolean lockState;
     private String password;
     private List<UUID> joiningUsers;
 
     public Channel() {
     }
 
-    public Channel(String channelName, UUID adminId, boolean isprivate, String password) {
+    public Channel(String channelName, UUID adminId, boolean lockState, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.channelName = channelName;
         this.adminId = adminId;
-        this.isprivate = isprivate;
+        this.lockState = lockState;
         this.password = password;
         this.joiningUsers = new ArrayList<>();
     }
@@ -49,8 +52,8 @@ public class Channel implements java.io.Serializable{
         return adminId;
     }
 
-    public boolean isIsprivate() {
-        return isprivate;
+    public boolean isLock() {
+        return lockState;
     }
 
     public String getPassword() {
@@ -81,20 +84,12 @@ public class Channel implements java.io.Serializable{
         this.channelName = name;
     }
 
-    public void updateIsprivate(boolean isprivate) {
-        this.isprivate = isprivate;
+    public void updateIsLock(boolean lockState) {
+        this.lockState = lockState;
     }
 
     public void updatePassword(String password) {
         this.password = password;
-    }
-
-    public void addJoiningUser(UUID userId) {
-        joiningUsers.add(userId);
-    }
-
-    public void removeJoiningUser(UUID userId) {
-        joiningUsers.remove(userId);
     }
 
     @Override
@@ -104,7 +99,7 @@ public class Channel implements java.io.Serializable{
                 ", createdAt='" + createdAt + '\'' +
                 ", updatedAt='" + updatedAt + '\'' +
                 ", channelName=" + channelName + '\'' +
-                ", isprivate=" + isprivate +
+                ", lockState=" + lockState +
                 '}';
     }
 }

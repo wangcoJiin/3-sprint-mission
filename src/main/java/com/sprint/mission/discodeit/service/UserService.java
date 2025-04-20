@@ -22,7 +22,7 @@ public interface UserService {
     List<User> getAllUsers();
 
     // 유저 id로 이름과 활동상태 둘 다 변경
-    User updateUser(UUID id, String name, String connectState);
+    boolean updateUser(UUID id, String name, String connectState);
 
     // 유저 이름 변경
     boolean updateUserName(UUID id, String newName);
