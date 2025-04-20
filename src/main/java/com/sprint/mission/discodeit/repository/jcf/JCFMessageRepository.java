@@ -12,7 +12,7 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public boolean CreateMessage(Message message) {
+    public boolean createMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
         return true;

@@ -41,7 +41,7 @@ public class FileMessageService implements MessageService {
             System.out.println("채널에 입장하셨습니다.");
 
             Message newMessage = new Message(channelId, senderId, messageContent);
-            fileMessageRepository.CreateMessage(newMessage);
+            fileMessageRepository.createMessage(newMessage);
 
             System.out.println("메시지가 생성됐습니다.");
 
