@@ -115,7 +115,8 @@ public class FileUserService implements UserService {
             if (selection >= 0 && selection < users.size()) {
                 User selectedUser = users.get(selection);
                 fileUserRepository.updateConnectState(selectedUser, connectState);
-                logger.info("선택한 유저의 활동 상태가 변경되었습니다.");
+                System.out.println("선택한 유저의 활동 상태가 변경되었습니다.");
+                logger.info("선택한 유저의 활동 상태 변경");
                 return true;
             } else {
                 logger.warning("잘못된 번호입니다.");
