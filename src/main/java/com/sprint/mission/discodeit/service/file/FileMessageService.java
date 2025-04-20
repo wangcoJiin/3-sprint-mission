@@ -19,7 +19,7 @@ public class FileMessageService implements MessageService {
     // 의존성
     private final ChannelService fileChannelService;
     private final UserService fileUserService;
-    private MessageRepository fileMessageRepository;
+    private final MessageRepository fileMessageRepository;
 
     public FileMessageService(UserService fileUserService, ChannelService fileChannelService, MessageRepository fileMessageRepository) {
         this.fileUserService = fileUserService;
