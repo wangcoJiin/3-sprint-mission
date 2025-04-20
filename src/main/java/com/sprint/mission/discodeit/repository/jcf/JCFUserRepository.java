@@ -8,13 +8,15 @@ import java.util.stream.Collectors;
 
 public class JCFUserRepository implements UserRepository {
 
-    private Map<UUID, User> users = new LinkedHashMap<>();
+    private final Map<UUID, User> users = new LinkedHashMap<>();
 
 
     // 유저 저장
     @Override
-    public void saveUser(User user) {
+    public boolean saveUser(User user) {
         users.put(user.getId(), user);
+
+        return true;
     }
 
     //유저 read (all)
@@ -57,8 +59,10 @@ public class JCFUserRepository implements UserRepository {
 
     //유저 삭제
     @Override
-    public void deleteUser(UUID userId) {
+    public boolean deleteUser(UUID userId) {
         users.remove(userId);
+
+        return true;
     }
 
 }
