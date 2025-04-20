@@ -6,7 +6,8 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.UserService;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class JCFUserService implements UserService {
     private Map<UUID, User> users = new LinkedHashMap<>();
@@ -17,6 +18,9 @@ public class JCFUserService implements UserService {
     public JCFUserService(UserRepository jcfUserRepository) {
         this.jcfUserRepository = jcfUserRepository;
     }
+
+    private static final Logger logger = Logger.getLogger(JCFUserService.class.getName());
+
 
     // 유저 생성
     @Override
@@ -93,20 +97,22 @@ public class JCFUserService implements UserService {
         }
 
         System.out.print("수정을 원하는 유저의 번호를 입력해주세요.\n");
-        Scanner scanner = new Scanner(System.in);
-        int selection = scanner.nextInt();
+        try (Scanner scanner = new Scanner(System.in)) {
+            int selection = scanner.nextInt();
 
-        if (selection >= 0 && selection <= users.size()) {
-            User selectedUser = users.get(selection);
-            jcfUserRepository.updateConnectState(selectedUser, newState);
-            System.out.println("선택한 유저의 활동 상태가 변경되었습니다.");
-            return true;
-
-        } else {
-            System.out.println("잘못된 번호입니다.");
+            if (selection >= 0 && selection < users.size()) {
+                User selectedUser = users.get(selection);
+                jcfUserRepository.updateConnectState(selectedUser, newState);
+                logger.info("선택한 유저의 활동 상태가 변경되었습니다.");
+                return true;
+            } else {
+                logger.warning("잘못된 번호입니다.");
+                return false;
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "입력 처리 중 오류 발생", e);
             return false;
         }
-
     }
 
     // 유저 이름 변경

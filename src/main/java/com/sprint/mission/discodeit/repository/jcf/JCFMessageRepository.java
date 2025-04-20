@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 public class JCFMessageRepository implements MessageRepository {
 
-    private Map<UUID, Message> messages = new LinkedHashMap<>();
+    private final Map<UUID, Message> messages = new LinkedHashMap<>();
 
     // 메시지 생성
     @Override
-    public boolean CreateMessage(Message message) {
+    public boolean createMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
         return true;

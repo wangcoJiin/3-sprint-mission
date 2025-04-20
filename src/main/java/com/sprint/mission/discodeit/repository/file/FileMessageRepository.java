@@ -2,24 +2,43 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.service.file.FileUserService;
 
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FileMessageRepository implements MessageRepository {
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-    private Map<UUID, Message> messages = new LinkedHashMap<>();
+public class FileMessageRepository implements MessageRepository {
 
     private static final String FILE_PATH = "messageRepository.ser";
 
+    private static final Logger logger = Logger.getLogger(FileMessageRepository.class.getName());
+
+    private final Map<UUID, Message> messages = new LinkedHashMap<>();
+
+
     // 메시지 정보를 파일로 저장
-    private void saveMessageToFile(Map<UUID, Message> messages) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+    private boolean saveMessageToFile(Map<UUID, Message> messages) {
+
+        try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH);
+             ObjectOutputStream oos = new ObjectOutputStream(fileOut)) {
+
             oos.writeObject(messages);
+            return true;
+
+        } catch (FileNotFoundException e) {
+            // 파일 생성 실패 시 메시지
+            logger.log(Level.SEVERE, FILE_PATH + "경로에 파일을 생성할 수 없습니다: ", e);
+            return false;
         } catch (IOException e) {
-            e.printStackTrace();
+            // 그 외 IO 예외
+            logger.log(Level.SEVERE, "메시지 파일 저장 중 오류 발생", e);
+            return false;
         }
+
     }
 
     // 메시지 파일 읽어오기
@@ -37,11 +56,15 @@ public class FileMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public boolean CreateMessage(Message message) {
+    public boolean createMessage(Message message) {
         messages.put(message.getMessageId(), message);
-        saveMessageToFile(messages);
 
-        return true;
+        // 메시지 저장 상태 확인
+        boolean success = saveMessageToFile(messages);
+        if (!success) {
+            logger.warning("메시지 저장에 실패했습니다: " + message.getMessageId());
+        }
+        return success;
     }
 
     // 메시지 내용 수정
@@ -50,9 +73,12 @@ public class FileMessageRepository implements MessageRepository {
         Message message = findMessageById(messageId);
         message.updateMessageContent(newMessageContent);
         message.updateUpdatedAt(System.currentTimeMillis());
-        saveMessageToFile(messages);
 
-        return true;
+        boolean success = saveMessageToFile(messages);
+        if (!success) {
+            logger.warning("메시지 저장에 실패했습니다: " + message.getMessageId());
+        }
+        return success;
     }
 
     // 전체 메시지 조회
@@ -88,7 +114,10 @@ public class FileMessageRepository implements MessageRepository {
     public boolean deletedMessage(UUID messageId) {
         messages.remove(messageId);
 
-        saveMessageToFile(messages);
-        return true;
+        boolean success = saveMessageToFile(messages);
+        if (!success) {
+            logger.warning("메시지 저장에 실패했습니다: " + messages.get(messageId).getMessageId());
+        }
+        return success;
     }
 }

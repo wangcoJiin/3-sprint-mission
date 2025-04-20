@@ -8,18 +8,35 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class FileChannelRepository implements ChannelRepository {
 
     private static final String FILE_PATH = "channelRepository.ser";
 
-    private Map<UUID, Channel> channels = loadChannelFromFile();
+    private static final Logger logger = Logger.getLogger(FileChannelRepository.class.getName());
+
+    private final Map<UUID, Channel> channels = loadChannelFromFile();
+
 
     // 채널 정보를 파일로 저장
-    private void saveChannelToFile(Map<UUID, Channel> channels) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+    private boolean saveChannelToFile(Map<UUID, Channel> channels) {
+
+        try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH);
+             ObjectOutputStream oos = new ObjectOutputStream(fileOut)) {
+
             oos.writeObject(channels);
+            return true;
+
+        } catch (FileNotFoundException e) {
+            // 파일 생성 실패 시 메시지
+            logger.log(Level.SEVERE, FILE_PATH + "경로에 파일을 생성할 수 없습니다: ", e);
+            return false;
         } catch (IOException e) {
-            e.printStackTrace();
+            // 그 외 IO 예외
+            logger.log(Level.SEVERE, "채널 파일 저장 중 오류 발생", e);
+            return false;
         }
     }
 
@@ -36,14 +53,17 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
-
     // 채널 저장
     @Override
     public boolean saveChannel(Channel channel) {
         channels.put(channel.getId(), channel);
         addUserToChannel(channel.getId(), channel.getAdminId());
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
@@ -53,8 +73,12 @@ public class FileChannelRepository implements ChannelRepository {
         Channel channel = findChannelUsingId(channelId);
         channel.getJoiningUsers().add(userId);
         channel.updateUpdatedAt(System.currentTimeMillis());
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
@@ -83,8 +107,12 @@ public class FileChannelRepository implements ChannelRepository {
     public boolean updateChannelName(UUID channelId, String newChannelName) {
         Channel channel = findChannelUsingId(channelId);
         channel.updateUpdatedAt(System.currentTimeMillis());
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
@@ -95,8 +123,12 @@ public class FileChannelRepository implements ChannelRepository {
         channel.updateIsLock(false);
         channel.updatePassword("");
         channel.updateUpdatedAt(System.currentTimeMillis());
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
@@ -107,8 +139,12 @@ public class FileChannelRepository implements ChannelRepository {
         channel.updateIsLock(true);
         channel.updatePassword(password);
         channel.updateUpdatedAt(System.currentTimeMillis());
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
@@ -117,8 +153,12 @@ public class FileChannelRepository implements ChannelRepository {
     public boolean deleteChannel(UUID channelId) {
         Channel channel = findChannelUsingId(channelId);
         channels.remove(channelId);
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
@@ -128,8 +168,12 @@ public class FileChannelRepository implements ChannelRepository {
         Channel channel = findChannelUsingId(channelId);
         channel.getJoiningUsers().remove(userId);
         channel.updateUpdatedAt(System.currentTimeMillis());
-        saveChannelToFile(channels);
 
+        // 채널 저장 상태 확인
+        boolean success = saveChannelToFile(channels);
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + channel.getId());
+        }
         return true;
     }
 
