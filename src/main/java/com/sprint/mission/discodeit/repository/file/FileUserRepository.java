@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Repository
 public class FileUserRepository implements UserRepository {
 
     private static final String FILE_PATH = "userRepository.ser";

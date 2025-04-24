@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.file;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.file.FileUserService;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Repository
 public class FileMessageRepository implements MessageRepository {
 
     private static final String FILE_PATH = "messageRepository.ser";
