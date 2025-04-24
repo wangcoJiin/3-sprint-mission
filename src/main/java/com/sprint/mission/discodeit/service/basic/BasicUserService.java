@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,6 +85,9 @@ public class BasicUserService implements UserService {
     // 유저 활동상태 변경
     @Override
     public boolean updateConnectState(String name, String connectState) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
         List<User> users = userRepository.findUserByName(name);
 
         if (users.isEmpty()) {
@@ -98,7 +103,7 @@ public class BasicUserService implements UserService {
         System.out.println("조회된 유저가 두 명 이상입니다.");
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
-            System.out.println("[" + i + "]" + " 생성 시간: " + user.getCreatedAt() + ", 수정 시간: " + user.getUpdatedAt() + ", 활동 상태: " + user.getConnectState());
+            System.out.println("[" + i + "]" + " 생성 시간: " + formatter.format(user.getCreatedAt()) + ", 수정 시간: " + formatter.format(user.getUpdatedAt()) + ", 활동 상태: " + user.getConnectState());
         }
 
         System.out.print("수정을 원하는 유저의 번호를 입력해주세요.\n");
