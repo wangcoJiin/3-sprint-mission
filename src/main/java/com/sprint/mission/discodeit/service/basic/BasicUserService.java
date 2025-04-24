@@ -3,18 +3,19 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@RequiredArgsConstructor
+@Service
 public class BasicUserService implements UserService {
 
     //레포지토리 의존성
     private final UserRepository userRepository;
-    public BasicUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     private static final Logger logger = Logger.getLogger(BasicUserService.class.getName());
 
@@ -130,6 +131,7 @@ public class BasicUserService implements UserService {
         }
         userRepository.deleteUser(id);
         System.out.println("유저가 삭제되었습니다.");
+        logger.info("유저가 삭제됨");
         return true;
     }
 

@@ -3,18 +3,21 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+@RequiredArgsConstructor
+@Service
 public class BasicChannelService implements ChannelService {
 
     //레포지토리 의존성
     private final ChannelRepository ChannelRepository;
 
-    public BasicChannelService(ChannelRepository ChannelRepository) {
-        this.ChannelRepository = ChannelRepository;
-    }
-
+    private static final Logger logger = Logger.getLogger(BasicChannelService.class.getName()); // 필드로 Logger 선언
     // 채널 생성
     @Override
     public Channel createChannel(String channelName, UUID adminId, boolean lockState, String password) {
@@ -102,6 +105,7 @@ public class BasicChannelService implements ChannelService {
 
             ChannelRepository.deleteChannel(channelId);
             System.out.println("채널이 삭제되었습니다.");
+            logger.info("채널이 삭제됨");
 
             return true;
         }
@@ -133,6 +137,7 @@ public class BasicChannelService implements ChannelService {
 
             ChannelRepository.deleteUserInChannel(channelId, userId);
             System.out.println(userId + " 유저가 삭제되었습니다");
+            logger.info("채널의 유저가 삭제됨");
 
             return true;
         }
