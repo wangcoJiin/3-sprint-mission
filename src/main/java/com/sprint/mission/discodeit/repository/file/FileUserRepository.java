@@ -5,6 +5,9 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -20,7 +23,6 @@ public class FileUserRepository implements UserRepository {
     private static final Logger logger = Logger.getLogger(FileUserRepository.class.getName());
 
     private final Map<UUID, User> users = loadUsersFromFile();
-
 
     // 유저 정보를 파일로 저장
     private boolean saveUsersToFile(Map<UUID, User> users) {
@@ -96,7 +98,7 @@ public class FileUserRepository implements UserRepository {
     @Override
     public boolean updateUserName(User user, String newName){
         user.updateName(newName);
-        user.updateUpdatedAt(System.currentTimeMillis());
+        user.updateUpdatedAt(Instant.now());
         saveUser(user);
 
         return true;
@@ -106,7 +108,7 @@ public class FileUserRepository implements UserRepository {
     @Override
     public boolean updateConnectState(User user, String connectState){
         user.updateConnectState(connectState);
-        user.updateUpdatedAt(System.currentTimeMillis());
+        user.updateUpdatedAt(Instant.now());
         saveUser(user);
 
         return true;

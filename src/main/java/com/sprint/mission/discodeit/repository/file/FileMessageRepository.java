@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.service.file.FileUserService;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,7 +75,7 @@ public class FileMessageRepository implements MessageRepository {
     public boolean updateMessage(UUID messageId, String newMessageContent) {
         Message message = findMessageById(messageId);
         message.updateMessageContent(newMessageContent);
-        message.updateUpdatedAt(System.currentTimeMillis());
+        message.updateUpdatedAt(Instant.now());
 
         boolean success = saveMessageToFile(messages);
         if (!success) {
