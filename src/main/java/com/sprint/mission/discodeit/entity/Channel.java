@@ -1,11 +1,16 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Channel implements java.io.Serializable{
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 
@@ -14,54 +19,22 @@ public class Channel implements java.io.Serializable{
     private Long updatedAt;
     private String channelName;
     private UUID adminId;
-    private boolean lockState;
+    private boolean lock;
     private String password;
     private List<UUID> joiningUsers;
 
     public Channel() {
     }
 
-    public Channel(String channelName, UUID adminId, boolean lockState, String password) {
+    public Channel(String channelName, UUID adminId, boolean lock, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.channelName = channelName;
         this.adminId = adminId;
-        this.lockState = lockState;
+        this.lock = lock;
         this.password = password;
         this.joiningUsers = new ArrayList<>();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public UUID getAdminId() {
-        return adminId;
-    }
-
-    public boolean isLock() {
-        return lockState;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public List<UUID> getJoiningUsers() {
-        return joiningUsers;
     }
 
     public void updateId(UUID id) {
@@ -84,8 +57,8 @@ public class Channel implements java.io.Serializable{
         this.channelName = name;
     }
 
-    public void updateIsLock(boolean lockState) {
-        this.lockState = lockState;
+    public void updateIsLock(boolean lock) {
+        this.lock = lock;
     }
 
     public void updatePassword(String password) {
@@ -99,7 +72,7 @@ public class Channel implements java.io.Serializable{
                 ", createdAt='" + createdAt + '\'' +
                 ", updatedAt='" + updatedAt + '\'' +
                 ", channelName=" + channelName + '\'' +
-                ", lockState=" + lockState +
+                ", lockState=" + lock +
                 '}';
     }
 }

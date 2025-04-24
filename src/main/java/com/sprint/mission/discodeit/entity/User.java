@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serial;
 import java.util.UUID;
 
 public class User implements java.io.Serializable {
 
     //serialVersionUID 필드 추가
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private UUID id;

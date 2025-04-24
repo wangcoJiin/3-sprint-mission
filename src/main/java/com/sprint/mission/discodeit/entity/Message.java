@@ -1,14 +1,19 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
 public class Message implements java.io.Serializable{
 
     //serialVersionUID 필드 추가
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
+    private UUID messageId;
     private Long createdAt;
     private Long updatedAt;
     private UUID channelId;
@@ -21,7 +26,7 @@ public class Message implements java.io.Serializable{
     }
 
     public Message(UUID channelId, UUID senderId, String messageContent) {
-        this.id = UUID.randomUUID();
+        this.messageId = UUID.randomUUID();
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.channelId = channelId;
@@ -31,36 +36,12 @@ public class Message implements java.io.Serializable{
 
     }
 
-    public UUID getMessageId() {
-        return id;
-    }
+//    public UUID getMessageId() {
+//        return messageId;
+//    }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getSenderId() {
-        return senderId;
-    }
-
-    public String getMessageContent() {
-        return messageContent;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void updateId(UUID id) {
-        this.id = id;
+    public void updateId(UUID messageId) {
+        this.messageId = messageId;
     }
 
     public void updateCreatedAt(Long createdAt) {
@@ -90,7 +71,7 @@ public class Message implements java.io.Serializable{
     @Override
     public String toString() {
         return "Message{" +
-                "id=" + id +
+                "messageId=" + messageId +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", channelId=" + channelId +
