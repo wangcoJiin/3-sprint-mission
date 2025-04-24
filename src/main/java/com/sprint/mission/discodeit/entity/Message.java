@@ -3,7 +3,10 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 import java.io.Serial;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Getter
@@ -14,8 +17,8 @@ public class Message implements java.io.Serializable{
     private static final long serialVersionUID = 1L;
 
     private UUID messageId;
-    private Long createdAt;
-    private Long updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private UUID channelId;
     private UUID senderId;
     private String messageContent;
@@ -27,8 +30,8 @@ public class Message implements java.io.Serializable{
 
     public Message(UUID channelId, UUID senderId, String messageContent) {
         this.messageId = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.channelId = channelId;
         this.senderId = senderId;
         this.messageContent = messageContent;
@@ -36,19 +39,15 @@ public class Message implements java.io.Serializable{
 
     }
 
-//    public UUID getMessageId() {
-//        return messageId;
-//    }
-
     public void updateId(UUID messageId) {
         this.messageId = messageId;
     }
 
-    public void updateCreatedAt(Long createdAt) {
+    public void updateCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void updateUpdatedAt(Long updatedAt) {
+    public void updateUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -70,10 +69,13 @@ public class Message implements java.io.Serializable{
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
         return "Message{" +
                 "messageId=" + messageId +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", createdAt=" + formatter.format(createdAt) +
+                ", updatedAt=" + formatter.format(updatedAt) +
                 ", channelId=" + channelId +
                 ", senderId=" + senderId +
                 ", messageContent='" + messageContent + '\'' +

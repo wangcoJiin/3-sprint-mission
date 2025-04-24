@@ -3,6 +3,9 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 import java.io.Serial;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,8 +18,8 @@ public class Channel implements java.io.Serializable{
 
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private String channelName;
     private UUID adminId;
     private boolean lock;
@@ -28,8 +31,8 @@ public class Channel implements java.io.Serializable{
 
     public Channel(String channelName, UUID adminId, boolean lock, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.channelName = channelName;
         this.adminId = adminId;
         this.lock = lock;
@@ -45,11 +48,11 @@ public class Channel implements java.io.Serializable{
         this.adminId = adminId;
     }
 
-    public void updateCreatedAt(Long createdAt) {
+    public void updateCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void updateUpdatedAt(Long updatedAt) {
+    public void updateUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -67,10 +70,13 @@ public class Channel implements java.io.Serializable{
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
         return "Channel{" +
                 "id='" + id + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", updatedAt='" + updatedAt + '\'' +
+                ", createdAt='" + formatter.format(createdAt) + '\'' +
+                ", updatedAt='" + formatter.format(updatedAt) + '\'' +
                 ", channelName=" + channelName + '\'' +
                 ", lockState=" + lock +
                 '}';
