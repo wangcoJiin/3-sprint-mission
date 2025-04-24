@@ -13,6 +13,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import java.io.File;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootApplication
@@ -41,6 +43,10 @@ public class DiscodeitApplication {
 
 	// 유저 서비스 테스트
 	private static List<User> UserManagementTest(UserService userService) {
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+				.withZone(ZoneId.of("Asia/Seoul"));
+
 		// 유저 테스트
 		try {
 			System.out.println("\n" +
@@ -78,7 +84,15 @@ public class DiscodeitApplication {
 		System.out.println("\n=== 이름으로 유저 조회 ===");
 		List<User> foundTestByName = userService.searchUsersByName("김동명이인");
 		for (User user : foundTestByName) {
-			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + user.getCreatedAt() + ", 유저 활동 상태: " + user.getConnectState());
+			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + formatter.format(user.getCreatedAt()) + ", 유저 활동 상태: " + user.getConnectState());
+		}
+
+		// 생성 시간과 수정 시간에 차이를 두기 위해 2초 대기
+		try {
+			System.out.println("잠시 대기중 입니다.");
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			System.err.println("대기 중 인터럽트가 발생했습니다.: " + e.getMessage());
 		}
 
 		// 유저 이름, 활동상태 둘 다 변경
@@ -93,7 +107,7 @@ public class DiscodeitApplication {
 		System.out.println("\n=== 변경된 결과 확인 ===");
 		List<User> testAllUser2 = userService.getAllUsers();
 		for (User user : testAllUser2) {
-			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + user.getCreatedAt() + ", 유저 활동 상태: " + user.getConnectState());
+			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + formatter.format(user.getCreatedAt()) + ", 유저 활동 상태: " + user.getConnectState());
 		}
 
 		// 유저 활동상태 변경 (중복 이름)
@@ -104,7 +118,7 @@ public class DiscodeitApplication {
 		System.out.println("\n=== 변경된 결과 확인 ===");
 		List<User> editUser = userService.getAllUsers();
 		for (User user : editUser) {
-			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + user.getCreatedAt() + ", 유저 활동 상태: " + user.getConnectState());
+			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + formatter.format(user.getCreatedAt()) + ", 유저 활동 상태: " + user.getConnectState());
 		}
 
 		//유저 이름 변경
@@ -120,7 +134,7 @@ public class DiscodeitApplication {
 		System.out.println("\n=== 삭제된 결과 조회 ===");
 		List<User> lastUser = userService.getAllUsers();
 		for (User user : lastUser) {
-			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + user.getCreatedAt() + ", 유저 활동 상태: " + user.getConnectState());
+			System.out.println("ID: " + user.getId() + ", 이름: " + user.getName() + ", 유저 생성 시점: " + formatter.format(user.getCreatedAt()) + ", 유저 활동 상태: " + user.getConnectState());
 		}
 
 		return lastUser;
