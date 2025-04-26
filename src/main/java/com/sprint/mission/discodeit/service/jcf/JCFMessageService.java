@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
@@ -13,18 +14,22 @@ public class JCFMessageService implements MessageService {
 
     private Map<UUID, Message> messages = new LinkedHashMap<>();
 
+    // 의존성
     private ChannelService channelService;
     private UserService userService;
+    private MessageRepository jcfMessageRepository;
 
-    // 생성자에서 의존성 주입
-    public JCFMessageService(ChannelService channelService, UserService userService) {
+    public JCFMessageService(ChannelService channelService, UserService userService, MessageRepository jcfMessageRepository) {
         this.channelService = channelService;
         this.userService = userService;
+        this.jcfMessageRepository = jcfMessageRepository;
     }
 
     // 메시지 생성
     @Override
     public Message CreateMessage(UUID channelId, String password, UUID senderId, String messageContent) {
+
+        System.out.println("메시지 생성중");
 
         if(channelService.getChannelUsingId(channelId) == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -48,15 +53,19 @@ public class JCFMessageService implements MessageService {
         }
 
         Message newMessage = new Message(channelId, senderId, messageContent);
-        messages.put(newMessage.getMessageId(), newMessage);
+        jcfMessageRepository.createMessage(newMessage);
         System.out.println("메시지가 추가되었습니다.");
+
         return newMessage;
     }
 
     // 메시지 수정
     @Override
     public boolean updateMessage(UUID channelId, String password, UUID messageId, UUID senderId, String newMessageContent) {
-        Message message = messages.get(messageId);
+
+        System.out.println("\n메시지 내용 수정: ");
+
+        Message message = jcfMessageRepository.findMessageById(messageId);
 
         if (channelService.getChannelUsingId(channelId) == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -90,7 +99,7 @@ public class JCFMessageService implements MessageService {
             return false;
         }
 
-        message.updateMessageContent(newMessageContent);
+        jcfMessageRepository.updateMessage(messageId, newMessageContent);
         System.out.println("메시지 수정이 완료되었습니다.");
         return true;
     }
@@ -98,13 +107,17 @@ public class JCFMessageService implements MessageService {
     // 모든 메시지 조회
     @Override
     public List<Message> getAllMessage() {
-        return new ArrayList<>(messages.values());
+        System.out.println("\n모든 메시지 조회: ");
+
+        return jcfMessageRepository.findAllMessage();
     }
 
     // 채널에 있는 특정 메시지 조회
     @Override
     public Message getMessageById(UUID channelId, UUID userId, String password, UUID messageId) {
-        Message message = messages.get(messageId);
+        System.out.println("\n특정 메시지 조회: ");
+
+        Message message = jcfMessageRepository.findMessageById(messageId);
 
         if(channelService.getChannelUsingId(channelId) == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -136,6 +149,7 @@ public class JCFMessageService implements MessageService {
     // 특정 채널의 메시지 조회
     @Override
     public List<Message> getMessageByChannel(UUID channelId, UUID userId, String password) {
+        System.out.println("\n특정 채널의 메시지 조회: ");
 
         if(channelService.getChannelUsingId(channelId) == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -156,14 +170,13 @@ public class JCFMessageService implements MessageService {
             System.out.println("확인되었습니다.");
         }
 
-        return messages.values().stream()
-                .filter(message -> message.getChannelId().equals(channelId))
-                .collect(Collectors.toList());
+        return jcfMessageRepository.findMessageByChannel(channelId);
     }
 
     // 유저의 메시지 조회
     @Override
     public List<Message> userMessage(UUID senderId, String password) {
+        System.out.println("\n유저의 메시지 조회: ");
 
         List<Channel> foundChannelByParticipate = channelService.getAllChannels().stream()
                 .filter(channel -> channel.getJoiningUsers().contains(senderId))
@@ -184,15 +197,15 @@ public class JCFMessageService implements MessageService {
             }
 
         }
-        return messages.values().stream()
-                .filter(message -> message.getSenderId().equals(senderId))
-                .collect(Collectors.toList());
+        return jcfMessageRepository.userMessage(senderId);
     }
 
     // 메시지 삭제
     @Override
     public boolean deletedMessage(UUID messageId, UUID senderId, String password) {
-        Message message = messages.get(messageId);
+        System.out.println("\n메시지 삭제: ");
+
+        Message message = jcfMessageRepository.findMessageById(messageId);
 
         if(message == null) {
             System.out.println("해당하는 메시지가 없습니다.");
@@ -215,7 +228,7 @@ public class JCFMessageService implements MessageService {
             }
         }
 
-        messages.remove(messageId);
+        jcfMessageRepository.deletedMessage(messageId);
         System.out.println("메시지가 삭제되었습니다.");
         return true;
     }

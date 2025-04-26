@@ -5,6 +5,9 @@ import java.util.UUID;
 
 public class Message implements java.io.Serializable{
 
+    //serialVersionUID 필드 추가
+    private static final long serialVersionUID = 1L;
+
     private UUID id;
     private Long createdAt;
     private Long updatedAt;

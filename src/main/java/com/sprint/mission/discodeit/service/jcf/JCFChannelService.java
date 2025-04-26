@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 
 import java.util.*;
@@ -10,41 +12,56 @@ public class JCFChannelService implements ChannelService {
 
     private Map<UUID, Channel> channels = new LinkedHashMap<>();
 
+    //레포지토리 의존성
+    private final ChannelRepository jcfChannelRepository;
+
+    public JCFChannelService(ChannelRepository jcfChannelRepository) {
+        this.jcfChannelRepository = jcfChannelRepository;
+    }
+
     // 채널 생성
     @Override
     public Channel createChannel(String channelName, UUID adminId, boolean lockState, String password) {
+        System.out.println("채널 생성중");
         Channel newChannel = new Channel(channelName, adminId, lockState, password);
-        channels.put(newChannel.getId(), newChannel);
+        jcfChannelRepository.saveChannel(newChannel);
         // 채널 생성과 동시에 참여자에 관리자도 추가
-        addUserToChannel(newChannel.getId(), adminId, password);
+        jcfChannelRepository.addUserToChannel(newChannel.getId(), adminId);
+
         return newChannel;
     }
 
     // 모든 채널 조회
     @Override
     public List<Channel> getAllChannels() {
-        return new ArrayList<>(channels.values());
+        System.out.println("\n전체 유저 조회: ");
+
+        return jcfChannelRepository.findAllChannels();
     }
 
     // 이름만으로 채널 조회
     @Override
     public List<Channel> getChannelUsingName(String channelName) {
-        return channels.values().stream()
-                .filter(channel -> channel.getChannelName().equalsIgnoreCase(channelName))
-                .collect(Collectors.toList());
+        System.out.println("\n이름으로 채널 조회: ");
+
+        return jcfChannelRepository.findChannelUsingName(channelName);
     }
 
     // id로 채널 조회
     @Override
     public Channel getChannelUsingId(UUID channelId) {
-        return channels.get(channelId);
+        System.out.println("\n아이디로 채널 조회: ");
+
+        return jcfChannelRepository.findChannelUsingId(channelId);
     }
 
 
     // 채널 이름 수정
     @Override
     public boolean updateChannelName(UUID channelId, UUID userId, String password, String newChannelName) {
-        Channel channel = channels.get(channelId);
+        System.out.println("\n채널 이름 수정: ");
+
+        Channel channel = jcfChannelRepository.findChannelUsingId(channelId);
 
         if (channel == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -66,17 +83,18 @@ public class JCFChannelService implements ChannelService {
             }
         }
 
-        channel.updateChannelName(newChannelName);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        jcfChannelRepository.updateChannelName(channelId, newChannelName);
         System.out.println("채널 이름 수정이 완료되었습니다.");
-        return true;
 
+        return true;
     }
 
     //채널 공개/비공개 상태 수정
     @Override
-    public boolean updateChannelPrivateState(UUID channelId, String channelName, UUID userId, String password, boolean lockState) {
-        Channel channel = channels.get(channelId);
+    public boolean updateChannelPrivateState(UUID channelId, UUID userId, String password, boolean lockState) {
+        System.out.println("\n채널 공개/비공개 상태 수정");
+
+        Channel channel = jcfChannelRepository.findChannelUsingId(channelId);
 
         if (channel == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -101,15 +119,12 @@ public class JCFChannelService implements ChannelService {
                 return false;
             }
             System.out.println("공개 상태로 전환됩니다.");
-            channel.updateIsLock(false);
-            channel.updatePassword("");
+            jcfChannelRepository.channelUnLocking(channelId);
         }
         else {
             System.out.println("비공개 상태로 전환됩니다.");
-            channel.updateIsLock(true);
-            channel.updatePassword(password);
+            jcfChannelRepository.channelLocking(channelId, password);
         }
-        channel.updateUpdatedAt(System.currentTimeMillis());
         System.out.println("채널 공개 상태가 수정되었습니다.");
         return true;
 
@@ -117,8 +132,10 @@ public class JCFChannelService implements ChannelService {
 
     // 채널 삭제
     @Override
-    public boolean deleteChannel(UUID channelId, String channelName, UUID userId, String password) {
-        Channel channel = channels.get(channelId);
+    public boolean deleteChannel(UUID channelId, UUID userId, String password) {
+        System.out.println("\n채널 삭제: ");
+
+        Channel channel = jcfChannelRepository.findChannelUsingId(channelId);
 
         if (channel == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -139,15 +156,19 @@ public class JCFChannelService implements ChannelService {
             }
         }
 
-        channels.remove(channelId);
+        jcfChannelRepository.deleteChannel(channelId);
         System.out.println("채널이 삭제되었습니다.");
+
         return true;
     }
 
     // 채널에 유저 추가
     @Override
     public boolean addUserToChannel(UUID channelId, UUID userId, String password) {
-        Channel channel = channels.get(channelId);
+
+        System.out.println("\n채널에 참여 유저 추가: ");
+
+        Channel channel = jcfChannelRepository.findChannelUsingId(channelId);
 
         if (channel == null) {
             System.out.println("채널이 존재하지 않습니다.");
@@ -163,20 +184,22 @@ public class JCFChannelService implements ChannelService {
                 return false;
             }
         }
+        jcfChannelRepository.addUserToChannel(channelId, userId);
+        System.out.println(channel.getChannelName() + "채널에" + userId + " 유저가 추가되었습니다");
 
-        channel.getJoiningUsers().add(userId);
-        System.out.println(userId + " 유저가 추가되었습니다");
-        channel.updateUpdatedAt(System.currentTimeMillis());
         return true;
     }
 
     // 참여한 유저 삭제
     @Override
     public boolean deleteUserInChannel(UUID channelId, UUID adminId, UUID userId, String password) {
-        Channel channel = channels.get(channelId);
+
+        System.out.println("\n채널에 참여한 유저 삭제: ");
+
+        Channel channel = jcfChannelRepository.findChannelUsingId(channelId);
 
         if (channel == null) {
-            System.out.println("체널이 존재하지 않습니다.");
+            System.out.println("채널이 존재하지 않습니다.");
             return false;
         }
 
@@ -195,9 +218,9 @@ public class JCFChannelService implements ChannelService {
             }
         }
 
-        channel.getJoiningUsers().remove(userId);
+        jcfChannelRepository.deleteUserInChannel(channelId, userId);
         System.out.println(userId + " 유저가 삭제되었습니다");
-        channel.updateUpdatedAt(System.currentTimeMillis());
+
         return true;
     }
 }
