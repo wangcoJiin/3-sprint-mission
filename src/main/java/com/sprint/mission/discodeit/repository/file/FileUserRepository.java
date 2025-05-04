@@ -6,19 +6,19 @@ import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+/**
+ * 이메일 필드 생긴 테스트용 유저 레포지토리 구현체
+ */
 
 @Repository
 public class FileUserRepository implements UserRepository {
 
-    private static final String FILE_PATH = "userRepository.ser";
+    private static final String FILE_PATH = "userRepositoryAdv.ser";
 
     private static final Logger logger = Logger.getLogger(FileUserRepository.class.getName());
 
@@ -88,26 +88,24 @@ public class FileUserRepository implements UserRepository {
 
     // 유저 read (name)
     @Override
-    public List<User> findUserByName(String userName) {
+    public Optional<User> findUserByName(String userName) {
         return users.values().stream()
                 .filter(user -> user.getName().equalsIgnoreCase(userName))
-                .collect(Collectors.toList());
+                .findFirst();
+    }
+
+    // 유저 조회 (이메일)
+    @Override
+    public Optional<User> findUserByEmail(String userEmail) {
+        return users.values().stream()
+                .filter(user -> user.getUserEmail().equalsIgnoreCase(userEmail))
+                .findFirst();
     }
 
     // 유저 이름 수정
     @Override
     public boolean updateUserName(User user, String newName){
         user.updateName(newName);
-        user.updateUpdatedAt(Instant.now());
-        saveUser(user);
-
-        return true;
-    }
-
-    // 유저 활동상태 수정
-    @Override
-    public boolean updateConnectState(User user, String connectState){
-        user.updateConnectState(connectState);
         user.updateUpdatedAt(Instant.now());
         saveUser(user);
 
