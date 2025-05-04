@@ -8,6 +8,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+/**
+ * 유저 이메일 필드 추가된 테스트용 유저 도메인
+ */
+
 @Getter
 public class User implements java.io.Serializable {
 
@@ -19,7 +23,9 @@ public class User implements java.io.Serializable {
     private Instant createdAt;
     private Instant updatedAt;
     private String name;
-    private String connectState;
+    private String userEmail;
+    private String userPassword;
+    private UUID profileId;
 
     public User() {
         this.id = UUID.randomUUID();
@@ -27,12 +33,13 @@ public class User implements java.io.Serializable {
         this.updatedAt = Instant.now();
     }
 
-    public User(String name, String connectState) {
+    public User(String name, String userEmail, String userPassword) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         this.name = name;
-        this.connectState = connectState;
+        this.userEmail = userEmail;
+        this.userPassword = userPassword;
 
     }
     public void updateId(UUID id) {
@@ -51,21 +58,31 @@ public class User implements java.io.Serializable {
         this.name = name;
     }
 
-    public void updateConnectState(String connectState) {
-        this.connectState = connectState;
+    public void updateUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
+
+    public void updateUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+
+    public void updateProfileId(UUID profileId) {
+        this.profileId = profileId;
+    }
+
 
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(ZoneId.of("Asia/Seoul"));
-
         return "User{" +
-                "id='" + id + '\'' +
-                ", createdAt='" + formatter.format(createdAt) + '\'' +
-                ", updatedAt='" + formatter.format(createdAt) + '\'' +
-                ", name=" + name + '\'' +
-                ", connectState=" + connectState + '\'' +
+                "id=" + id +
+                ", createdAt=" + formatter.format(createdAt) +
+                ", updatedAt=" + formatter.format(updatedAt) +
+                ", name='" + name + '\'' +
+                ", userEmail='" + userEmail + '\'' +
+                ", userPassword='" + userPassword + '\'' +
+                ", profileId=" + profileId +
                 '}';
     }
 }
