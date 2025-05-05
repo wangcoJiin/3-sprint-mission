@@ -97,7 +97,11 @@ public class BasicChannelService implements ChannelService {
                 })
                 .map(channel -> {
                     // 최신 메시지 시간 조회
-                    Instant latestMessageTime = messageRepository.findLatestMessageTime(channel.getId());
+                    List<Message> findMessageByChannelId = messageRepository.findMessageByChannel(channel.getId());
+                    Instant latestMessageTime = findMessageByChannelId.stream()
+                            .map(Message::getCreatedAt)
+                            .max(Comparator.naturalOrder())
+                            .orElse(null);
 
                     if (latestMessageTime == null) {
                         System.out.println("메시지가 없습니다.");
@@ -126,23 +130,26 @@ public class BasicChannelService implements ChannelService {
     public ChannelFindResponse getChannelUsingId(UUID channelId) {
 
         Channel channel = channelRepository.findChannelUsingId(channelId);
-
-        Instant latestMessageTime = messageRepository.findLatestMessageTime(channelId);
-
-        if (latestMessageTime == null) {
-            System.out.println("메시지가 없습니다.");
+        if (!isChannelExist(channel)) {
+            return null;
         }
 
-        if (isChannelExist(channel)) {
+        List<Message> findMessageByChannelId = messageRepository.findMessageByChannel(channelId);
+        Instant latestMessageTime = findMessageByChannelId.stream()
+                .map(Message::getCreatedAt)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
 
-            if (!channel.isLock()) {
-                return new ChannelFindResponse(
-                        channel.getId(),
-                        channel.getChannelName(),
-                        latestMessageTime,
-                        null
-                );
-            }
+
+        if (!channel.isLock()) {
+            return new ChannelFindResponse(
+                    channel.getId(),
+                    channel.getChannelName(),
+                    latestMessageTime,
+                    null
+            );
+        }
+        else {
             return new ChannelFindResponse(
                     channel.getId(),
                     channel.getChannelName(),
@@ -150,7 +157,6 @@ public class BasicChannelService implements ChannelService {
                     channel.getJoiningUsers()
             );
         }
-        return null;
     }
 
     // 채널 이름 수정
