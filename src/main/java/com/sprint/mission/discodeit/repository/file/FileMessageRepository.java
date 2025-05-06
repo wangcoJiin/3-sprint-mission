@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.file.FileUserService;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -42,6 +42,20 @@ public class FileMessageRepository implements MessageRepository {
             return false;
         }
 
+    }
+
+    // 메시지에 첨부파일 id 연결
+    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
+        Message message = findMessageById(messageId);
+
+        message.getAttachedFileIds().add(attachedFileId);
+
+        boolean success = saveMessageToFile(messages);
+
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + message.getMessageId());
+        }
+        return true;
     }
 
     // 메시지 파일 읽어오기

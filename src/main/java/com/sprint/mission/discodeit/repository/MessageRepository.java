@@ -2,13 +2,18 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageRepository {
 
     // 메시지 생성
     boolean createMessage(Message message);
+
+    // 메시지에 첨부파일 id 연결
+    boolean addAttachedFileId(UUID messageId, UUID attachedFileId);
 
     // 메시지 수정
     boolean updateMessage(UUID messageId, String newMessageContent);
