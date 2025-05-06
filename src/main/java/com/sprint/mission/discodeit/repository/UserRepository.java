@@ -3,8 +3,12 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
+/**
+ * 이메일 필드 생긴 테스트용 유저 레포지토리 인터페이스
+ */
 
 public interface UserRepository {
 
@@ -18,13 +22,16 @@ public interface UserRepository {
     User findUserById(UUID userId);
 
     // 유저 조회 (이름)
-    List<User> findUserByName(String userName);
+    Optional<User> findUserByName(String userName);
+
+    // 유저 조회 (이메일)
+    Optional<User> findUserByEmail(String userEmail);
 
     // 유저 이름 수정
     boolean updateUserName(User user, String newName);
 
-    // 유저 활동상태 수정
-    boolean updateConnectState(User user, String connectState);
+//    // 유저 활동상태 수정
+//    boolean updateConnectState(UserEmail user, String connectState);
 
     // 유저 삭제
     boolean deleteUser(UUID userId);

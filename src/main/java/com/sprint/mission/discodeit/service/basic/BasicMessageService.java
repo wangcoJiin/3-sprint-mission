@@ -7,11 +7,18 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
+@Service
 public class BasicMessageService implements MessageService {
+
+    private static final Logger logger = Logger.getLogger(BasicMessageService.class.getName()); // 필드로 Logger 선언
 
     private static final String FILE_PATH = "message.ser";
 
@@ -20,11 +27,11 @@ public class BasicMessageService implements MessageService {
     private final UserService userService;
     private final MessageRepository messageRepository;
 
-    public BasicMessageService(UserService userService, ChannelService channelService, MessageRepository messageRepository) {
-        this.userService = userService;
-        this.channelService = channelService;
-        this.messageRepository = messageRepository;
-    }
+//    public BasicMessageService(UserService userService, ChannelService channelService, MessageRepository messageRepository) {
+//        this.userService = userService;
+//        this.channelService = channelService;
+//        this.messageRepository = messageRepository;
+//    }
 
     //메시지 생성
     @Override
@@ -67,6 +74,8 @@ public class BasicMessageService implements MessageService {
             messageRepository.updateMessage(messageId, newMessageContent);
 
             System.out.println("메시지가 수정되었습니다.");
+
+            logger.info("메시지 내용이 수정됨");
             return true;
         }
         return false;
@@ -152,6 +161,7 @@ public class BasicMessageService implements MessageService {
             messageRepository.deletedMessage(messageId);
 
             System.out.println("메시지가 삭제되었습니다.");
+            logger.info("메시지 삭제됨");
             return true;
         }
         return false;

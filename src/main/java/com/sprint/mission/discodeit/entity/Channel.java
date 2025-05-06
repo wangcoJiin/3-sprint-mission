@@ -1,67 +1,43 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serial;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Channel implements java.io.Serializable{
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 
     private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private String channelName;
     private UUID adminId;
-    private boolean lockState;
+    private boolean lock;
     private String password;
     private List<UUID> joiningUsers;
 
     public Channel() {
     }
 
-    public Channel(String channelName, UUID adminId, boolean lockState, String password) {
+    public Channel(String channelName, UUID adminId, boolean lock, String password) {
         this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.channelName = channelName;
         this.adminId = adminId;
-        this.lockState = lockState;
+        this.lock = lock;
         this.password = password;
         this.joiningUsers = new ArrayList<>();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public UUID getAdminId() {
-        return adminId;
-    }
-
-    public boolean isLock() {
-        return lockState;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public List<UUID> getJoiningUsers() {
-        return joiningUsers;
     }
 
     public void updateId(UUID id) {
@@ -72,11 +48,11 @@ public class Channel implements java.io.Serializable{
         this.adminId = adminId;
     }
 
-    public void updateCreatedAt(Long createdAt) {
+    public void updateCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void updateUpdatedAt(Long updatedAt) {
+    public void updateUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -84,8 +60,8 @@ public class Channel implements java.io.Serializable{
         this.channelName = name;
     }
 
-    public void updateIsLock(boolean lockState) {
-        this.lockState = lockState;
+    public void updateIsLock(boolean lock) {
+        this.lock = lock;
     }
 
     public void updatePassword(String password) {
@@ -94,12 +70,15 @@ public class Channel implements java.io.Serializable{
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
         return "Channel{" +
                 "id='" + id + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", updatedAt='" + updatedAt + '\'' +
+                ", createdAt='" + formatter.format(createdAt) + '\'' +
+                ", updatedAt='" + formatter.format(updatedAt) + '\'' +
                 ", channelName=" + channelName + '\'' +
-                ", lockState=" + lockState +
+                ", lockState=" + lock +
                 '}';
     }
 }
