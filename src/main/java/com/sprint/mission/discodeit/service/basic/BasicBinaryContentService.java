@@ -7,10 +7,7 @@ import com.sprint.mission.discodeit.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
@@ -23,33 +20,30 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     // create
     @Override
-    public boolean createBinaryContent(BinaryContentCreateRequest request) {
-        BinaryContent binaryContent = new BinaryContent(request.userId(), request.messageId(), request.data());
-        boolean success = binaryContentRepository.saveBinaryContent(binaryContent);
+    public BinaryContent createBinaryContent(BinaryContentCreateRequest request) {
 
-        if(!success){
-            logger.warning("바이너리 컨텐츠 저장에 실패 했습니다.");
-        }
+        String fileName = request.fileName();
+        String cotentType = request.contentType();
+        byte[] data = request.data();
 
-        return success;
+
+        BinaryContent binaryContent = new BinaryContent(fileName, cotentType, data);
+
+        return binaryContentRepository.saveBinaryContent(binaryContent);
     }
 
     // find
     @Override
-    public Optional<BinaryContent> findBinaryContentById(UUID id) {
-        return binaryContentRepository.findById(id);
+    public BinaryContent findBinaryContentById(UUID id) {
+        return binaryContentRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("해당하는 바이너리 컨텐츠가 없습니다."));
     }
 
     // findAll
     @Override
     public List<BinaryContent> findAllBinaryContent(List<UUID> ids) {
-        List<BinaryContent> result = new ArrayList<>();
-
-        for(UUID id : ids){
-            Optional<BinaryContent> findContent = binaryContentRepository.findById(id);
-            findContent.ifPresent(result::add);
-        }
-        return result;
+        return binaryContentRepository.findAllByIds(ids).stream()
+                .toList();
     }
 
     // delete

@@ -5,10 +5,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class JCFBinaryContentRepository implements BinaryContentRepository {
@@ -17,15 +14,23 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     // 저장
     @Override
-    public boolean saveBinaryContent(BinaryContent binaryContent) {
+    public BinaryContent saveBinaryContent(BinaryContent binaryContent) {
         binaryContents.put(binaryContent.getId(), binaryContent);
-        return true;
+        return binaryContent;
     }
 
     // 조회
     @Override
     public Optional<BinaryContent> findById(UUID id) {
         return Optional.ofNullable(binaryContents.get(id));
+    }
+
+    // 다건조회
+    @Override
+    public List<BinaryContent> findAllByIds(List<UUID> ids) {
+        return binaryContents.values().stream()
+                .filter(binaryContent -> ids.contains(binaryContent.getId()))
+                .toList();
     }
 
     //삭제

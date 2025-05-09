@@ -18,10 +18,10 @@ import java.util.logging.Logger;
 public interface BinaryContentService {
 
     // create
-    boolean createBinaryContent(BinaryContentCreateRequest request);
+    BinaryContent createBinaryContent(BinaryContentCreateRequest request);
 
     // find
-    Optional<BinaryContent> findBinaryContentById(UUID id);
+    BinaryContent findBinaryContentById(UUID id);
 
     // findAll
     List<BinaryContent> findAllBinaryContent(List<UUID> ids);
