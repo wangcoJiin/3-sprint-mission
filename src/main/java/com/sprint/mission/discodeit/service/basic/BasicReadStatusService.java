@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,25 +42,16 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new IllegalArgumentException("존재하지 않는 채널입니다.");
         }
 
-        // User + Channel 조합이 이미 존재하는지 확인
-        List<ReadStatus> alreadyExistsUserId = readStatusRepository.findUserReadStatus(request.userId());
-        boolean alreadyExists = alreadyExistsUserId.stream()
-                .anyMatch(status -> status.getChannelId().equals(request.channelId()));
-
-        if (alreadyExists) {
-            throw new IllegalStateException("이미 존재하는 ReadStatus 입니다.");
+        if (readStatusRepository.findUserReadStatus(request.userId()).stream()
+                .anyMatch(readStatus -> readStatus.getChannelId().equals(request.channelId()))) {
+            throw new IllegalArgumentException("이미 존재하는 ReadStatus 입니다. ");
         }
 
         // 객체 생성
         ReadStatus readStatus = new ReadStatus(request.userId(), request.channelId());
 
         // 저장
-        boolean save = readStatusRepository.saveReadStatus(readStatus);
-        if (!save){
-            throw new IllegalStateException("ReadStatus 저장에 실패했습니다.");
-        }
-
-        return readStatus;
+        return readStatusRepository.saveReadStatus(readStatus);
     }
 
     // id로 readStatus 조회
@@ -88,7 +80,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
     // ReadStatus 업데이트
     @Override
-    public boolean updateReadStatus(ReadStatusUpdateRequest request) {
+    public ReadStatus updateReadStatus(ReadStatusUpdateRequest request) {
         // id로 ReadStatus 조회
         Optional<ReadStatus> result = readStatusRepository.findReadStatusById(request.id());
 
@@ -100,23 +92,17 @@ public class BasicReadStatusService implements ReadStatusService {
 
         readStatus.updateUpdatedAt(request.updatedAt());
 
-        boolean update =  readStatusRepository.updateReadStatus(readStatus);
-        if(!update){
-            throw new IllegalStateException("ReadStatus 업데이트에 실패했습니다.");
-        }
+        readStatusRepository.updateReadStatus(readStatus);
 
-        return update;
+        return readStatus;
     }
 
     // 삭제
     @Override
-    public boolean deleteReadStatus(UUID id) {
-
-        boolean delete = readStatusRepository.deleteReadStatusById(id);
-        if(!delete){
-            throw new IllegalStateException("ReadStatus 삭제에 실패했습니다.");
+    public void deleteReadStatus(UUID id) {
+        if(findReadStatusById(id).isEmpty()){
+            throw new NoSuchElementException("해당하는 ReadStatus가 없습니다. ");
         }
-
-        return delete;
+        readStatusRepository.deleteReadStatusById(id);
     }
 }

@@ -14,18 +14,9 @@ public class JCFReadStatusService implements ReadStatusRepository {
 
     // 저장
     @Override
-    public boolean saveReadStatus(ReadStatus readStatus) {
+    public ReadStatus saveReadStatus(ReadStatus readStatus) {
         readStatusMap.put(readStatus.getId(), readStatus);
-        return true;
-    }
-
-    // 유저 아이디 +  채널 아이디로 조회
-    @Override
-    public Optional<ReadStatus> findReadStatusByUserId(UUID userId, UUID channelId) {
-        return readStatusMap.values().stream()
-                .filter(readStatus -> readStatus.getUserId().equals(userId)
-                && readStatus.getChannelId().equals(channelId))
-                .findFirst();
+        return readStatus;
     }
 
     // 아이디로 조회
@@ -52,15 +43,20 @@ public class JCFReadStatusService implements ReadStatusRepository {
 
     // 수정
     @Override
-    public boolean updateReadStatus(ReadStatus readStatus) {
-        readStatusMap.put(readStatus.getId(), readStatus);
-        return true;
+    public void updateReadStatus(ReadStatus readStatus) {
+        this.saveReadStatus(readStatus);
     }
 
     // 삭제
     @Override
-    public boolean deleteReadStatusById(UUID id) {
+    public void deleteReadStatusById(UUID id) {
         readStatusMap.remove(id);
-        return true;
+    }
+
+    // 채널 아이디로 삭제
+    @Override
+    public void deleteByChannelId(UUID channelId) {
+        this.findReadStatusByChannelId(channelId)
+                .forEach(readStatus -> deleteReadStatusById(readStatus.getId()));
     }
 }
