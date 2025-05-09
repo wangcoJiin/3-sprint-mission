@@ -1,16 +1,24 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileChannelRepository implements ChannelRepository {
 
     private static final String FILE_PATH = "channelRepository.ser";
@@ -72,7 +80,7 @@ public class FileChannelRepository implements ChannelRepository {
     public boolean addUserToChannel(UUID channelId, UUID userId) {
         Channel channel = findChannelUsingId(channelId);
         channel.getJoiningUsers().add(userId);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         // 채널 저장 상태 확인
         boolean success = saveChannelToFile(channels);
@@ -106,7 +114,7 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public boolean updateChannelName(UUID channelId, String newChannelName) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         // 채널 저장 상태 확인
         boolean success = saveChannelToFile(channels);
@@ -120,9 +128,9 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public boolean channelUnLocking(UUID channelId) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(false);
+        channel.updateIsLock(ChannelType.PUBLIC);
         channel.updatePassword("");
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         // 채널 저장 상태 확인
         boolean success = saveChannelToFile(channels);
@@ -136,9 +144,9 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public boolean channelLocking(UUID channelId, String password) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(true);
+        channel.updateIsLock(ChannelType.PRIVATE);
         channel.updatePassword(password);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         // 채널 저장 상태 확인
         boolean success = saveChannelToFile(channels);
@@ -167,7 +175,7 @@ public class FileChannelRepository implements ChannelRepository {
     public boolean deleteUserInChannel(UUID channelId, UUID userId) {
         Channel channel = findChannelUsingId(channelId);
         channel.getJoiningUsers().remove(userId);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         // 채널 저장 상태 확인
         boolean success = saveChannelToFile(channels);

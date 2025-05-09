@@ -2,19 +2,34 @@ package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 public class JCFMessageRepository implements MessageRepository {
 
     private final Map<UUID, Message> messages = new LinkedHashMap<>();
 
     // 메시지 생성
     @Override
-    public boolean createMessage(Message message) {
+    public boolean saveMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
+        return true;
+    }
+
+    // 메시지에 첨부파일 아이디 추가
+    @Override
+    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
+        Message message = findMessageById(messageId);
+        message.getAttachedFileIds().add(attachedFileId);
+
+        messages.put(message.getMessageId(), message);
         return true;
     }
 
@@ -23,7 +38,7 @@ public class JCFMessageRepository implements MessageRepository {
     public boolean updateMessage(UUID messageId, String newMessageContent) {
         Message message = findMessageById(messageId);
         message.updateMessageContent(newMessageContent);
-        message.updateUpdatedAt(System.currentTimeMillis());
+        message.updateUpdatedAt(Instant.now());
 
         return true;
     }

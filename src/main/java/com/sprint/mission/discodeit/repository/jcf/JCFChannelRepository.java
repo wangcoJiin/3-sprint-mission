@@ -1,11 +1,18 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
+@Repository
 public class JCFChannelRepository implements ChannelRepository {
 
     private final Map<UUID, Channel> channels = new LinkedHashMap<>();
@@ -24,7 +31,7 @@ public class JCFChannelRepository implements ChannelRepository {
     public boolean addUserToChannel(UUID channelId, UUID userId) {
         Channel channel = findChannelUsingId(channelId);
         channel.getJoiningUsers().add(userId);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         return true;
     }
@@ -54,7 +61,7 @@ public class JCFChannelRepository implements ChannelRepository {
     public boolean updateChannelName(UUID channelId, String newChannelName) {
         Channel channel = findChannelUsingId(channelId);
         channel.updateChannelName(newChannelName);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         return true;
     }
@@ -63,9 +70,9 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public boolean channelUnLocking(UUID channelId) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(false);
+        channel.updateIsLock(ChannelType.PUBLIC);
         channel.updatePassword("");
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         return true;
     }
@@ -74,9 +81,9 @@ public class JCFChannelRepository implements ChannelRepository {
     @Override
     public boolean channelLocking(UUID channelId, String password) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(true);
+        channel.updateIsLock(ChannelType.PRIVATE);
         channel.updatePassword(password);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         return true;
     }
@@ -95,7 +102,7 @@ public class JCFChannelRepository implements ChannelRepository {
     public boolean deleteUserInChannel(UUID channelId, UUID userId) {
         Channel channel = findChannelUsingId(channelId);
         channel.getJoiningUsers().remove(userId);
-        channel.updateUpdatedAt(System.currentTimeMillis());
+        channel.updateUpdatedAt(Instant.now());
 
         return true;
     }

@@ -2,23 +2,29 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+/**
+ * 이메일 필드 생긴 테스트용 유저 레포지토리 구현체
+ */
 
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileUserRepository implements UserRepository {
 
-    private static final String FILE_PATH = "userRepository.ser";
+    private static final String FILE_PATH = "userRepositoryAdv.ser";
 
     private static final Logger logger = Logger.getLogger(FileUserRepository.class.getName());
 
     private final Map<UUID, User> users = loadUsersFromFile();
-
 
     // 유저 정보를 파일로 저장
     private boolean saveUsersToFile(Map<UUID, User> users) {
@@ -84,27 +90,25 @@ public class FileUserRepository implements UserRepository {
 
     // 유저 read (name)
     @Override
-    public List<User> findUserByName(String userName) {
+    public Optional<User> findUserByName(String userName) {
         return users.values().stream()
                 .filter(user -> user.getName().equalsIgnoreCase(userName))
-                .collect(Collectors.toList());
+                .findFirst();
+    }
+
+    // 유저 조회 (이메일)
+    @Override
+    public Optional<User> findUserByEmail(String userEmail) {
+        return users.values().stream()
+                .filter(user -> user.getUserEmail().equalsIgnoreCase(userEmail))
+                .findFirst();
     }
 
     // 유저 이름 수정
     @Override
     public boolean updateUserName(User user, String newName){
         user.updateName(newName);
-        user.updateUpdatedAt(System.currentTimeMillis());
-        saveUser(user);
-
-        return true;
-    }
-
-    // 유저 활동상태 수정
-    @Override
-    public boolean updateConnectState(User user, String connectState){
-        user.updateConnectState(connectState);
-        user.updateUpdatedAt(System.currentTimeMillis());
+        user.updateUpdatedAt(Instant.now());
         saveUser(user);
 
         return true;
@@ -112,14 +116,7 @@ public class FileUserRepository implements UserRepository {
 
     //유저 삭제
     @Override
-    public boolean deleteUser(UUID userId) {
+    public void deleteUser(UUID userId) {
         users.remove(userId);
-
-        // 유저 저장 상태 확인
-        boolean success = saveUsersToFile(users);
-        if (!success) {
-            logger.warning("유저 저장에 실패했습니다: " + users.get(userId).getId());
-        }
-        return success;
     }
 }

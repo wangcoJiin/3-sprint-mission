@@ -1,16 +1,22 @@
 package com.sprint.mission.discodeit.repository.file;
 
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.service.file.FileUserService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
+@Repository
 public class FileMessageRepository implements MessageRepository {
 
     private static final String FILE_PATH = "messageRepository.ser";
@@ -41,6 +47,7 @@ public class FileMessageRepository implements MessageRepository {
 
     }
 
+
     // 메시지 파일 읽어오기
     private Map<UUID, Message> loadMessageFromFile() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
@@ -56,7 +63,7 @@ public class FileMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public boolean createMessage(Message message) {
+    public boolean saveMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
         // 메시지 저장 상태 확인
@@ -67,12 +74,26 @@ public class FileMessageRepository implements MessageRepository {
         return success;
     }
 
+    // 메시지에 첨부파일 id 연결
+    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
+        Message message = findMessageById(messageId);
+
+        message.getAttachedFileIds().add(attachedFileId);
+
+        boolean success = saveMessageToFile(messages);
+
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + message.getMessageId());
+        }
+        return true;
+    }
+
     // 메시지 내용 수정
     @Override
     public boolean updateMessage(UUID messageId, String newMessageContent) {
         Message message = findMessageById(messageId);
         message.updateMessageContent(newMessageContent);
-        message.updateUpdatedAt(System.currentTimeMillis());
+        message.updateUpdatedAt(Instant.now());
 
         boolean success = saveMessageToFile(messages);
         if (!success) {

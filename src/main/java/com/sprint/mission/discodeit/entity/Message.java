@@ -1,73 +1,56 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+import java.io.Serial;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class Message implements java.io.Serializable{
 
     //serialVersionUID 필드 추가
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
-    private Long createdAt;
-    private Long updatedAt;
+    private UUID messageId;
+    private Instant createdAt;
+    private Instant updatedAt;
     private UUID channelId;
     private UUID senderId;
     private String messageContent;
     private LocalDateTime timestamp;
+    private List<UUID> attachedFileIds;
 
 
     public Message() {
     }
 
     public Message(UUID channelId, UUID senderId, String messageContent) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.messageId = UUID.randomUUID();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.channelId = channelId;
         this.senderId = senderId;
         this.messageContent = messageContent;
-        this.timestamp = LocalDateTime.now();;
-
+        this.timestamp = LocalDateTime.now();
+        this.attachedFileIds = new ArrayList<>();
     }
 
-    public UUID getMessageId() {
-        return id;
+    public void updateId(UUID messageId) {
+        this.messageId = messageId;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public UUID getSenderId() {
-        return senderId;
-    }
-
-    public String getMessageContent() {
-        return messageContent;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void updateId(UUID id) {
-        this.id = id;
-    }
-
-    public void updateCreatedAt(Long createdAt) {
+    public void updateCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void updateUpdatedAt(Long updatedAt) {
+    public void updateUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -89,10 +72,13 @@ public class Message implements java.io.Serializable{
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
         return "Message{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                "messageId=" + messageId +
+                ", createdAt=" + formatter.format(createdAt) +
+                ", updatedAt=" + formatter.format(updatedAt) +
                 ", channelId=" + channelId +
                 ", senderId=" + senderId +
                 ", messageContent='" + messageContent + '\'' +
