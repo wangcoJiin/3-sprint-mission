@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import org.springframework.stereotype.Repository;
@@ -124,7 +125,7 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public boolean channelUnLocking(UUID channelId) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(false);
+        channel.updateIsLock(ChannelType.PUBLIC);
         channel.updatePassword("");
         channel.updateUpdatedAt(Instant.now());
 
@@ -140,7 +141,7 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public boolean channelLocking(UUID channelId, String password) {
         Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(true);
+        channel.updateIsLock(ChannelType.PRIVATE);
         channel.updatePassword(password);
         channel.updateUpdatedAt(Instant.now());
 
