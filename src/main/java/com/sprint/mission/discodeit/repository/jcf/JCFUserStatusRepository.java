@@ -13,12 +13,18 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     // 저장
     @Override
-    public boolean saveUserStatus(UserStatus userStatus) {
+    public UserStatus saveUserStatus(UserStatus userStatus) {
         userStatusMap.put(userStatus.getId(), userStatus);
-        return true;
+        return userStatus;
     }
 
     // 아이디로 조회
+    @Override
+    public Optional<UserStatus> findById(UUID id) {
+        return Optional.ofNullable(this.userStatusMap.get(id));
+    }
+
+    // 유저 아이디로 조회
     @Override
     public Optional<UserStatus> findStatus(UUID userId) {
         return userStatusMap.values().stream()
@@ -39,17 +45,16 @@ public class JCFUserStatusRepository implements UserStatusRepository {
         return true;
     }
 
+    // 아이디로 삭제
+    @Override
+    public void deleteById(UUID id) {
+        userStatusMap.remove(id);
+    }
+
     // 삭제
     @Override
-    public boolean deleteUserStatus(UUID userId) {
-        Optional<UserStatus> foudStatus = userStatusMap.values().stream()
-                .filter(userStatus -> userStatus.getUserId().equals(userId))
-                .findFirst();
-
-        if (foudStatus.isPresent()) {
-            userStatusMap.remove(foudStatus.get().getId());
-            return true;
-        }
-        return false;
+    public void deleteUserStatus(UUID userId) {
+        findStatus(userId)
+                .ifPresent(userStatus -> deleteUserStatus(userStatus.getId()));
     }
 }

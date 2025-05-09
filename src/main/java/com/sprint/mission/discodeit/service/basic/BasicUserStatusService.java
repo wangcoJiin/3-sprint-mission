@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.UserStatusCreateResponse;
+import com.sprint.mission.discodeit.entity.OnlineStatus;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -10,10 +10,10 @@ import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ public class BasicUserStatusService implements UserStatusService {
 
     // 상태 생성
     @Override
-    public UserStatusCreateResponse createUserStatus(UserStatusCreateRequest request) {
+    public UserStatus createUserStatus(UserStatusCreateRequest request) {
         if (userRepository.findUserById(request.userId()) == null) {
             logger.info(request.userId()+ "UserStatus 저장에 실패했습니다");
             return null;
@@ -45,19 +45,8 @@ public class BasicUserStatusService implements UserStatusService {
 
         // 새 UserStatus 생성
         UserStatus userStatus = new UserStatus(request.userId());
-        boolean statusSaved = userStatusRepository.saveUserStatus(userStatus);
 
-        if(!statusSaved){
-            logger.info("UserStatus 저장에 실패했습니다");
-        }
-
-        // DTO로 반환
-        return new UserStatusCreateResponse(
-                userStatus.getId(),
-                userStatus.getUserId(),
-                userStatus.getCreatedAt(),
-                userStatus.getUpdatedAt()
-        );
+        return userStatusRepository.saveUserStatus(userStatus);
     }
 
     // 유저의 접속 상태 조회
@@ -79,41 +68,32 @@ public class BasicUserStatusService implements UserStatusService {
     // 저장된 상태 전체 조회
     @Override
     public List<UserStatus> findAllStatus() {
-        return userStatusRepository.findAllStatus();
+        return userStatusRepository.findAllStatus().stream()
+                .toList();
     }
 
     // 유저 상태 업데이트 (접속 시간을 기준으로)
     @Override
     public boolean updateUserStatus(UserStatusUpdateRequest request) {
         UUID userId = request.userId();
-        String currentStatus;
 
         Optional<UserStatus> foundStatus = userStatusRepository.findStatus(userId);
 
         if (foundStatus.isEmpty()) {
             logger.warning("UserStatus가 존재하지 않습니다: " + userId);
-            // 존재하지 않는다면 유저 상태를 만들어줄까..?
             return false;
         }
 
         UserStatus status = foundStatus.get();
         Instant now = Instant.now();
 
-        // 시간 비교
-        Long minutesdiff = Duration.between(status.getUpdatedAt(), now).toMinutes();
+        // 도메인의 isOnline() 메서드 사용
+        OnlineStatus currentStatus = status.isOnline() ? OnlineStatus.ONLINE : OnlineStatus.OFFLINE;
 
-        // 차이가 5분 이상인지?
-        if (minutesdiff >= 5){
-            currentStatus = "Offline";
-        }
-        else{
-            currentStatus = "Online";
-        }
-
-        // 상태가 다를 때만 업데이트 하기
-        if (!status.getStatus().equals(currentStatus)){
+        // 상태가 다를 때만 업데이트
+        if (!status.getStatus().equals(currentStatus)) {
             status.updateStatus(currentStatus);
-            status.updateUpdatedAt(now);
+            status.updateUpdatedAt(Instant.now());
             userStatusRepository.updateUserStatus(status);
             System.out.println("유저 상태 변경됨");
             return true;
@@ -122,7 +102,10 @@ public class BasicUserStatusService implements UserStatusService {
     }
 
     @Override
-    public boolean delete(UUID statusId) {
-        return false;
+    public void delete(UUID statusId) {
+        if((userStatusRepository.findById(statusId)).isEmpty()){
+            throw new NoSuchElementException("해당하는 UserStatus가 없습니다. ");
+        }
+        userStatusRepository.deleteById(statusId);
     }
 }
