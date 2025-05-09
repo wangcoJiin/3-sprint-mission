@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.repository.jcf;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,9 +13,19 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public boolean createMessage(Message message) {
+    public boolean saveMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
+        return true;
+    }
+
+    // 메시지에 첨부파일 아이디 추가
+    @Override
+    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
+        Message message = findMessageById(messageId);
+        message.getAttachedFileIds().add(attachedFileId);
+
+        messages.put(message.getMessageId(), message);
         return true;
     }
 
@@ -23,7 +34,7 @@ public class JCFMessageRepository implements MessageRepository {
     public boolean updateMessage(UUID messageId, String newMessageContent) {
         Message message = findMessageById(messageId);
         message.updateMessageContent(newMessageContent);
-        message.updateUpdatedAt(System.currentTimeMillis());
+        message.updateUpdatedAt(Instant.now());
 
         return true;
     }

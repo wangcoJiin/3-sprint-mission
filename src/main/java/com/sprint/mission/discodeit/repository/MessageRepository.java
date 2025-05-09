@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface MessageRepository {
 
     // 메시지 생성
-    boolean createMessage(Message message);
+    boolean saveMessage(Message message);
 
     // 메시지에 첨부파일 id 연결
     boolean addAttachedFileId(UUID messageId, UUID attachedFileId);

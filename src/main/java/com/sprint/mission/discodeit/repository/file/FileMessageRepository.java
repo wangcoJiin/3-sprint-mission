@@ -44,19 +44,6 @@ public class FileMessageRepository implements MessageRepository {
 
     }
 
-    // 메시지에 첨부파일 id 연결
-    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
-        Message message = findMessageById(messageId);
-
-        message.getAttachedFileIds().add(attachedFileId);
-
-        boolean success = saveMessageToFile(messages);
-
-        if (!success) {
-            logger.warning("채널 정보 저장에 실패했습니다: " + message.getMessageId());
-        }
-        return true;
-    }
 
     // 메시지 파일 읽어오기
     private Map<UUID, Message> loadMessageFromFile() {
@@ -73,7 +60,7 @@ public class FileMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public boolean createMessage(Message message) {
+    public boolean saveMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
         // 메시지 저장 상태 확인
@@ -82,6 +69,20 @@ public class FileMessageRepository implements MessageRepository {
             logger.warning("메시지 저장에 실패했습니다: " + message.getMessageId());
         }
         return success;
+    }
+
+    // 메시지에 첨부파일 id 연결
+    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
+        Message message = findMessageById(messageId);
+
+        message.getAttachedFileIds().add(attachedFileId);
+
+        boolean success = saveMessageToFile(messages);
+
+        if (!success) {
+            logger.warning("채널 정보 저장에 실패했습니다: " + message.getMessageId());
+        }
+        return true;
     }
 
     // 메시지 내용 수정

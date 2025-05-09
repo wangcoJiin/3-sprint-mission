@@ -1,4 +1,5 @@
 package com.sprint.mission.discodeit.service;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
@@ -9,7 +10,7 @@ import java.util.UUID;
 public interface MessageService {
 
     // 메시지 생성
-    Message CreateMessage(MessageCreateRequest request);
+    Message CreateMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests);
 
     // 채널의 메시지 조회
     List<Message> findallByChannelId(UUID channelId, UUID userId, String password);

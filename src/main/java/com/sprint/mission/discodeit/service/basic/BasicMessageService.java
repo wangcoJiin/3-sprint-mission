@@ -1,11 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -36,7 +34,7 @@ public class BasicMessageService implements MessageService {
 
     //메시지 생성
     @Override
-    public Message CreateMessage(MessageCreateRequest request) {
+    public Message CreateMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
         User sender = userRepository.findUserById(request.senderId());
         Channel channel = channelRepository.findChannelUsingId(request.channelId());
 
@@ -48,26 +46,27 @@ public class BasicMessageService implements MessageService {
             System.out.println("채널에 입장하셨습니다.");
 
             Message newMessage = new Message(request.channelId(), request.senderId(), request.messageContent());
-            boolean created = messageRepository.createMessage(newMessage);
+            boolean created = messageRepository.saveMessage(newMessage);
 
             if (!created) {
                 throw new IllegalStateException("메시지 저장 실패");
             }
 
-            // 첨부파일 저장
-            if (request.binaryContent() != null) {
-                for (byte[] data : request.binaryContent()){
-                    BinaryContent content = new BinaryContent(request.senderId(), newMessage.getMessageId(), data);
-                    boolean saved = binaryContentRepository.saveBinaryContent(content);
-                    if(!saved){
-                        logger.warning(newMessage.getMessageId() + " 의 첨부파일 저장 실패: ");
-                    }
+            List<UUID> attachmentIds = binaryContentCreateRequests.stream()
+                    .map(attachmentRequest -> {
+                        String fileName = attachmentRequest.fileName();
+                        String contentType = attachmentRequest.contentType();
+                        byte[] bytes = attachmentRequest.data();
 
-                    // 메시지에 첨부파일 id 연결
-                    messageRepository.addAttachedFileId(newMessage.getMessageId(), content.getId());
-                }
-            }
+                        BinaryContent newBinaryContent = new BinaryContent(fileName, contentType, bytes);
+                        BinaryContent binaryContent = binaryContentRepository.saveBinaryContent(newBinaryContent);
+                        messageRepository.addAttachedFileId(newMessage.getMessageId(), binaryContent.getId());
 
+                        return binaryContent.getId();
+                    })
+                    .toList();
+
+            messageRepository.saveMessage(newMessage);
             return newMessage;
         }
         return null;
@@ -80,7 +79,7 @@ public class BasicMessageService implements MessageService {
         User user = userRepository.findUserById(userId);
 
         if (isUserExist(user) && isChannelExist(channel)){
-            if (channel.isLock()) {
+            if (channel.getLock() == ChannelType.PRIVATE) {
                 if (isCorrectPassword(channel, password)){
                     if (isParticipant(channel, userId)){
                         System.out.println("채널에 입장하셨습니다.");
@@ -143,7 +142,7 @@ public class BasicMessageService implements MessageService {
 
         if (isUserExist(user) && isChannelExist(channel) && isSender(message, request.senderId())){
 
-            if (channel.isLock()) {
+            if (channel.getLock() == ChannelType.PRIVATE) {
                 if (isCorrectPassword(channel, request.password())) {
                     if (isParticipant(channel, request.senderId())) {
 
@@ -247,7 +246,7 @@ public class BasicMessageService implements MessageService {
 
     //채널 비밀번호 대조
     private boolean isChannelLock(Channel channel, String password){
-        if (channel.isLock()) {
+        if (channel.getLock() == ChannelType.PRIVATE) {
             System.out.println("비공개 채널입니다. 비밀번호를 확인하고 있습니다..");
             if (!channel.getPassword().equals(password)) {
                 System.out.println("비밀번호가 일치하지 않습니다.");

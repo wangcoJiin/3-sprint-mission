@@ -7,6 +7,5 @@ public record MessageCreateRequest(
         UUID senderId,
         UUID channelId,
         String password,
-        String messageContent,
-        List<byte[]> binaryContent
+        String messageContent
 ) { }
