@@ -25,15 +25,19 @@ public class BasicAuthService implements AuthService {
 
     @Override
     public UserResponse login(LoginRequest request) {
-        Optional<User> userResult = userRepository.findUserByName(request.userName());
+
+        String username = request.userName();
+        String password = request.userPassword();
+
+        Optional<User> userResult = userRepository.findUserByName(username);
         if(userResult.isEmpty()){
-            logger.warning("해당하는 이름의 유저가 존재하지 않습니다: " + request.userName());
+            logger.warning("해당하는 이름의 유저가 존재하지 않습니다: " + username);
             return null;
         }
 
         User user = userResult.get();
 
-        if (!Objects.equals(user.getUserPassword(), request.userPassword())){
+        if (!Objects.equals(user.getUserPassword(), password)){
             logger.warning("비밀번호가 일치하지 않습니다 ");
             return null;
         }
