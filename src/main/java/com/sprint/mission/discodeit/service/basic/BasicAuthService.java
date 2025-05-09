@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.entity.OnlineStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -44,8 +45,8 @@ public class BasicAuthService implements AuthService {
 
         // UserStatus 조회
         Optional<UserStatus> foundStatusResult = fileUserStatusRepository.findStatus(user.getId());
-        String isOnline = foundStatusResult.map(UserStatus::getStatus)
-                .orElse("Unknown");
+        OnlineStatus isOnline = foundStatusResult.map(UserStatus::getStatus)
+                .orElse(OnlineStatus.Unknown);
 
 
         return new UserResponse(
