@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.request.ProfileImageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.request.UserProfileImageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.UserCreateResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.User;
 
@@ -18,7 +16,7 @@ import java.util.UUID;
 public interface UserService {
 
     //     유저 생성 (UserCreateRequest DTO 활용)
-    UserCreateResponse createUser(UserCreateRequest request, Optional<ProfileImageCreateRequest> optionalProfileImage);
+    UserResponse createUser(UserCreateRequest request, Optional<BinaryContentCreateRequest> optionalProfileImage);
 
     // 기존 유저 리스트에 새로운 유저 추가
     void addUserToRepository(User user);
@@ -35,7 +33,7 @@ public interface UserService {
     // 유저 이름 변경
     boolean updateUserName(UUID id, String newName);
 
-    boolean updateProfileImage(UserProfileImageUpdateRequest request);
+    boolean updateProfileImage(UUID userId, Optional<BinaryContentCreateRequest> request);
 
     // id 이용해서 유저 삭제
     boolean deleteUserById(UUID id);

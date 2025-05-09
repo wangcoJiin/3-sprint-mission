@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.dto.response;
 
+import com.sprint.mission.discodeit.entity.OnlineStatus;
+
 import java.util.UUID;
 
 /**
@@ -11,5 +13,5 @@ public record UserResponse(
         String name,
         String userEmail,
         UUID profileId,
-        String status
+        OnlineStatus status
 ) { }
