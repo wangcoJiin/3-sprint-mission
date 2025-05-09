@@ -114,14 +114,7 @@ public class FileUserRepository implements UserRepository {
 
     //유저 삭제
     @Override
-    public boolean deleteUser(UUID userId) {
+    public void deleteUser(UUID userId) {
         users.remove(userId);
-
-        // 유저 저장 상태 확인
-        boolean success = saveUsersToFile(users);
-        if (!success) {
-            logger.warning("유저 저장에 실패했습니다: " + users.get(userId).getId());
-        }
-        return success;
     }
 }

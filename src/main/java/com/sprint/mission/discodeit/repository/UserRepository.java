@@ -30,9 +30,6 @@ public interface UserRepository {
     // 유저 이름 수정
     boolean updateUserName(User user, String newName);
 
-//    // 유저 활동상태 수정
-//    boolean updateConnectState(UserEmail user, String connectState);
-
     // 유저 삭제
-    boolean deleteUser(UUID userId);
+    void deleteUser(UUID userId);
 }
