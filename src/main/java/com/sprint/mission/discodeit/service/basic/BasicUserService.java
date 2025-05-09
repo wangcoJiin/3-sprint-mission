@@ -265,14 +265,7 @@ public class BasicUserService implements UserService {
         userStatusRepository.deleteUserStatus(id);
 
         // 유저 삭제
-        boolean deleteUserResult = userRepositoryService.deleteUser(id);
-        if (deleteUserResult){
-            logger.info("유저가 삭제되었습니다.");
-        } else{
-            logger.warning("유저 삭제에 실패했습니다");
-            return false;
-        }
-
+        userRepositoryService.deleteUser(id);
         return true;
     }
 
