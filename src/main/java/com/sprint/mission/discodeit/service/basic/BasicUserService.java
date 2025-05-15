@@ -2,14 +2,11 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.response.UserFoundResponse;
-import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.OnlineStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.user.UserEmailDuplicationException;
-import com.sprint.mission.discodeit.exception.user.UserNameDuplicationException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -154,7 +151,7 @@ public class BasicUserService implements UserService {
 
     // 아이디로 검색
     @Override
-    public UserFoundResponse getUserById(UUID id) {
+    public UserDto getUserById(UUID id) {
         //유저 조회
         Optional<User> foundUser = userRepositoryService.findUserById(id);
         if (foundUser.isEmpty()){
@@ -166,8 +163,10 @@ public class BasicUserService implements UserService {
         User user = foundUser.get();
 
         // 패스워드는 반환하지 않기
-        return new UserFoundResponse(
+        return new UserDto(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getName(),
                 user.getUserEmail(),
                 user.getProfileId(),
@@ -177,7 +176,7 @@ public class BasicUserService implements UserService {
 
     // 이름으로 검색하기
     @Override
-    public Optional<UserFoundResponse> searchUsersByName(String name) {
+    public Optional<UserDto> searchUsersByName(String name) {
 
         //유저 조회
         Optional<User> foundUserResult = userRepositoryService.findUserByName(name);
@@ -193,8 +192,10 @@ public class BasicUserService implements UserService {
         OnlineStatus status = getUserStatus(user.getId());
 
         // 패스워드는 반환하지 않기
-        UserFoundResponse response = new UserFoundResponse(
+        UserDto response = new UserDto(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getName(),
                 user.getUserEmail(),
                 user.getProfileId(),
@@ -206,7 +207,7 @@ public class BasicUserService implements UserService {
 
     // 전체 유저 조회
     @Override
-    public List<UserFoundResponse> getAllUsers() {
+    public List<UserDto> getAllUsers() {
 
         List<User> foundResult = userRepositoryService.findUserAll();
 
@@ -215,8 +216,10 @@ public class BasicUserService implements UserService {
                     // 요소(유저)마다 상태 추출
                     OnlineStatus status = getUserStatus(user.getId());
 
-                    return new UserFoundResponse(
+                    return new UserDto(
                             user.getId(),
+                            user.getCreatedAt(),
+                            user.getUpdatedAt(),
                             user.getName(),
                             user.getUserEmail(),
                             user.getProfileId(),

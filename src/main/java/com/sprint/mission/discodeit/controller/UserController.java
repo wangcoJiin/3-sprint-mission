@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.UserFoundResponse;
-import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.dto.response.UserDto;
+import com.sprint.mission.discodeit.dto.response.UserCreateDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -58,7 +58,7 @@ public class UserController {
             , consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @ResponseBody
-    public ResponseEntity<UserResponse> createUser(
+    public ResponseEntity<UserCreateDto> createUser(
             @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
@@ -72,15 +72,16 @@ public class UserController {
         User createdUser = userService.createUser(userCreateRequest, profileRequest);
         System.out.println(createdUser);
 
-        UserResponse response = new UserResponse(
+        UserCreateDto response = new UserCreateDto(
                 createdUser.getId(),
+                createdUser.getCreatedAt(),
+                createdUser.getUpdatedAt(),
                 createdUser.getName(),
                 createdUser.getUserEmail(),
                 createdUser.getProfileId()
         );
 
         System.out.println("response = " + response);
-
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -117,11 +118,11 @@ public class UserController {
 
     // 유저 전체 조회
     @RequestMapping(
-            path = "/find-all"
+            path = "/findAll"
 //            , method = RequestMethod.GET
     )
     @ResponseBody
-    public ResponseEntity<List<UserFoundResponse>> getAllUsers() {
+    public ResponseEntity<List<UserDto>> findAll() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
@@ -131,10 +132,10 @@ public class UserController {
 //            , method = RequestMethod.GET
     )
     @ResponseBody
-    public ResponseEntity<UserFoundResponse> getUser(
+    public ResponseEntity<UserDto> getUser(
             @RequestParam UUID userId
     ) {
-        UserFoundResponse foundUser = userService.getUserById(userId);
+        UserDto foundUser = userService.getUserById(userId);
         return ResponseEntity.ok(foundUser);
     }
 

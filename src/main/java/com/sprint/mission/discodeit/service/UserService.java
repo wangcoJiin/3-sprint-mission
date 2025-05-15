@@ -2,8 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.response.UserFoundResponse;
-import com.sprint.mission.discodeit.dto.response.UserResponse;
+import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 
 import java.util.List;
@@ -23,13 +22,13 @@ public interface UserService {
     void addUserToRepository(User user);
 
     // 유저 아이디 이용해서 조회
-    UserFoundResponse getUserById(UUID id);
+    UserDto getUserById(UUID id);
 
     // 유저 이름 이용해서 조회
-    Optional<UserFoundResponse> searchUsersByName(String name);
+    Optional<UserDto> searchUsersByName(String name);
 
     // 유저 전체 조회
-    List<UserFoundResponse> getAllUsers();
+    List<UserDto> getAllUsers();
 
     // 유저 이름 변경
     boolean updateUserName(UUID id, String newName);
