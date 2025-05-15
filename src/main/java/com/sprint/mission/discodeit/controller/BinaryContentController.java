@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/binary-content")
+@RequestMapping("/api/binaryContent")
 @Controller
 public class BinaryContentController {
 
