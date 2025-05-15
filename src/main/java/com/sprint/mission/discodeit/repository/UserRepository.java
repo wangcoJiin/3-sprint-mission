@@ -13,13 +13,13 @@ import java.util.UUID;
 public interface UserRepository {
 
     // 유저 저장
-    boolean saveUser(User user);
+    User saveUser(User user);
 
     // 전체 유저 조회
     List<User> findUserAll();
 
     // 유저 조회 (id)
-    User findUserById(UUID userId);
+    Optional<User> findUserById(UUID userId);
 
     // 유저 조회 (이름)
     Optional<User> findUserByName(String userName);

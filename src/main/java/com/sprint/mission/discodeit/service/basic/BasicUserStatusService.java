@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.UserStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.OnlineStatus;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
@@ -33,13 +34,13 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     public UserStatus createUserStatus(UserStatusCreateRequest request) {
         if (userRepository.findUserById(request.userId()) == null) {
-            logger.info(request.userId()+ "UserStatus 저장에 실패했습니다");
+            logger.info("UserStatusService: " + request.userId()+ "UserStatus 저장에 실패했습니다");
             return null;
         }
 
         // 이미 UserStatus가 존재하는지 검사
         if (userStatusRepository.findStatus(request.userId()).isPresent()) {
-            logger.info("이미 UserStatus가 존재합니다.");
+            logger.info("UserStatusService: 이미 UserStatus가 존재합니다.");
             return null;
         }
 
@@ -56,11 +57,11 @@ public class BasicUserStatusService implements UserStatusService {
 
         if (findResult.isPresent()){
             UserStatus userStatus = findResult.get();
-            System.out.println("유저 상태 조회 성공");
+            System.out.println("UserStatusService: 유저 상태 조회 성공");
             return userStatus;
         }
         else{
-            System.out.println("해당 유저의 상태를 찾을 수 없습니다.");
+            System.out.println("UserStatusService: 해당 유저의 상태를 찾을 수 없습니다.");
             return null;
         }
     }
@@ -80,7 +81,7 @@ public class BasicUserStatusService implements UserStatusService {
         Optional<UserStatus> foundStatus = userStatusRepository.findStatus(userId);
 
         if (foundStatus.isEmpty()) {
-            logger.warning("UserStatus가 존재하지 않습니다: " + userId);
+            logger.warning("UserStatusService: UserStatus가 존재하지 않습니다: " + userId);
             return false;
         }
 
@@ -95,17 +96,27 @@ public class BasicUserStatusService implements UserStatusService {
             status.updateStatus(currentStatus);
             status.updateUpdatedAt(Instant.now());
             userStatusRepository.updateUserStatus(status);
-            System.out.println("유저 상태 변경됨");
+            System.out.println("UserStatusService: 유저 상태 변경됨");
             return true;
         }
         return true;
     }
 
+    // 상태 아이디로 삭제
     @Override
-    public void delete(UUID statusId) {
+    public void deleteUserStatus(UUID statusId) {
         if((userStatusRepository.findById(statusId)).isEmpty()){
-            throw new NoSuchElementException("해당하는 UserStatus가 없습니다. ");
+            throw new NoSuchElementException("UserStatusService: 해당하는 UserStatus가 없습니다. ");
         }
         userStatusRepository.deleteById(statusId);
+    }
+
+    //유저 아이디로 상태 삭제
+    @Override
+    public void deleteUserStatusByUserId(UUID userId) {
+        UserStatus userStatus = userStatusRepository.findStatus(userId)
+                .orElseThrow(() -> new NoSuchElementException("UserStatusService: 유저가 존재하지 않습니다."));
+
+        userStatusRepository.deleteUserStatus(userId);
     }
 }

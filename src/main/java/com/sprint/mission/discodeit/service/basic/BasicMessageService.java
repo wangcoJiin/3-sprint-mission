@@ -34,22 +34,22 @@ public class BasicMessageService implements MessageService {
 
     //메시지 생성
     @Override
-    public Message CreateMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
-        User sender = userRepository.findUserById(request.senderId());
-        Channel channel = channelRepository.findChannelUsingId(request.channelId());
+    public Message createMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
 
-        if(isUserExist(sender) &&
-                isChannelExist(channel) &&
-                isParticipant(channel, request.senderId()) &&
-                isChannelLock(channel, request.password())) {
+        User user = userRepository.findUserById(request.senderId())
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
 
-            System.out.println("채널에 입장하셨습니다.");
+        Channel channel = channelRepository.findChannelUsingId(request.channelId())
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
+
+
+        if(isParticipant(channel, request.senderId()) && isChannelLock(channel, request.password())){
 
             Message newMessage = new Message(request.channelId(), request.senderId(), request.messageContent());
-            boolean created = messageRepository.saveMessage(newMessage);
+            Message created = messageRepository.saveMessage(newMessage);
 
-            if (!created) {
-                throw new IllegalStateException("메시지 저장 실패");
+            if (created == null) {
+                throw new IllegalStateException("MessageService: 메시지 저장 실패");
             }
 
             List<UUID> attachmentIds = binaryContentCreateRequests.stream()
@@ -60,7 +60,9 @@ public class BasicMessageService implements MessageService {
 
                         BinaryContent newBinaryContent = new BinaryContent(fileName, contentType, bytes);
                         BinaryContent binaryContent = binaryContentRepository.saveBinaryContent(newBinaryContent);
-                        messageRepository.addAttachedFileId(newMessage.getMessageId(), binaryContent.getId());
+
+                        newMessage.getAttachedFileIds().add(binaryContent.getId());
+                        messageRepository.saveMessage(newMessage);
 
                         return binaryContent.getId();
                     })
@@ -75,91 +77,105 @@ public class BasicMessageService implements MessageService {
     // 채널 메시지 조회 (findAll 수정 버전)
     @Override
     public List<Message> findallByChannelId(UUID channelId, UUID userId, String password) {
-        Channel channel = channelRepository.findChannelUsingId(channelId);
-        User user = userRepository.findUserById(userId);
 
-        if (isUserExist(user) && isChannelExist(channel)){
-            if (channel.getLock() == ChannelType.PRIVATE) {
-                if (isCorrectPassword(channel, password)){
-                    if (isParticipant(channel, userId)){
-                        System.out.println("채널에 입장하셨습니다.");
-                        return messageRepository.findMessageByChannel(channelId);
-                    }
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
+
+        Channel channel = channelRepository.findChannelUsingId(channelId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
+
+
+        if (channel.getLock() == ChannelType.PRIVATE) {
+            if (isCorrectPassword(channel, password)){
+                if (isParticipant(channel, userId)){
+
+                    logger.info("MessageService: 채널에 입장하셨습니다.");
+
+                    return messageRepository.findMessageByChannel(channelId).stream()
+                            .toList();
                 }
-            System.out.println("채널에 입장하셨습니다.");
-            return messageRepository.findMessageByChannel(channelId);
+                return null;
             }
+            return null;
         }
-        return null;
+
+        logger.info("MessageService: 채널에 입장하셨습니다.");
+
+        return messageRepository.findMessageByChannel(channelId).stream()
+                .toList();
     }
 
     // 메시지 아이디 이용한 조회
     @Override
     public Message getMessageById(UUID channelId, UUID userId, String password, UUID messageId) {
-        Channel channel = channelRepository.findChannelUsingId(channelId);
-        User user = userRepository.findUserById(userId);
 
-        Message message = messageRepository.findMessageById(messageId);
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
+
+        Channel channel = channelRepository.findChannelUsingId(channelId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
 
 
-        if (isMessageExist(message) &&
-                isUserExist(user) &&
-                isChannelExist(channel) &&
-                isParticipant(channel, userId) &&
-                isChannelLock(channel, password)) {
-            return message;
-
-        }
-        return null;
+        return messageRepository.findMessageById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다."));
     }
 
     // 발송자를 이용해서 조회
     @Override
     public List<Message> userMessage(UUID senderId, String password) {
-        User user = userRepository.findUserById(senderId);
+
+        User user = userRepository.findUserById(senderId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
 
         List<Channel> foundChannel = channelRepository.findAllChannels().stream()
                 .filter(channel -> channel.getJoiningUsers().contains(senderId))
-                .collect(Collectors.toList());
+                .toList();
 
         for(Channel channel : foundChannel){
-            if (isUserExist(user) &&
-                    isChannelExist(channel) &&
-                    isChannelLock(channel, password)) {
-                System.out.println("확인되었습니다.");
+            if (isChannelExist(channel) && isChannelLock(channel, password)) {
+                logger.info("MessageService: 확인되었습니다.");
             }
         }
-        return messageRepository.userMessage(senderId);
+
+        return messageRepository.userMessage(senderId).stream()
+            .toList();
     }
 
     // 메시지 수정
     @Override
     public boolean updateMessage(MessageUpdateRequest request) {
-        Channel channel = channelRepository.findChannelUsingId(request.channelId());
-        User user = userRepository.findUserById(request.senderId());
 
-        Message message = messageRepository.findMessageById(request.messageId());
+        User user = userRepository.findUserById(request.senderId())
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
 
-        if (isUserExist(user) && isChannelExist(channel) && isSender(message, request.senderId())){
+        Channel channel = channelRepository.findChannelUsingId(request.channelId())
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
 
+        Message message = messageRepository.findMessageById(request.messageId())
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다."));
+
+
+        if (isSender(message, request.senderId())){
             if (channel.getLock() == ChannelType.PRIVATE) {
                 if (isCorrectPassword(channel, request.password())) {
                     if (isParticipant(channel, request.senderId())) {
 
-                        System.out.println("채널에 입장하셨습니다.");
-                        messageRepository.updateMessage(request.messageId(), request.newMessageContent());
+                        logger.info("MessageService: 채널에 입장하셨습니다.");
+                        message.updateMessageContent(request.newMessageContent());
+                        messageRepository.saveMessage(message);
 
-                        System.out.println("메시지가 수정되었습니다.");
-                        logger.info("메시지 내용이 수정됨");
+                        logger.info("MessageService: 메시지가 수정되었습니다.");
                         return true;
                     }
+                    return false;
                 }
+                return false;
             }
-            System.out.println("채널에 입장하셨습니다.");
-            messageRepository.updateMessage(request.messageId(), request.newMessageContent());
+            logger.info("MessageService: 채널에 입장하셨습니다.");
+            message.updateMessageContent(request.newMessageContent());
+            messageRepository.saveMessage(message);
 
-            System.out.println("메시지가 수정되었습니다.");
-            logger.info("메시지 내용이 수정됨");
+            logger.info("MessageService: 메시지가 수정되었습니다.");
             return true;
         }
         return false;
@@ -167,51 +183,35 @@ public class BasicMessageService implements MessageService {
 
     // 메시지 삭제
     @Override
-    public boolean deletedMessage(UUID messageId, UUID senderId, String password) {
-        Message message = messageRepository.findMessageById(messageId);
+    public void deletedMessage(UUID messageId, UUID senderId, String password) {
 
-        User user = userRepository.findUserById(senderId);
+        User user = userRepository.findUserById(senderId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
 
-        if (isMessageExist(message) &&
-                isUserExist(user) &&
-                isChannelExist(channelRepository.findChannelUsingId(message.getChannelId())) &&
-                isChannelLock(channelRepository.findChannelUsingId(message.getChannelId()), password) &&
-                isParticipant(channelRepository.findChannelUsingId(message.getChannelId()), senderId) &&
-                isSender(message, senderId)){
-            System.out.println("확인되었습니다.");
+        Message message = messageRepository.findMessageById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다."));
 
 
-            List<UUID> relatedBinaryFile = message.getAttachedFileIds();
+        if (isMessageExist(message)) {
+            Channel channel = channelRepository.findChannelUsingId(message.getChannelId())
+                    .orElseThrow(() -> new NoSuchElementException("MessageService: 체널이 존재하지 않습니다."));
 
-            // 연관 첨부파일 삭제
-            if (relatedBinaryFile == null){
-                System.out.println("첨부파일 없음.");
+            if (isUserExist(user) &&
+                    isChannelLock(channel, password) &&
+                    isParticipant(channel, senderId) &&
+                    isSender(message, senderId)
+            ) {
+
+                logger.info("MessageService: 확인되었습니다.");
+
+                // 연관 첨부파일 삭제
+                message.getAttachedFileIds()
+                        .forEach(binaryContentRepository::deleteById);
+
+                messageRepository.deletedMessage(messageId);
+
             }
-            else {
-                for (UUID binaryFileId : relatedBinaryFile) {
-                    boolean deleteBinaryFile = binaryContentRepository.deleteById(binaryFileId);
-
-                    if (deleteBinaryFile){
-                        System.out.println("첨부파일이 삭제되었습니다.");
-                    }
-                    else{
-                        logger.warning("첨부파일 삭제에 실패했습니다.");
-                    }
-                }
-            }
-
-            // 메시지 삭제
-            boolean delete = messageRepository.deletedMessage(messageId);
-
-            if (!delete) {
-                throw new IllegalStateException("메시지 삭제 실패: " + messageId);
-            }
-
-            System.out.println("메시지가 삭제되었습니다.");
-            logger.info("메시지 삭제됨");
-            return true;
         }
-        return false;
     }
 
 
@@ -265,7 +265,6 @@ public class BasicMessageService implements MessageService {
         }
         return true;
     }
-
 
     //메시지 존재 검사
     private boolean isMessageExist(Message message){

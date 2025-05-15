@@ -24,7 +24,7 @@ public interface UserStatusRepository {
     boolean updateUserStatus(UserStatus userStatus);
 
     // 아이디로 삭제
-    void deleteById(UUID id);
+    void deleteById(UUID userId);
 
     // 유저 아이디로 삭제
     void deleteUserStatus(UUID userId);

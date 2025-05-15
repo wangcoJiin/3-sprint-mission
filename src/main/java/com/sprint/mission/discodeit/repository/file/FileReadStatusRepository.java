@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
@@ -23,14 +24,13 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     private static final Logger logger = Logger.getLogger(FileReadStatusRepository.class.getName());
 
-    // 파일 저장 경로 설정
-    private static final String STORAGE_DIR = "data/ReadStatus";
-    private final String EXTENSION = ".ser";
     private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
-    // 폴더 생성
-    public FileReadStatusRepository() {
-        DIRECTORY = Paths.get(System.getProperty("user.dir"), STORAGE_DIR, ReadStatus.class.getSimpleName());
+    public FileReadStatusRepository(
+            @Value(".data") String fileDirectory
+    ) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, ReadStatus.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -107,7 +107,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                     .filter(readStatus -> readStatus.getUserId().equals(userId))
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException(STORAGE_DIR + " 디렉토리 읽기 실패: ", e);
+            throw new RuntimeException(DIRECTORY + " 디렉토리 읽기 실패: ", e);
         }
     }
 
@@ -130,7 +130,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
                     .filter(readStatus -> readStatus.getChannelId().equals(channelId))
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException(STORAGE_DIR + " 디렉토리 읽기 실패: ", e);
+            throw new RuntimeException(DIRECTORY + " 디렉토리 읽기 실패: ", e);
         }
     }
 

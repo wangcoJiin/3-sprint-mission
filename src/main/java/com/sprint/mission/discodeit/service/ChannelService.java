@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.response.ChannelFindResponse;
 import com.sprint.mission.discodeit.entity.Channel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChannelService {
@@ -24,7 +25,7 @@ public interface ChannelService {
     List<ChannelFindResponse> findAllChannel(UUID userId);
 
     // 채널 이름으로 조회
-    List<Channel> getChannelUsingName(String channelName);
+    Optional<Channel> getChannelUsingName(String channelName);
 
     // 채널 아이디로 조회
     ChannelFindResponse getChannelUsingId(UUID channelId);

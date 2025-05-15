@@ -21,6 +21,9 @@ public interface UserStatusService {
     // 상태 업데이트
     boolean updateUserStatus(UserStatusUpdateRequest request);
 
-    // 상태 삭제
-    void delete(UUID statusId);
+    // 아이디로 상태 삭제
+    void deleteUserStatus(UUID statusId);
+
+    // 유저 아이디로 상태 삭제
+    void deleteUserStatusByUserId(UUID userId);
 }

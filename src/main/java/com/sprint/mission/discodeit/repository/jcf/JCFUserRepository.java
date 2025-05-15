@@ -17,9 +17,9 @@ public class JCFUserRepository implements UserRepository {
 
     // 유저 저장
     @Override
-    public boolean saveUser(User user) {
+    public User saveUser(User user) {
         users.put(user.getId(), user);
-        return true;
+        return user;
     }
 
     // 전체 유저 조회
@@ -30,8 +30,8 @@ public class JCFUserRepository implements UserRepository {
 
     // 특정 유저 조회
     @Override
-    public User findUserById(UUID userId) {
-        return users.get(userId);
+    public Optional<User> findUserById(UUID userId) {
+        return Optional.of(users.get(userId));
     }
 
     // 이름으로 조회

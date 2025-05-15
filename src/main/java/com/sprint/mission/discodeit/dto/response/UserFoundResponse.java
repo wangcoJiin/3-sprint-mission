@@ -4,13 +4,12 @@ import com.sprint.mission.discodeit.entity.OnlineStatus;
 
 import java.util.UUID;
 
-/**
- * 유저 조회 응답 DTO
- */
-
-public record UserResponse(
+public record UserFoundResponse (
         UUID id,
         String name,
         String userEmail,
-        UUID profileId
-) { }
+        UUID profileId,
+        OnlineStatus state
+)
+{ }
+

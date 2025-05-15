@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.response.UserFoundResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.OnlineStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -25,7 +26,7 @@ public class BasicAuthService implements AuthService {
     private final UserRepository userRepository;
 
     @Override
-    public UserResponse login(LoginRequest request) {
+    public UserFoundResponse login(LoginRequest request) {
 
         String username = request.userName();
         String password = request.userPassword();
@@ -49,7 +50,7 @@ public class BasicAuthService implements AuthService {
                 .orElse(OnlineStatus.Unknown);
 
 
-        return new UserResponse(
+        return new UserFoundResponse(
                 user.getId(),
                 user.getName(),
                 user.getUserEmail(),

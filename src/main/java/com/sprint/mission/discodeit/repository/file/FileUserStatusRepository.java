@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
@@ -25,14 +26,13 @@ public class FileUserStatusRepository implements UserStatusRepository {
 
     private static final Logger logger = Logger.getLogger(FileUserStatusRepository.class.getName());
 
-    // 파일 저장 경로 설정
-    private static final String STORAGE_DIR = "data/UserStatus";
-    private final String EXTENSION = ".ser";
     private final Path DIRECTORY;
+    private final String EXTENSION = ".ser";
 
-    // 폴더 생성
-    public FileUserStatusRepository() {
-        DIRECTORY = Paths.get(System.getProperty("user.dir"), STORAGE_DIR, UserStatus.class.getSimpleName());
+    public FileUserStatusRepository(
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+    ) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, UserStatus.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -50,7 +50,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
     // 유저 상태 저장
     @Override
     public UserStatus saveUserStatus(UserStatus userStatus) {
-        Path path = resolvePath(userStatus.getUserId());
+        Path path = resolvePath(userStatus.getId());
         
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -92,10 +92,15 @@ public class FileUserStatusRepository implements UserStatusRepository {
     @Override
     public Optional<UserStatus> findStatus(UUID userId) {
 
-        return findAllStatus().stream()
+        Optional<UserStatus> result = findAllStatus().stream()
                 .filter(userStatus -> userStatus.getUserId().equals(userId))
                 .findFirst();
 
+        if (result.isEmpty()) {
+            System.out.println("해당 유저의 상태 정보가 존재하지 않습니다: " + userId);
+        }
+
+        return result;
     }
 
     // 등록된 전체 상태 조회
@@ -120,7 +125,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
                     .toList();
         }
         catch (IOException e){
-            throw new RuntimeException("UserStatus 폴더 읽기 실패: " + STORAGE_DIR, e);
+            throw new RuntimeException(DIRECTORY + " UserStatus 폴더 읽기 실패: ", e);
         }
     }
 
@@ -140,7 +145,7 @@ public class FileUserStatusRepository implements UserStatusRepository {
         }
         catch (IOException e) {
             // 그 외 IO 예외
-            throw new RuntimeException(" userStatus 업데이트 중 오류 발생 ", e);
+            throw new RuntimeException("userStatus 업데이트 중 오류 발생 ", e);
         }
         return true;
     }

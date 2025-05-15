@@ -17,30 +17,10 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public boolean saveMessage(Message message) {
+    public Message saveMessage(Message message) {
         messages.put(message.getMessageId(), message);
 
-        return true;
-    }
-
-    // 메시지에 첨부파일 아이디 추가
-    @Override
-    public boolean addAttachedFileId(UUID messageId, UUID attachedFileId) {
-        Message message = findMessageById(messageId);
-        message.getAttachedFileIds().add(attachedFileId);
-
-        messages.put(message.getMessageId(), message);
-        return true;
-    }
-
-    // 메시지 내용 수정
-    @Override
-    public boolean updateMessage(UUID messageId, String newMessageContent) {
-        Message message = findMessageById(messageId);
-        message.updateMessageContent(newMessageContent);
-        message.updateUpdatedAt(Instant.now());
-
-        return true;
+        return message;
     }
 
     // 전체 메시지 조회
@@ -51,8 +31,8 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 아이디로 메시지 조회
     @Override
-    public Message findMessageById(UUID messageId) {
-        return messages.get(messageId);
+    public Optional<Message> findMessageById(UUID messageId) {
+        return Optional.of(messages.get(messageId));
     }
 
     // 특정 채널의 메시지 조회
@@ -73,8 +53,7 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 메시지 삭제
     @Override
-    public boolean deletedMessage(UUID messageId) {
+    public void deletedMessage(UUID messageId) {
         messages.remove(messageId);
-        return true;
     }
 }

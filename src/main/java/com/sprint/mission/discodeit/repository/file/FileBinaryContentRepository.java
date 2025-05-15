@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,15 +26,13 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     private static final Logger logger = Logger.getLogger(FileBinaryContentRepository.class.getName());
 
-    // 파일 저장 경로 설정
-    private static final String STORAGE_DIR = "data/BinaryContent";
-    private final String EXTENSION = ".ser";
     private final Path DIRECTORY;
-
+    private final String EXTENSION = ".ser";
 
     public FileBinaryContentRepository(
-    ){
-        DIRECTORY = Paths.get(System.getProperty("user.dir"), STORAGE_DIR, BinaryContent.class.getSimpleName());
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+    ) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, BinaryContent.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -57,7 +56,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
              ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(binaryContent);
-            System.out.println("바이너리 파일이 저장 되었습니다");
+            logger.log(Level.INFO, "바이너리 파일이 저장 되었습니다");
         }
         catch (FileNotFoundException e) {
             // 파일 생성 실패 시 메시지
