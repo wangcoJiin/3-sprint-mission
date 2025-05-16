@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -119,7 +121,7 @@ public class UserController {
     // 유저 전체 조회
     @RequestMapping(
             path = "/findAll"
-//            , method = RequestMethod.GET
+            , method = RequestMethod.GET
     )
     @ResponseBody
     public ResponseEntity<List<UserDto>> findAll() {
@@ -164,13 +166,47 @@ public class UserController {
 
 
 
+//    // 단일 파일 처리
+//    // MultipartFile 타입의 요청값을 BinaryContentCreateRequest 타입으로 변환하기 위한 메서드
+//    private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profile) {
+//
+//        if(profile.isEmpty()) {
+//            // 컨트롤러가 요청받은 파라미터 중 MultipartFile 타입의 데이터가 비어있다면:
+//            return Optional.empty();
+//        } else {
+//            // 컨트롤러가 요청받은 파라미터 중 MultipartFile 타입의 데이터가 존재한다면:
+//            try {
+//                BinaryContentCreateRequest binaryContentCreateRequest = new BinaryContentCreateRequest(
+//                        profile.getOriginalFilename(),
+//                        profile.getContentType(),
+//                        profile.getBytes()
+//                );
+//                return Optional.of(binaryContentCreateRequest);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    }
+
     // 단일 파일 처리
     // MultipartFile 타입의 요청값을 BinaryContentCreateRequest 타입으로 변환하기 위한 메서드
     private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profile) {
 
-        if(profile.isEmpty()) {
-            // 컨트롤러가 요청받은 파라미터 중 MultipartFile 타입의 데이터가 비어있다면:
-            return Optional.empty();
+        if (profile == null || profile.isEmpty()) {
+            // 기본 이미지 경로로부터 BinaryContentCreateRequest 생성
+            try {
+                ClassPathResource resource = new ClassPathResource("static/images/default-avatar.png");
+                byte[] bytes = resource.getInputStream().readAllBytes();
+
+                BinaryContentCreateRequest defaultRequest = new BinaryContentCreateRequest(
+                        "default-avatar.png",
+                        "image/png",
+                        bytes
+                );
+                return Optional.of(defaultRequest);
+            } catch (IOException e) {
+                throw new RuntimeException("기본 이미지 파일을 읽는 중 오류가 발생했습니다.", e);
+            }
         } else {
             // 컨트롤러가 요청받은 파라미터 중 MultipartFile 타입의 데이터가 존재한다면:
             try {
@@ -185,4 +221,5 @@ public class UserController {
             }
         }
     }
+
 }

@@ -9,10 +9,10 @@ public record UserDto(
         UUID id,
         Instant createdAt,
         Instant updatedAt,
-        String name,
-        String userEmail,
+        String username,
+        String email,
         UUID profileId,
-        OnlineStatus state
+        OnlineStatus online
 )
 { }
 
