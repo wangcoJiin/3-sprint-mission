@@ -49,7 +49,7 @@ public class MessageController {
 
     // 채널의 메시지 조회
     @RequestMapping(
-            path = "/find/by-channel"
+            path = "/find"
     )
     @ResponseBody
     public ResponseEntity<List<Message>> getMessageByChannelId(
