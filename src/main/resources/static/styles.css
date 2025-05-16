@@ -5,41 +5,39 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #2f3136; /* 디스코드 배경색 */
-    color: #dcddde;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
 }
 
 .container {
     max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
+    margin: 0 auto;
+    padding: 40px 20px;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #ffffff;
-    font-size: 24px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #222;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 12px;
 }
 
 .user-list {
-    background-color: #36393f; /* 디스코드 채팅창 패널 색상 */
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
 .user-item {
     display: flex;
     align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #2f3136;
-    transition: background-color 0.2s ease;
-}
-
-.user-item:hover {
-    background-color: #42454a; /* 호버 시 배경 강조 */
+    padding: 20px;
+    border-bottom: 1px solid #eeeeee;
 }
 
 .user-item:last-child {
@@ -47,12 +45,12 @@ h1 {
 }
 
 .user-avatar {
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    margin-right: 16px;
+    margin-right: 20px;
     object-fit: cover;
-    border: 2px solid #202225;
+    border: 2px solid #ddd;
 }
 
 .user-info {
@@ -60,32 +58,32 @@ h1 {
 }
 
 .user-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 5px;
 }
 
 .user-email {
-    font-size: 13px;
-    color: #b9bbbe;
+    font-size: 14px;
+    color: #555;
 }
 
 .status-badge {
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: 999px;
     font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: bold;
+    min-width: 60px;
+    text-align: center;
 }
 
 .online {
-    background-color: #3ba55d; /* 디스코드 그린 */
-    color: #ffffff;
+    background-color: #3cb371; /* 더 밝은 그린 */
+    color: white;
 }
 
 .offline {
-    background-color: #747f8d; /* 디스코드 오프라인 색 */
-    color: #ffffff;
+    background-color: #ccc;
+    color: white;
 }
