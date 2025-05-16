@@ -12,8 +12,11 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -90,9 +93,27 @@ public class BasicUserService implements UserService {
 //        );
 //    }
 
+    // 기본 프로필 저장
+    private Optional<BinaryContentCreateRequest> loadDefaultProfileImage() {
+        try {
+            ClassPathResource resource = new ClassPathResource("static/images/default-avatar.png");
+            InputStream inputStream = resource.getInputStream();
+            byte[] data = inputStream.readAllBytes();
+
+            BinaryContentCreateRequest defaultImage = new BinaryContentCreateRequest(
+                    "default-avatar.png",
+                    "image/png",
+                    data
+            );
+            return Optional.of(defaultImage);
+        } catch (IOException e) {
+            throw new RuntimeException("기본 프로필 이미지 로드 실패", e);
+        }
+    }
+
     // 유저 생성
     @Override
-    public User createUser(UserCreateRequest request, Optional<BinaryContentCreateRequest> ProfileImage) {
+    public User createUser(UserCreateRequest request, Optional<BinaryContentCreateRequest> profileImage) {
 
         // 이메일 중복 검사 없을 수도 있으니까 옵셔널로.. 이미 존재하면 유저 객체 만들지 않고 생성 종료
         Optional<User> existUserEmail = userRepositoryService.findUserByEmail(request.userEmail());
@@ -112,20 +133,37 @@ public class BasicUserService implements UserService {
                 request.userPassword()
         );
 
+        Optional<BinaryContentCreateRequest> imageToUse = profileImage.isPresent()
+                ? profileImage
+                : loadDefaultProfileImage(); // 여기서 기본 이미지 설정
+
+//        // ✅ 프로필 이미지 저장
+//        imageToUse.ifPresent(profile -> {
+//            BinaryContent newProfileImage = new BinaryContent(
+//                    profile.fileName(),
+//                    profile.contentType(),
+//                    profile.data()
+//            );
+//            fileBinaryContentRepository.saveBinaryContent(newProfileImage);
+//            user.updateProfileId(newProfileImage.getId());
+//        });
+
         // 2. 프로필 이미지 있으면 저장
-        UUID profileId = ProfileImage
+        UUID profileId = imageToUse
                 .map(profileImageRequest -> {
                     String fileName = profileImageRequest.fileName();
                     String contentType = profileImageRequest.contentType();
                     byte[] bytes = profileImageRequest.data();
 
-                    BinaryContent profileImage = new BinaryContent(fileName, contentType, bytes);
-                    fileBinaryContentRepository.saveBinaryContent(profileImage);
-                    user.updateProfileId(profileImage.getId());
+                    BinaryContent newProfileImage = new BinaryContent(fileName, contentType, bytes);
+                    fileBinaryContentRepository.saveBinaryContent(newProfileImage);
+                    user.updateProfileId(newProfileImage.getId());
                     userRepositoryService.saveUser(user);
-                    return profileImage.getId();
+                    return newProfileImage.getId();
                 })
                 .orElse(null); // 없으면 그냥 null
+
+
 
         // 3. 접속 상태 생성
         UserStatus userStatus = new UserStatus(user.getId());
