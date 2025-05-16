@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -19,14 +20,14 @@ public class BinaryContentController {
 
     private final BinaryContentService binaryContentService;
 
-    @RequestMapping("/find")
+    @RequestMapping(value ="/find", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> find(@RequestParam("binaryContentId") UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentService.findBinaryContentById(binaryContentId);
         return ResponseEntity.ok(binaryContent);
     }
 
     // BinaryContent 다중 조회
-    @RequestMapping("/findAll")
+    @RequestMapping(value ="/findAll", method = RequestMethod.GET)
     public ResponseEntity<List<BinaryContent>> findAll(
             @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
         List<BinaryContent> binaryContents = binaryContentService.findAllBinaryContent(binaryContentIds);
