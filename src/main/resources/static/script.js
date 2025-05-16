@@ -51,17 +51,6 @@ async function renderUserList(users) {
             await fetchUserProfile(user.profileId) :
             '/default-avatar.png';
 
-        // userElement.innerHTML = `
-        //     <img src="${profileUrl}" alt="${user.username}" class="user-avatar">
-        //     <div class="user-info">
-        //         <div class="user-name">${user.username}</div>
-        //         <div class="user-email">${user.email}</div>
-        //     </div>
-        //     <div class="status-badge ${z ? 'online' : 'offline'}">
-        //         ${user.online ? '온라인' : '오프라인'}
-        //     </div>
-        // `;
-
         // Determine badge class and label based on OnlineStatus enum
         let statusClass = '';
         let statusLabel = '';
