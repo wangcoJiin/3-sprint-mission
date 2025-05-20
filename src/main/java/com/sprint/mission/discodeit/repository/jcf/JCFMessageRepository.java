@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ public class JCFMessageRepository implements MessageRepository {
     // 메시지 생성
     @Override
     public Message saveMessage(Message message) {
-        messages.put(message.getMessageId(), message);
+        messages.put(message.getId(), message);
 
         return message;
     }
@@ -47,7 +46,7 @@ public class JCFMessageRepository implements MessageRepository {
     @Override
     public List<Message> userMessage(UUID senderId) {
         return  messages.values().stream()
-                .filter(message -> message.getSenderId().equals(senderId))
+                .filter(message -> message.getAuthorId().equals(senderId))
                 .collect(Collectors.toList());
     }
 

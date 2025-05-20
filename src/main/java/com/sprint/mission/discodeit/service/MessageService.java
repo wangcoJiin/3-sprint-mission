@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.request.MessageUpdateReq;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 
@@ -13,18 +14,15 @@ public interface MessageService {
     Message createMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests);
 
     // 채널의 메시지 조회
-    List<Message> findallByChannelId(UUID channelId, UUID userId, String password);
+    List<Message> findallByChannelId(UUID channelId);
 
     // 채널의 특정 메시지 조회
-    Message getMessageById(UUID channelId, UUID userId, String password, UUID messageId);
-
-    // 유저가 보낸 메시지 조회
-    List<Message> userMessage(UUID senderId, String password);
+    Message getMessageById(UUID messageId);
 
     // 메시지 수정
-    boolean updateMessage(MessageUpdateRequest request);
+    Message updateMessage(UUID messageId, MessageUpdateRequest request);
 
     // 메시지 삭제
-    void deletedMessage(UUID messageId, UUID senderId, String password);
+    void deletedMessage(UUID messageId);
 
 }
