@@ -18,14 +18,14 @@ public class BinaryContent implements Serializable {
 
     private String fileName;
     private String contentType;
-    private byte[] data;
+    private byte[] bytes;
 
-    public BinaryContent(String fileName, String contentType, byte[] data) {
+    public BinaryContent(String fileName, String contentType, byte[] bytes) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.fileName = fileName;
         this.contentType = contentType;
-        this.data = data;
+        this.bytes = bytes;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class BinaryContent implements Serializable {
                 ", createdAt=" + createdAt +
                 ", fileName='" + fileName + '\'' +
                 ", contentType='" + contentType + '\'' +
-                ", data=" + Arrays.toString(data) +
+                ", data=" + Arrays.toString(bytes) +
                 '}';
     }
 }
