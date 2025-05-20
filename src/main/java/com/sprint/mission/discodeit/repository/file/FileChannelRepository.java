@@ -92,9 +92,10 @@ public class FileChannelRepository implements ChannelRepository {
     @Override
     public Optional<Channel> findChannelUsingName(String channelName) {
         return findAllChannels().stream()
-                .filter(channel -> channel.getChannelName().equalsIgnoreCase(channelName))
+                .filter(channel -> channel.getName() != null && channel.getName().equalsIgnoreCase(channelName))
                 .findFirst();
     }
+
 
     // 아이디로 채널 조회
     @Override
