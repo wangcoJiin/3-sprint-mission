@@ -75,24 +75,21 @@ public class BasicReadStatusService implements ReadStatusService {
             throw new IllegalStateException("해당하는 유저의 ReadStatus가 없습니다.");
         }
         System.out.println("유저의 ReadStatus 조회 성공");
+
         return result;
     }
 
     // ReadStatus 업데이트
     @Override
-    public ReadStatus updateReadStatus(ReadStatusUpdateRequest request) {
+    public ReadStatus updateReadStatus(UUID readStatusId, ReadStatusUpdateRequest request) {
         // id로 ReadStatus 조회
-        Optional<ReadStatus> result = readStatusRepository.findReadStatusById(request.id());
+        ReadStatus readStatus = readStatusRepository.findReadStatusById(readStatusId)
+                .orElseThrow(
+                        () -> new NoSuchElementException("해당하는 ReadStatus가 없습니다."));
 
-        if(result.isEmpty()){
-            throw new IllegalArgumentException("해당하는 ReadStatus가 없습니다.");
-        }
+        readStatus.updateLastReadAt(request.newLastReadAt());
 
-        ReadStatus readStatus = result.get();
-
-        readStatus.updateLastReadAt(request.updatedAt());
-
-        readStatusRepository.updateReadStatus(readStatus);
+        readStatusRepository.saveReadStatus(readStatus);
 
         return readStatus;
     }
