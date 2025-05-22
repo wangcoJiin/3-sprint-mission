@@ -156,8 +156,7 @@ public class BasicUserService implements UserService {
         Optional<User> foundUserResult = userRepository.findUserByName(name);
 
         if (foundUserResult.isEmpty()) {
-            logger.warning("조회된 유저가 없습니다.");
-            return Optional.empty();
+            throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
         }
 
         User user = foundUserResult.get();
@@ -194,6 +193,8 @@ public class BasicUserService implements UserService {
                     Boolean online = userStatusRepository.findStatus(user.getId())
                             .map(UserStatus::isOnline)
                             .orElse(null);
+
+                    logger.info("UserService: " + user.getUsername() + "의 UserStatus 조회 결과: " + online);
                     
                     return new UserDto(
                             user.getId(),
@@ -217,8 +218,7 @@ public class BasicUserService implements UserService {
 //        유저 조회
         Optional<User> foundUser = userRepository.findUserById(userId);
         if(foundUser.isEmpty()){
-            logger.warning("조회된 유저가 없습니다.");
-            return null;
+            throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
         }
 
         // 이메일 중복 검사 없을 수도 있으니까 옵셔널로.. 이미 존재하면 유저 객체 만들지 않고 생성 종료
@@ -284,8 +284,7 @@ public class BasicUserService implements UserService {
         //유저 조회
         Optional<User> foundUser = userRepository.findUserById(id);
         if(foundUser.isEmpty()){
-            logger.warning("조회된 유저가 없습니다.");
-            return false;
+            throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
         }
 
         User user = foundUser.get();
@@ -296,8 +295,7 @@ public class BasicUserService implements UserService {
             if (deleteResult){
                 logger.info("프로필 이미지가 삭제되었습니다.");
             } else{
-                logger.warning("프로필 이미지 삭제에 실패했습니다.");
-                return false;
+                throw new IllegalStateException("UserService: 프로필 이미지 삭제에 실패했습니다.");
             }
         }
 
