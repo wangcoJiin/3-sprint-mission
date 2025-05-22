@@ -43,8 +43,8 @@ public class MessageController {
         value = {
                 @ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨",
                     content = @Content(schema = @Schema(implementation = Message.class))),
-                @ApiResponse(responseCode = "404", description = "Channel을 찾을 수 없음",
-                    content = @Content(examples = @ExampleObject(value = "Channel with id {channelId} not found")))
+                @ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
+                    content = @Content(examples = @ExampleObject(value = "Channel | Author with id {channelId | authorId} not found")))
 
         }
     )
