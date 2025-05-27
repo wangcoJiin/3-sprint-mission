@@ -27,9 +27,9 @@ public class BasicAuthService implements AuthService {
         String username = request.username();
         String password = request.password();
 
-        User user = userRepository.findUserByName(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(
-                        () -> new NoSuchElementException("User with username " + username + " not found"));
+                        () -> new NoSuchElementException("AuthService: 유저를 찾을 수 없습니다. " + username));
 
         if (!Objects.equals(user.getPassword(), password)){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다 ");

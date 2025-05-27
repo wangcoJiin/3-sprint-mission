@@ -17,23 +17,22 @@ import java.util.UUID;
 public interface UserService {
 
     //     유저 생성 (UserCreateRequest DTO 활용)
-    User createUser(UserCreateRequest request, Optional<BinaryContentCreateRequest> optionalProfileImage);
-
-    // 기존 유저 리스트에 새로운 유저 추가
-    void addUserToRepository(User user);
+    User create(UserCreateRequest request, Optional<BinaryContentCreateRequest> optionalProfileImage);
 
     // 유저 아이디 이용해서 조회
-    UserDto getUserById(UUID id);
+    UserDto find(UUID id);
 
     // 유저 이름 이용해서 조회
     Optional<UserDto> searchUsersByName(String name);
 
     // 유저 전체 조회
-    List<UserDto> getAllUsers();
+    List<UserDto> findAll();
 
     User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest);
 
     // id 이용해서 유저 삭제
-    boolean deleteUserById(UUID id);
+    boolean delete(UUID id);
 
+    // 기존 유저 리스트에 새로운 유저 추가
+    void addUserToRepository(User user);
 }

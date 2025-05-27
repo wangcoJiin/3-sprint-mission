@@ -58,7 +58,7 @@ public class BasicUserService implements UserService {
 
     // 유저 생성
     @Override
-    public User createUser(UserCreateRequest request, Optional<BinaryContentCreateRequest> profileImage) {
+    public User create(UserCreateRequest request, Optional<BinaryContentCreateRequest> profileImage) {
 
         // 이메일 중복 검사 없을 수도 있으니까 옵셔널로.. 이미 존재하면 유저 객체 만들지 않고 생성 종료
         Optional<User> existUserEmail = userRepository.findUserByEmail(request.email());
@@ -66,17 +66,10 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException(request.email() + "은 이미 존재하는 이메일 입니다.");
         }
         // 이름 중복 검사
-        Optional<User> existUserName = userRepository.findUserByName(request.username());
+        Optional<User> existUserName = userRepository.findByUsername(request.username());
         if (existUserName.isPresent()){
             throw new IllegalArgumentException(request.username() + "은 이미 존재하는 이름 입니다.");
         }
-
-        //1. UserEmail 객체 생성
-        User user = new User(
-                request.username(),
-                request.email(),
-                request.password()
-        );
 
         Optional<BinaryContentCreateRequest> imageToUse = profileImage.isPresent()
                 ? profileImage
@@ -89,23 +82,27 @@ public class BasicUserService implements UserService {
                     String contentType = profileImageRequest.contentType();
                     byte[] bytes = profileImageRequest.bytes();
 
-                    BinaryContent newProfileImage = new BinaryContent(fileName, contentType, bytes);
-                    binaryContentRepository.saveBinaryContent(newProfileImage);
-                    user.updateProfileId(newProfileImage.getId());
-                    userRepository.saveUser(user);
+                    BinaryContent newProfileImage = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+                    binaryContentRepository.save(newProfileImage);
                     return newProfileImage.getId();
                 })
                 .orElse(null); // 없으면 그냥 null
 
-
+        //1. UserEmail 객체 생성
+        User user = new User(
+                request.username(),
+                request.email(),
+                request.password(),
+                profileId
+        );
 
         // 3. 접속 상태 생성
         Instant now = Instant.now();
         UserStatus userStatus = new UserStatus(user.getId(), now);
-        userStatusRepository.saveUserStatus(userStatus);
+        userStatusRepository.save(userStatus);
 
         // 4. 유저 저장
-        User createdUser = userRepository.saveUser(user);
+        User createdUser = userRepository.save(user);
 
         // 5. 최종적으로 생성된 User 반환
         return createdUser;
@@ -114,25 +111,25 @@ public class BasicUserService implements UserService {
 
     @Override
     public void addUserToRepository(User user) {
-        userRepository.saveUser(user);
+        userRepository.save(user);
     }
 
     // 아이디로 검색
     @Override
-    public UserDto getUserById(UUID id) {
+    public UserDto find(UUID id) {
 
         //유저 조회
-        User user = userRepository.findUserById(id)
+        User user = userRepository.findById(id)
                     .orElseThrow(
                     () -> new NoSuchElementException("해당하는 유저가 존재하지 않습니다."));
 
 
-        UserStatus test = userStatusRepository.findStatus(user.getId())
+        UserStatus test = userStatusRepository.findByUserId(user.getId())
                     .orElseThrow(
                             () -> new NoSuchElementException("해당하는 유저상태가 존재하지 않습니다."));
 
         // UserStatus 조회
-        Boolean online = userStatusRepository.findStatus(user.getId())
+        Boolean online = userStatusRepository.findByUserId(user.getId())
                 .map(UserStatus::isOnline)
                 .orElse(null);
 
@@ -153,7 +150,7 @@ public class BasicUserService implements UserService {
     public Optional<UserDto> searchUsersByName(String name) {
 
         //유저 조회
-        Optional<User> foundUserResult = userRepository.findUserByName(name);
+        Optional<User> foundUserResult = userRepository.findByUsername(name);
 
         if (foundUserResult.isEmpty()) {
             throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
@@ -162,7 +159,7 @@ public class BasicUserService implements UserService {
         User user = foundUserResult.get();
 
         // UserStatus 조회
-        Boolean online = userStatusRepository.findStatus(user.getId())
+        Boolean online = userStatusRepository.findByUserId(user.getId())
                 .map(UserStatus::isOnline)
                 .orElse(null);
 
@@ -182,30 +179,35 @@ public class BasicUserService implements UserService {
 
     // 전체 유저 조회
     @Override
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> findAll() {
 
-        List<User> foundResult = userRepository.findUserAll();
+//        List<User> foundResult = userRepository.findAll();
+//
+//        return foundResult.stream()
+//                .map(user -> {
+//
+//                    // 요소(유저)마다 상태 추출
+//                    Boolean online = userStatusRepository.findByUserId(user.getId())
+//                            .map(UserStatus::isOnline)
+//                            .orElse(null);
+//
+//                    logger.info("UserService: " + user.getUsername() + "의 UserStatus 조회 결과: " + online);
+//
+//                    return new UserDto(
+//                            user.getId(),
+//                            user.getCreatedAt(),
+//                            user.getUpdatedAt(),
+//                            user.getUsername(),
+//                            user.getEmail(),
+//                            user.getProfileId(),
+//                            online
+//                    );
+//                })
+//                .toList();
 
-        return foundResult.stream()
-                .map(user -> {
-
-                    // 요소(유저)마다 상태 추출
-                    Boolean online = userStatusRepository.findStatus(user.getId())
-                            .map(UserStatus::isOnline)
-                            .orElse(null);
-
-                    logger.info("UserService: " + user.getUsername() + "의 UserStatus 조회 결과: " + online);
-                    
-                    return new UserDto(
-                            user.getId(),
-                            user.getCreatedAt(),
-                            user.getUpdatedAt(),
-                            user.getUsername(),
-                            user.getEmail(),
-                            user.getProfileId(),
-                            online
-                    );
-                })
+        return userRepository.findAll()
+                .stream()
+                .map(this::toDto)
                 .toList();
     }
 
@@ -216,7 +218,7 @@ public class BasicUserService implements UserService {
     public User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
         
 //        유저 조회
-        Optional<User> foundUser = userRepository.findUserById(userId);
+        Optional<User> foundUser = userRepository.findById(userId);
         if(foundUser.isEmpty()){
             throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
         }
@@ -227,7 +229,7 @@ public class BasicUserService implements UserService {
             throw new IllegalArgumentException(userUpdateRequest.newEmail() + "은 이미 존재하는 이메일 입니다.");
         }
         // 이름 중복 검사
-        Optional<User> existUserName = userRepository.findUserByName(userUpdateRequest.newUsername());
+        Optional<User> existUserName = userRepository.findByUsername(userUpdateRequest.newUsername());
         if (existUserName.isPresent() && !existUserName.get().getId().equals(userId)){
             throw new IllegalArgumentException(userUpdateRequest.newUsername() + "은 이미 존재하는 이름 입니다.");
         }
@@ -266,23 +268,23 @@ public class BasicUserService implements UserService {
                     String fileName = profileRequest.fileName();
                     String contentType = profileRequest.contentType();
                     byte[] bytes = profileRequest.bytes();
-                    BinaryContent binaryContent = new BinaryContent(fileName, contentType, bytes);
-                    binaryContentRepository.saveBinaryContent(binaryContent);
+                    BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType, bytes);
+                    binaryContentRepository.save(binaryContent);
 
                     user.updateProfileId(binaryContent.getId());
                     return binaryContent.getId();
                 })
                 .orElse(null);
 
-        return userRepository.saveUser(user);
+        return userRepository.save(user);
 
     }
 
     // 유저 삭제
     @Override
-    public boolean deleteUserById(UUID id) {
+    public boolean delete(UUID id) {
         //유저 조회
-        Optional<User> foundUser = userRepository.findUserById(id);
+        Optional<User> foundUser = userRepository.findById(id);
         if(foundUser.isEmpty()){
             throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
         }
@@ -300,10 +302,26 @@ public class BasicUserService implements UserService {
         }
 
         // 접속 상태 삭제
-        userStatusRepository.deleteUserStatus(id);
+        userStatusRepository.deleteByUserId(id);
 
         // 유저 삭제
         userRepository.deleteUser(id);
         return true;
+    }
+
+    private UserDto toDto(User user) {
+        Boolean online = userStatusRepository.findByUserId(user.getId())
+                .map(UserStatus::isOnline)
+                .orElse(null);
+
+        return new UserDto(
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileId(),
+                online
+        );
     }
 }
