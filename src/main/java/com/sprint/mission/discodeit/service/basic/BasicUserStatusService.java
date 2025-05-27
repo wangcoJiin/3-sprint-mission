@@ -46,15 +46,7 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusRepository.save(userStatus);
     }
 
-    // 유저의 접속 상태 조회
-    @Override
-    public UserStatus findUserStatusById(UUID userId) {
-        return userStatusRepository.findByUserId(userId)
-                .orElseThrow(
-                () -> new NoSuchElementException("UserStatusService: 해당 유저가 존재하지 않습니다." + userId));
-    }
-
-
+    // 접속 상태 조회
     @Override
     public UserStatus find(UUID userStatusId) {
         return userStatusRepository.findById(userStatusId)
@@ -102,16 +94,5 @@ public class BasicUserStatusService implements UserStatusService {
             throw new NoSuchElementException("UserStatusService: 해당하는 UserStatus가 없습니다. ");
         }
         userStatusRepository.deleteById(statusId);
-    }
-
-    //유저 아이디로 상태 삭제
-    @Override
-    public void deleteUserStatusByUserId(UUID userId) {
-
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new NoSuchElementException("UserStatusService: 해당 유저가 존재하지 않습니다." + userId);
-        }
-
-        userStatusRepository.deleteById(userId);
     }
 }

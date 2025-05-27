@@ -23,11 +23,5 @@ public interface UserStatusService {
     // 아이디로 상태 삭제
     void delete(UUID statusId);
 
-    // 유저 아이디로 상태 삭제
-    void deleteUserStatusByUserId(UUID userId);
-
-    // 유저 접속 상태 조회
-    UserStatus findUserStatusById(UUID userId);
-
     UserStatus find(UUID userStatusId);
 }

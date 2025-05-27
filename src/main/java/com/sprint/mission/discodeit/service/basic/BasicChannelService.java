@@ -114,13 +114,6 @@ public class BasicChannelService implements ChannelService {
 
     }
 
-    // 이름만으로 채널 조회
-    @Override
-    public Optional<Channel> getChannelUsingName(String channelName) {
-
-        return channelRepository.findChannelUsingName(channelName);
-    }
-
     // id로 채널 조회
     @Override
     public ChannelDto find(UUID channelId) {
