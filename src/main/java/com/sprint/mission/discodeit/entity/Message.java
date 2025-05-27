@@ -4,10 +4,8 @@ import lombok.Getter;
 
 import java.io.Serial;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,32 +16,30 @@ public class Message implements java.io.Serializable{
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private UUID messageId;
+    private UUID Id;
     private Instant createdAt;
     private Instant updatedAt;
     private UUID channelId;
-    private UUID senderId;
-    private String messageContent;
-    private LocalDateTime timestamp;
-    private List<UUID> attachedFileIds;
+    private UUID authorId;
+    private String content;
+    private List<UUID> attachmentIds;
 
 
     public Message() {
     }
 
-    public Message(UUID channelId, UUID senderId, String messageContent) {
-        this.messageId = UUID.randomUUID();
+    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds) {
+        this.Id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
+        this.content = content;
         this.channelId = channelId;
-        this.senderId = senderId;
-        this.messageContent = messageContent;
-        this.timestamp = LocalDateTime.now();
-        this.attachedFileIds = new ArrayList<>();
+        this.authorId = authorId;
+        this.attachmentIds = attachmentIds;
     }
 
-    public void updateId(UUID messageId) {
-        this.messageId = messageId;
+    public void updateId(UUID Id) {
+        this.Id = Id;
     }
 
     public void updateCreatedAt(Instant createdAt) {
@@ -58,16 +54,21 @@ public class Message implements java.io.Serializable{
         this.channelId = channelId;
     }
 
-    public void updateSenderId(UUID senderId) {
-        this.senderId = senderId;
+    public void updateAuthorId(UUID authorId) {
+        this.authorId = authorId;
     }
 
-    public void updateMessageContent(String messageContent) {
-        this.messageContent = messageContent;
-    }
 
-    public void updateTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public void updateContent(String newContent) {
+        boolean anyValueUpdated = false;
+        if (newContent != null && !newContent.equals(this.content)) {
+            this.content = newContent;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
     @Override
@@ -76,13 +77,12 @@ public class Message implements java.io.Serializable{
                 .withZone(ZoneId.of("Asia/Seoul"));
 
         return "Message{" +
-                "messageId=" + messageId +
+                "Id=" + Id +
                 ", createdAt=" + formatter.format(createdAt) +
                 ", updatedAt=" + formatter.format(updatedAt) +
                 ", channelId=" + channelId +
-                ", senderId=" + senderId +
-                ", messageContent='" + messageContent + '\'' +
-                ", timestamp=" + timestamp +
+                ", authorId=" + authorId +
+                ", content='" + content + '\'' +
                 '}';
     }
 }

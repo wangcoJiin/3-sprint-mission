@@ -53,8 +53,16 @@ public class ReadStatus implements Serializable {
         this.channelId = channelId;
     }
 
-    public void updateLastReadAt(Instant lastReadAt) {
-        this.lastReadAt = lastReadAt;
+    public void updateLastReadAt(Instant newLastReadAt) {
+        boolean anyValueUpdated = false;
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
     @Override

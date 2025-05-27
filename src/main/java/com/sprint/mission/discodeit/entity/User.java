@@ -22,9 +22,9 @@ public class User implements java.io.Serializable {
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
-    private String name;
-    private String userEmail;
-    private String userPassword;
+    private String username;
+    private String email;
+    private String password;
     private UUID profileId;
 
     public User() {
@@ -33,13 +33,13 @@ public class User implements java.io.Serializable {
         this.updatedAt = Instant.now();
     }
 
-    public User(String name, String userEmail, String userPassword) {
+    public User(String username, String email, String password) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
-        this.name = name;
-        this.userEmail = userEmail;
-        this.userPassword = userPassword;
+        this.username = username;
+        this.email = email;
+        this.password = password;
 
     }
     public void updateId(UUID id) {
@@ -54,16 +54,16 @@ public class User implements java.io.Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public void updateName(String name) {
-        this.name = name;
+    public void updateUserName(String username) {
+        this.username = username;
     }
 
-    public void updateUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public void updateEmail(String email) {
+        this.email = email;
     }
 
-    public void updateUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
     public void updateProfileId(UUID profileId) {
@@ -79,9 +79,9 @@ public class User implements java.io.Serializable {
                 "id=" + id +
                 ", createdAt=" + formatter.format(createdAt) +
                 ", updatedAt=" + formatter.format(updatedAt) +
-                ", name='" + name + '\'' +
-                ", userEmail='" + userEmail + '\'' +
-                ", userPassword='" + userPassword + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 ", profileId=" + profileId +
                 '}';
     }

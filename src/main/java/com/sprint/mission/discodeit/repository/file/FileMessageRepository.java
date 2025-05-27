@@ -10,7 +10,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.*;
 
 import java.util.logging.Logger;
@@ -47,7 +46,7 @@ public class FileMessageRepository implements MessageRepository {
     // 메시지 생성
     @Override
     public Message saveMessage(Message message) {
-        Path path = resolvePath(message.getMessageId());
+        Path path = resolvePath(message.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
                 ObjectOutputStream oos = new ObjectOutputStream(fos)
@@ -166,7 +165,7 @@ public class FileMessageRepository implements MessageRepository {
                             throw new RuntimeException("FileMessageRepository: 메시지 파일 읽기 중 오류 발생 ", e);
                         }
                     })
-                    .filter(message -> message.getSenderId().equals(senderId))
+                    .filter(message -> message.getAuthorId().equals(senderId))
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException("FileMessageRepository: 메시지 폴더 읽기 중 오류 발생 ", e);

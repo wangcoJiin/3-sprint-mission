@@ -19,7 +19,7 @@ public interface UserStatusService {
     List<UserStatus> findAllStatus();
 
     // 상태 업데이트
-    boolean updateUserStatus(UserStatusUpdateRequest request);
+    UserStatus updateUserStatus(UUID userId, UserStatusUpdateRequest request);
 
     // 아이디로 상태 삭제
     void deleteUserStatus(UUID statusId);

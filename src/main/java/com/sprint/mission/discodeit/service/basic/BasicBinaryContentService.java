@@ -24,7 +24,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
         String fileName = request.fileName();
         String cotentType = request.contentType();
-        byte[] data = request.data();
+        byte[] data = request.bytes();
 
 
         BinaryContent binaryContent = new BinaryContent(fileName, cotentType, data);
@@ -49,6 +49,9 @@ public class BasicBinaryContentService implements BinaryContentService {
     // delete
     @Override
     public boolean deleteBinaryContent(UUID id) {
+        binaryContentRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("해당하는 바이너리 컨텐츠가 없습니다."));
+
         return binaryContentRepository.deleteById(id);
     }
 }

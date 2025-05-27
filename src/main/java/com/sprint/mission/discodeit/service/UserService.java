@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 
@@ -30,10 +31,7 @@ public interface UserService {
     // 유저 전체 조회
     List<UserDto> getAllUsers();
 
-    // 유저 이름 변경
-    boolean updateUserName(UUID id, String newName);
-
-    boolean updateProfileImage(UUID userId, Optional<BinaryContentCreateRequest> request);
+    User update(UUID userId, UserUpdateRequest userUpdateRequest, Optional<BinaryContentCreateRequest> optionalProfileCreateRequest);
 
     // id 이용해서 유저 삭제
     boolean deleteUserById(UUID id);

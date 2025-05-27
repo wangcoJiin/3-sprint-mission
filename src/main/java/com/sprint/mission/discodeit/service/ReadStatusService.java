@@ -20,7 +20,7 @@ public interface ReadStatusService {
     List<ReadStatus> findReadStatusByUserId(UUID userId);
 
     // 수정
-    ReadStatus updateReadStatus(ReadStatusUpdateRequest request);
+    ReadStatus updateReadStatus(UUID readStatusId, ReadStatusUpdateRequest request);
 
     // 삭제
     void deleteReadStatus(UUID id);

@@ -38,7 +38,7 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public Optional<User> findUserByName(String userName) {
         return users.values().stream()
-                .filter(user -> user.getName().equalsIgnoreCase(userName))
+                .filter(user -> user.getUsername().equalsIgnoreCase(userName))
                 .findFirst();
     }
 
@@ -46,14 +46,14 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public Optional<User> findUserByEmail(String userEmail) {
         return users.values().stream()
-                .filter(user -> user.getUserEmail().equalsIgnoreCase(userEmail))
+                .filter(user -> user.getEmail().equalsIgnoreCase(userEmail))
                 .findFirst();
     }
 
     // 유저 이름 변경
     @Override
     public boolean updateUserName(User user, String newName) {
-        user.updateName(newName);
+        user.updateUserName(newName);
         user.updateUpdatedAt(Instant.now());
         return true;
     }

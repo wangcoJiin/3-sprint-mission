@@ -20,32 +20,24 @@ public class Channel implements java.io.Serializable{
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
-    private String channelName;
-    private UUID adminId;
-    private ChannelType lock;
-    private String password;
-    private List<UUID> joiningUsers;
+    private String name;
+    private ChannelType type;
+    private String description;
 
     public Channel() {
     }
 
-    public Channel(String channelName, UUID adminId, ChannelType lock, String password) {
+    public Channel(String name, ChannelType type, String description) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
-        this.channelName = channelName;
-        this.adminId = adminId;
-        this.lock = lock;
-        this.password = password;
-        this.joiningUsers = new ArrayList<>();
+        this.name = name;
+        this.type = type;
+        this.description = description;
     }
 
     public void updateId(UUID id) {
         this.id = id;
-    }
-
-    public void updateAdminId(UUID adminId) {
-        this.adminId = adminId;
     }
 
     public void updateCreatedAt(Instant createdAt) {
@@ -57,15 +49,15 @@ public class Channel implements java.io.Serializable{
     }
 
     public void updateChannelName(String name) {
-        this.channelName = name;
+        this.name = name;
     }
 
-    public void updateIsLock(ChannelType lock) {
-        this.lock = lock;
+    public void updateIsLock(ChannelType type) {
+        this.type = type;
     }
 
-    public void updatePassword(String password) {
-        this.password = password;
+    public void updateDescription(String description) {
+        this.description = description;
     }
 
     @Override
@@ -77,8 +69,8 @@ public class Channel implements java.io.Serializable{
                 "id='" + id + '\'' +
                 ", createdAt='" + formatter.format(createdAt) + '\'' +
                 ", updatedAt='" + formatter.format(updatedAt) + '\'' +
-                ", channelName=" + channelName + '\'' +
-                ", lockState=" + lock +
+                ", name=" + name + '\'' +
+                ", lockState=" + type +
                 '}';
     }
 }

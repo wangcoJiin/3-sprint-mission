@@ -209,7 +209,7 @@ public class FileUserRepository implements UserRepository {
     @Override
     public Optional<User> findUserByName(String userName) {
         return this.findUserAll().stream()
-                .filter(user -> user.getName().equals(userName))
+                .filter(user -> user.getUsername().equals(userName))
                 .findFirst();
     }
 
@@ -217,14 +217,14 @@ public class FileUserRepository implements UserRepository {
     @Override
     public Optional<User> findUserByEmail(String userEmail) {
         return this.findUserAll().stream()
-                .filter(user -> user.getUserEmail().equals(userEmail))
+                .filter(user -> user.getEmail().equals(userEmail))
                 .findFirst();
     }
 
     // 유저 이름 수정
     @Override
     public boolean updateUserName(User user, String newName){
-        user.updateName(newName);
+        user.updateUserName(newName);
         user.updateUpdatedAt(Instant.now());
         saveUser(user);
 
