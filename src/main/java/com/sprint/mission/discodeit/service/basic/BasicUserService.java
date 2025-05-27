@@ -108,12 +108,6 @@ public class BasicUserService implements UserService {
         return createdUser;
     }
 
-
-    @Override
-    public void addUserToRepository(User user) {
-        userRepository.save(user);
-    }
-
     // 아이디로 검색
     @Override
     public UserDto find(UUID id) {
@@ -128,89 +122,21 @@ public class BasicUserService implements UserService {
                     .orElseThrow(
                             () -> new NoSuchElementException("해당하는 유저상태가 존재하지 않습니다."));
 
-        // UserStatus 조회
-        Boolean online = userStatusRepository.findByUserId(user.getId())
-                .map(UserStatus::isOnline)
-                .orElse(null);
 
-        // 패스워드는 반환하지 않기
-        return new UserDto(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getProfileId(),
-                online
-        );
-    }
-
-    // 이름으로 검색하기
-    @Override
-    public Optional<UserDto> searchUsersByName(String name) {
-
-        //유저 조회
-        Optional<User> foundUserResult = userRepository.findByUsername(name);
-
-        if (foundUserResult.isEmpty()) {
-            throw new IllegalStateException("UserService: 조회된 유저가 없습니다.");
-        }
-
-        User user = foundUserResult.get();
-
-        // UserStatus 조회
-        Boolean online = userStatusRepository.findByUserId(user.getId())
-                .map(UserStatus::isOnline)
-                .orElse(null);
-
-        // 패스워드는 반환하지 않기
-        UserDto response = new UserDto(
-                user.getId(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getProfileId(),
-                online
-        );
-
-        return Optional.of(response);
+        return userRepository.findById(id)
+                .map(this::toDto)
+                .orElseThrow(() -> new NoSuchElementException("해당하는 유저가 존재하지 않습니다."));
     }
 
     // 전체 유저 조회
     @Override
     public List<UserDto> findAll() {
 
-//        List<User> foundResult = userRepository.findAll();
-//
-//        return foundResult.stream()
-//                .map(user -> {
-//
-//                    // 요소(유저)마다 상태 추출
-//                    Boolean online = userStatusRepository.findByUserId(user.getId())
-//                            .map(UserStatus::isOnline)
-//                            .orElse(null);
-//
-//                    logger.info("UserService: " + user.getUsername() + "의 UserStatus 조회 결과: " + online);
-//
-//                    return new UserDto(
-//                            user.getId(),
-//                            user.getCreatedAt(),
-//                            user.getUpdatedAt(),
-//                            user.getUsername(),
-//                            user.getEmail(),
-//                            user.getProfileId(),
-//                            online
-//                    );
-//                })
-//                .toList();
-
         return userRepository.findAll()
                 .stream()
                 .map(this::toDto)
                 .toList();
     }
-
 
 
     // 유저 정보와 프로필 이미지 수정
