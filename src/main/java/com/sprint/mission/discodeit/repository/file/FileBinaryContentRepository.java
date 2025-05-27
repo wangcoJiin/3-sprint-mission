@@ -49,7 +49,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     //바이너리 컨텐츠 저장
     @Override
-    public BinaryContent saveBinaryContent(BinaryContent binaryContent) {
+    public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -94,7 +94,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     // 다건 조회
     @Override
-    public List<BinaryContent> findAllByIds(List<UUID> ids) {
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))

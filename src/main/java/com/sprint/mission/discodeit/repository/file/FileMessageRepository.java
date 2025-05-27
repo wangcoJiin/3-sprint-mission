@@ -45,7 +45,7 @@ public class FileMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public Message saveMessage(Message message) {
+    public Message save(Message message) {
         Path path = resolvePath(message.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -110,7 +110,7 @@ public class FileMessageRepository implements MessageRepository {
 
     // 아이디로 메시지 조회
     @Override
-    public Optional<Message> findMessageById(UUID messageId) {
+    public Optional<Message> findById(UUID messageId) {
         Path path = resolvePath(messageId);
         if (Files.exists(path)) {
             try (
@@ -128,7 +128,7 @@ public class FileMessageRepository implements MessageRepository {
 
     // 특정 채널의 메시지 조회
     @Override
-    public List<Message> findMessageByChannel(UUID channelId) {
+    public List<Message> findAllByChannelId(UUID channelId) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
@@ -172,14 +172,21 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
-    // 메시지 삭제
+
     @Override
-    public void deletedMessage(UUID messageId) {
+    public void deleteById(UUID messageId) {
         Path path = resolvePath(messageId);
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new RuntimeException("FileMessageRepository: 메시지 삭제 중 오류 발생 ", e);
         }
+    }
+
+    // 메시지 삭제
+    @Override
+    public void deleteAllByChannelId(UUID channelId) {
+        this.findAllByChannelId(channelId)
+                .forEach(message -> this.deleteById(message.getId()));
     }
 }

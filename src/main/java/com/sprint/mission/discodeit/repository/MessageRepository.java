@@ -9,21 +9,23 @@ import java.util.UUID;
 public interface MessageRepository {
 
     // 메시지 생성
-    Message saveMessage(Message message);
+    Message save(Message message);
 
     //전체 메시지 조회
     List<Message> findAllMessage();
 
     // 메시지 아이디로 조회
-    Optional<Message> findMessageById(UUID messageId);
+    Optional<Message> findById(UUID messageId);
 
     // 채널의 메시지 조회
-    List<Message> findMessageByChannel(UUID channelId);
+    List<Message> findAllByChannelId(UUID channelId);
 
     // 유저가 보낸 메시지 조회
     List<Message> userMessage(UUID senderId);
 
+    void deleteById(UUID id);
+
     // 메시지 삭제
-    void deletedMessage(UUID messageId);
+    void deleteAllByChannelId(UUID messageId);
 
 }

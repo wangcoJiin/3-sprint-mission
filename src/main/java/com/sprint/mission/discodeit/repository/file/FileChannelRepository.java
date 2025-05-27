@@ -53,7 +53,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     // 채널 저장
     @Override
-    public Channel saveChannel(Channel channel) {
+    public Channel save(Channel channel) {
         Path path = resolvePath(channel.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -68,7 +68,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     // 전체 채널 조회
     @Override
-    public List<Channel> findAllChannels() {
+    public List<Channel> findAll() {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
@@ -91,7 +91,7 @@ public class FileChannelRepository implements ChannelRepository {
     // 이름으로 채널 조회
     @Override
     public Optional<Channel> findChannelUsingName(String channelName) {
-        return findAllChannels().stream()
+        return findAll().stream()
                 .filter(channel -> channel.getName() != null && channel.getName().equalsIgnoreCase(channelName))
                 .findFirst();
     }
@@ -99,7 +99,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     // 아이디로 채널 조회
     @Override
-    public Optional<Channel> findChannelUsingId(UUID channelId) {
+    public Optional<Channel> findById(UUID channelId) {
         Path path = resolvePath(channelId);
         if (Files.exists(path)) {
             try (
@@ -117,7 +117,7 @@ public class FileChannelRepository implements ChannelRepository {
 
     // 채널 삭제
     @Override
-    public void deleteChannel(UUID channelId) {
+    public void deleteById(UUID channelId) {
         Path path = resolvePath(channelId);
         try {
             Files.delete(path);

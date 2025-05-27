@@ -17,26 +17,26 @@ public class JCFUserRepository implements UserRepository {
 
     // 유저 저장
     @Override
-    public User saveUser(User user) {
+    public User save(User user) {
         users.put(user.getId(), user);
         return user;
     }
 
     // 전체 유저 조회
     @Override
-    public List<User> findUserAll() {
+    public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
     // 특정 유저 조회
     @Override
-    public Optional<User> findUserById(UUID userId) {
+    public Optional<User> findById(UUID userId) {
         return Optional.of(users.get(userId));
     }
 
     // 이름으로 조회
     @Override
-    public Optional<User> findUserByName(String userName) {
+    public Optional<User> findByUsername(String userName) {
         return users.values().stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(userName))
                 .findFirst();

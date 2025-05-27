@@ -16,7 +16,7 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 메시지 생성
     @Override
-    public Message saveMessage(Message message) {
+    public Message save(Message message) {
         messages.put(message.getId(), message);
 
         return message;
@@ -30,13 +30,13 @@ public class JCFMessageRepository implements MessageRepository {
 
     // 아이디로 메시지 조회
     @Override
-    public Optional<Message> findMessageById(UUID messageId) {
+    public Optional<Message> findById(UUID messageId) {
         return Optional.of(messages.get(messageId));
     }
 
     // 특정 채널의 메시지 조회
     @Override
-    public List<Message> findMessageByChannel(UUID channelId) {
+    public List<Message> findAllByChannelId(UUID channelId) {
         return messages.values().stream()
                 .filter(message -> message.getChannelId().equals(channelId))
                 .collect(Collectors.toList());
@@ -50,9 +50,15 @@ public class JCFMessageRepository implements MessageRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.messages.remove(id);
+    }
+
     // 메시지 삭제
     @Override
-    public void deletedMessage(UUID messageId) {
-        messages.remove(messageId);
+    public void deleteAllByChannelId(UUID channelId) {
+        this.findAllByChannelId(channelId)
+                .forEach(message -> this.deleteById(message.getId()));
     }
 }

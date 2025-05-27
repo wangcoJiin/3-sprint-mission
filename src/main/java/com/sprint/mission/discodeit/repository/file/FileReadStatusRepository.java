@@ -1,20 +1,16 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -46,7 +42,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     // 저장
     @Override
-    public ReadStatus saveReadStatus(ReadStatus readStatus) {
+    public ReadStatus save(ReadStatus readStatus) {
         Path path = resolvePath(readStatus.getId());
 
         try (
@@ -68,7 +64,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     // readStatus 아이디로 조회
     @Override
-    public Optional<ReadStatus> findReadStatusById(UUID id) {
+    public Optional<ReadStatus> findById(UUID id) {
         Path path = resolvePath(id);
 
         if (!Files.exists(path)){
@@ -87,7 +83,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     // 유저 아이디로 조회
     @Override
-    public List<ReadStatus> findUserReadStatus(UUID userId){
+    public List<ReadStatus> findAllByUserId(UUID userId){
         // "user-data-improve/read-status" 경로 아래의 모든 파일 읽어들이기
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
@@ -113,7 +109,7 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     // 채널 아이디로 조회
     @Override
-    public List<ReadStatus> findReadStatusByChannelId(UUID channelId) {
+    public List<ReadStatus> findAllByChannelId(UUID channelId) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
                     .filter(path ->  path.toString().endsWith(EXTENSION))
@@ -137,12 +133,12 @@ public class FileReadStatusRepository implements ReadStatusRepository {
     // 업데이트 (저장과 동일함)
     @Override
     public void updateReadStatus(ReadStatus readStatus){
-        saveReadStatus(readStatus);
+        save(readStatus);
     }
 
     // readStatus 삭제
     @Override
-    public void deleteReadStatusById(UUID id) {
+    public void deleteById(UUID id) {
         Path path = resolvePath(id);
         try{
             Files.delete(path);
@@ -154,9 +150,9 @@ public class FileReadStatusRepository implements ReadStatusRepository {
 
     // 채널 아이디로 삭제
     @Override
-    public void deleteByChannelId(UUID channelId){
-        this.findReadStatusByChannelId(channelId)
-                .forEach(readStatus -> deleteReadStatusById(readStatus.getId()));
+    public void deleteAllByChannelId(UUID channelId){
+        this.findAllByChannelId(channelId)
+                .forEach(readStatus -> deleteById(readStatus.getId()));
     }
 
 }

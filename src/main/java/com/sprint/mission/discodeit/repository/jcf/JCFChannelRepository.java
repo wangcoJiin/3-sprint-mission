@@ -19,7 +19,7 @@ public class JCFChannelRepository implements ChannelRepository {
 
     // 채널 저장
     @Override
-    public Channel saveChannel(Channel channel) {
+    public Channel save(Channel channel) {
         channels.put(channel.getId(), channel);
 
         return channel;
@@ -27,7 +27,7 @@ public class JCFChannelRepository implements ChannelRepository {
 
     // 전체 채널 조회
     @Override
-    public List<Channel> findAllChannels() {
+    public List<Channel> findAll() {
         return new ArrayList<>(channels.values());
     }
 
@@ -41,13 +41,13 @@ public class JCFChannelRepository implements ChannelRepository {
 
     // 아이디로 채널 조회
     @Override
-    public Optional<Channel> findChannelUsingId(UUID channelId) {
+    public Optional<Channel> findById(UUID channelId) {
         return Optional.of(channels.get(channelId));
     }
 
     // 채널 삭제
     @Override
-    public void deleteChannel(UUID channelId) {
+    public void deleteById(UUID channelId) {
         channels.remove(channelId);
     }
 }

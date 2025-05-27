@@ -18,7 +18,7 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     // 저장
     @Override
-    public BinaryContent saveBinaryContent(BinaryContent binaryContent) {
+    public BinaryContent save(BinaryContent binaryContent) {
         binaryContents.put(binaryContent.getId(), binaryContent);
         return binaryContent;
     }
@@ -31,7 +31,7 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
 
     // 다건조회
     @Override
-    public List<BinaryContent> findAllByIds(List<UUID> ids) {
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         return binaryContents.values().stream()
                 .filter(binaryContent -> ids.contains(binaryContent.getId()))
                 .toList();

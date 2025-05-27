@@ -12,9 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -152,7 +150,7 @@ public class FileUserRepository implements UserRepository {
 
     // 유저 저장
     @Override
-    public User saveUser(User user) {
+    public User save(User user) {
         Path path = resolvePath(user.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
@@ -167,7 +165,7 @@ public class FileUserRepository implements UserRepository {
 
     //유저 read
     @Override
-    public List<User> findUserAll() {
+    public List<User> findAll() {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))
@@ -189,7 +187,7 @@ public class FileUserRepository implements UserRepository {
 
     // 유저 read (id)
     @Override
-    public Optional<User> findUserById(UUID userId) {
+    public Optional<User> findById(UUID userId) {
         Path path = resolvePath(userId);
         if (Files.exists(path)) {
             try (
@@ -207,8 +205,8 @@ public class FileUserRepository implements UserRepository {
 
     // 유저 read (name)
     @Override
-    public Optional<User> findUserByName(String userName) {
-        return this.findUserAll().stream()
+    public Optional<User> findByUsername(String userName) {
+        return this.findAll().stream()
                 .filter(user -> user.getUsername().equals(userName))
                 .findFirst();
     }
@@ -216,7 +214,7 @@ public class FileUserRepository implements UserRepository {
     // 유저 조회 (이메일)
     @Override
     public Optional<User> findUserByEmail(String userEmail) {
-        return this.findUserAll().stream()
+        return this.findAll().stream()
                 .filter(user -> user.getEmail().equals(userEmail))
                 .findFirst();
     }
@@ -226,7 +224,7 @@ public class FileUserRepository implements UserRepository {
     public boolean updateUserName(User user, String newName){
         user.updateUserName(newName);
         user.updateUpdatedAt(Instant.now());
-        saveUser(user);
+        save(user);
 
         return true;
     }
