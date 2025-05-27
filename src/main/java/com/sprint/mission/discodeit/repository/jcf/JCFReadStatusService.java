@@ -44,11 +44,6 @@ public class JCFReadStatusService implements ReadStatusRepository {
                 .collect(Collectors.toList());
     }
 
-    // 수정
-    @Override
-    public void updateReadStatus(ReadStatus readStatus) {
-        this.save(readStatus);
-    }
 
     // 삭제
     @Override
@@ -56,10 +51,4 @@ public class JCFReadStatusService implements ReadStatusRepository {
         readStatusMap.remove(id);
     }
 
-    // 채널 아이디로 삭제
-    @Override
-    public void deleteAllByChannelId(UUID channelId) {
-        this.findAllByChannelId(channelId)
-                .forEach(readStatus -> deleteById(readStatus.getId()));
-    }
 }

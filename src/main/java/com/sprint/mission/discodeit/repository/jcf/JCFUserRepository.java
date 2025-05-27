@@ -5,9 +5,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
@@ -48,14 +46,6 @@ public class JCFUserRepository implements UserRepository {
         return users.values().stream()
                 .filter(user -> user.getEmail().equalsIgnoreCase(userEmail))
                 .findFirst();
-    }
-
-    // 유저 이름 변경
-    @Override
-    public boolean updateUserName(User user, String newName) {
-        user.updateUserName(newName);
-        user.updateUpdatedAt(Instant.now());
-        return true;
     }
 
     // 유저 삭제

@@ -27,9 +27,6 @@ public interface UserRepository {
     // 유저 조회 (이메일)
     Optional<User> findUserByEmail(String userEmail);
 
-    // 유저 이름 수정
-    boolean updateUserName(User user, String newName);
-
     // 유저 삭제
     void deleteUser(UUID userId);
 }

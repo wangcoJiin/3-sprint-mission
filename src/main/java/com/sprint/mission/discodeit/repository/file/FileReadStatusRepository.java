@@ -130,12 +130,6 @@ public class FileReadStatusRepository implements ReadStatusRepository {
         }
     }
 
-    // 업데이트 (저장과 동일함)
-    @Override
-    public void updateReadStatus(ReadStatus readStatus){
-        save(readStatus);
-    }
-
     // readStatus 삭제
     @Override
     public void deleteById(UUID id) {
@@ -147,12 +141,4 @@ public class FileReadStatusRepository implements ReadStatusRepository {
             throw new RuntimeException("파일 삭제 중 오류 ", e);
         }
     }
-
-    // 채널 아이디로 삭제
-    @Override
-    public void deleteAllByChannelId(UUID channelId){
-        this.findAllByChannelId(channelId)
-                .forEach(readStatus -> deleteById(readStatus.getId()));
-    }
-
 }

@@ -20,12 +20,7 @@ public interface ReadStatusRepository {
     // 채널 아이디로 조회
     List<ReadStatus> findAllByChannelId(UUID channelId);
 
-    // 수정
-    void updateReadStatus(ReadStatus readStatus);
-
     // 읽은 메시지 취소 -> 다 읽지 않음으로
     void deleteById(UUID id);
 
-    // 채널 아이디로 삭제
-    void deleteAllByChannelId(UUID channelId);
 }

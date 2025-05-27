@@ -42,141 +42,22 @@ public class FileUserStatusRepository implements UserStatusRepository {
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
-
-//    // 유저 상태 저장
-//    @Override
-//    public UserStatus save(UserStatus userStatus) {
-//        Path path = resolvePath(userStatus.getId());
-//
-//        try (
-//                FileOutputStream fos = new FileOutputStream(path.toFile());
-//                ObjectOutputStream oos = new ObjectOutputStream(fos)
-//        ) {
-//            oos.writeObject(userStatus);
-//        }
-//        catch (FileNotFoundException e) {
-//            // 파일 생성 실패 시 메시지
-//            throw new RuntimeException(path + " 경로에 파일을 생성할 수 없습니다 ", e);
-//        }
-//        catch (IOException e) {
-//            // 그 외 IO 예외
-//            throw new RuntimeException(" 접속 상태 파일 저장 중 오류 발생 ", e);
-//        }
-//        return userStatus;
-//    }
-//
-//    @Override
-//    public Optional<UserStatus> findById(UUID id){
-//        Path path = resolvePath(id);
-//
-//        if (!Files.exists(path)){
-//            return Optional.empty();
-//        }
-//
-//        try (
-//                FileInputStream fis = new FileInputStream(path.toFile());
-//                ObjectInputStream ois = new ObjectInputStream(fis)
-//        ) {
-//            return Optional.of((UserStatus) ois.readObject());
-//
-//        } catch (IOException | ClassNotFoundException e) {
-//            throw new RuntimeException("id로 userStatus 조회 중 오류 ", e);
-//        }
-//    }
-//
-//    // 특정 유저의 상태 조회
-//    @Override
-//    public Optional<UserStatus> findByUserId(UUID userId) {
-//
-//        Optional<UserStatus> result = findAll().stream()
-//                .filter(userStatus -> userStatus.getUserId().equals(userId))
-//                .findFirst();
-//
-//        if (result.isEmpty()) {
-//            System.out.println("해당 유저의 상태 정보가 존재하지 않습니다: " + userId);
-//        }
-//
-//        return result;
-//    }
-//
-//    // 등록된 전체 상태 조회
-//    @Override
-//    public List<UserStatus> findAll() {
-//
-//        try (Stream<Path> paths = Files.list(DIRECTORY)){
-//            return paths
-//                    .filter(path -> path.toString().endsWith(EXTENSION))
-//                    .map(path -> {
-//                        try(
-//                                FileInputStream fis = new FileInputStream(path.toFile());
-//                                ObjectInputStream ois = new ObjectInputStream(fis);
-//                        ){
-//                            return (UserStatus) ois.readObject();
-//                        }
-//                        catch (IOException | ClassNotFoundException e){
-//                            throw new RuntimeException("userStatus 전체 조회 실패 ", e);
-//                        }
-//
-//                    })
-//                    .toList();
-//        }
-//        catch (IOException e){
-//            throw new RuntimeException(DIRECTORY + " UserStatus 폴더 읽기 실패: ", e);
-//        }
-//    }
-//
-////    // 유저 상태 업데이트
-////    @Override
-////    public boolean updateUserStatus(UserStatus userStatus) {
-////        Path path = resolvePath(userStatus.getId());
-////        try (
-////                FileOutputStream fos = new FileOutputStream(path.toFile());
-////                ObjectOutputStream oos = new ObjectOutputStream(fos)
-////        ) {
-////            oos.writeObject(userStatus);
-////        }
-////        catch (FileNotFoundException e) {
-////            // 파일 생성 실패 시 메시지
-////            throw new RuntimeException(path + " 경로에 파일을 생성할 수 없습니다 ", e);
-////        }
-////        catch (IOException e) {
-////            // 그 외 IO 예외
-////            throw new RuntimeException("userStatus 업데이트 중 오류 발생 ", e);
-////        }
-////        return true;
-////    }
-////
-//    @Override
-//    public boolean existsById(UUID id) {
-//        Path path = resolvePath(id);
-//        return Files.exists(path);
-//    }
-//
-//    // 아이디로 삭제
-//    @Override
-//    public void deleteById(UUID id) {
-//        Path path = resolvePath(id);
-//        try {
-//            Files.delete(path);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-@Override
-public UserStatus save(UserStatus userStatus) {
-    Path path = resolvePath(userStatus.getId());
-    try (
-            FileOutputStream fos = new FileOutputStream(path.toFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos)
-    ) {
-        oos.writeObject(userStatus);
-    } catch (IOException e) {
-        throw new RuntimeException(e);
+    // 저장
+    @Override
+    public UserStatus save(UserStatus userStatus) {
+        Path path = resolvePath(userStatus.getId());
+        try (
+                FileOutputStream fos = new FileOutputStream(path.toFile());
+                ObjectOutputStream oos = new ObjectOutputStream(fos)
+        ) {
+            oos.writeObject(userStatus);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return userStatus;
     }
-    return userStatus;
-}
 
+    // 아이디로 조회
     @Override
     public Optional<UserStatus> findById(UUID id) {
         UserStatus userStatusNullable = null;
@@ -194,6 +75,7 @@ public UserStatus save(UserStatus userStatus) {
         return Optional.ofNullable(userStatusNullable);
     }
 
+    // 유저 아이디로 조회
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
         return findAll().stream()
@@ -201,6 +83,7 @@ public UserStatus save(UserStatus userStatus) {
                 .findFirst();
     }
 
+    // 전체 조회
     @Override
     public List<UserStatus> findAll() {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
@@ -222,12 +105,14 @@ public UserStatus save(UserStatus userStatus) {
         }
     }
 
+    // 존재 여부
     @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);
         return Files.exists(path);
     }
 
+    // 아이디로 삭제
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
@@ -238,6 +123,7 @@ public UserStatus save(UserStatus userStatus) {
         }
     }
 
+    // 유저 아이디로 삭제
     @Override
     public void deleteByUserId(UUID userId) {
         this.findByUserId(userId)

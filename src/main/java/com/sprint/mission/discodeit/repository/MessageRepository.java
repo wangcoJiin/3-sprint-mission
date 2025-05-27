@@ -20,12 +20,7 @@ public interface MessageRepository {
     // 채널의 메시지 조회
     List<Message> findAllByChannelId(UUID channelId);
 
-    // 유저가 보낸 메시지 조회
-    List<Message> userMessage(UUID senderId);
-
+    // 아이디로 삭제
     void deleteById(UUID id);
-
-    // 메시지 삭제
-    void deleteAllByChannelId(UUID messageId);
 
 }

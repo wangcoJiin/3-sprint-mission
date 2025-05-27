@@ -41,25 +41,20 @@ public class JCFUserStatusRepository implements UserStatusRepository {
         return new ArrayList<>(userStatusMap.values());
     }
 
-//    // 수정
-//    @Override
-//    public boolean updateUserStatus(UserStatus userStatus) {
-//        userStatusMap.put(userStatus.getId(), userStatus);
-//        return true;
-//    }
-
     // 아이디로 삭제
     @Override
     public void deleteById(UUID id) {
         this.userStatusMap.remove(id);
     }
 
+    // 유저 아이디로 삭제
     @Override
     public void deleteByUserId(UUID userId) {
         this.findByUserId(userId)
                 .ifPresent(userStatus -> this.deleteByUserId(userStatus.getId()));
     }
 
+    // 존재 여부
     @Override
     public boolean existsById(UUID id) {
         return this.userStatusMap.containsKey(id);

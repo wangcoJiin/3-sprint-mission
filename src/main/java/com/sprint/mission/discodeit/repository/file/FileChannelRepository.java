@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,12 +10,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import java.util.logging.Level;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -27,8 +22,6 @@ import java.util.stream.Stream;
 public class FileChannelRepository implements ChannelRepository {
 
     private static final Logger logger = Logger.getLogger(FileChannelRepository.class.getName());
-
-//    private final Map<UUID, Channel> channels = loadChannelFromFile();
 
     private final Path DIRECTORY;
     private final String EXTENSION = ".ser";

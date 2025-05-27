@@ -28,11 +28,13 @@ public class JCFMessageRepository implements MessageRepository {
         return new ArrayList<>(messages.values());
     }
 
+
     // 아이디로 메시지 조회
     @Override
     public Optional<Message> findById(UUID messageId) {
         return Optional.of(messages.get(messageId));
     }
+
 
     // 특정 채널의 메시지 조회
     @Override
@@ -42,23 +44,10 @@ public class JCFMessageRepository implements MessageRepository {
                 .collect(Collectors.toList());
     }
 
-    // 특정 유저의 메시지 조회
-    @Override
-    public List<Message> userMessage(UUID senderId) {
-        return  messages.values().stream()
-                .filter(message -> message.getAuthorId().equals(senderId))
-                .collect(Collectors.toList());
-    }
-
+    // 메시지 삭제
     @Override
     public void deleteById(UUID id) {
         this.messages.remove(id);
     }
 
-    // 메시지 삭제
-    @Override
-    public void deleteAllByChannelId(UUID channelId) {
-        this.findAllByChannelId(channelId)
-                .forEach(message -> this.deleteById(message.getId()));
-    }
 }

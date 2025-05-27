@@ -20,14 +20,13 @@ public interface UserStatusRepository {
     // 상태 전체 조회
     List<UserStatus> findAll();
 
-//    // 유저 상태 업데이트
-//    boolean updateUserStatus(UserStatus userStatus);
-//
+    // 존재 여부
     boolean existsById(UUID id);
 
+    // 아이디로 삭제
     void deleteById(UUID id);
 
-    // 아이디로 삭제
+    // 유저 아이디로 삭제
     void deleteByUserId(UUID userId);
 
 }
