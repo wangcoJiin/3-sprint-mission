@@ -19,91 +19,35 @@ public class JCFChannelRepository implements ChannelRepository {
 
     // 채널 저장
     @Override
-    public boolean saveChannel(Channel channel) {
+    public Channel save(Channel channel) {
         channels.put(channel.getId(), channel);
-        addUserToChannel(channel.getId(), channel.getAdminId());
 
-        return true;
-    }
-
-    // 채널에 참여자 추가
-    @Override
-    public boolean addUserToChannel(UUID channelId, UUID userId) {
-        Channel channel = findChannelUsingId(channelId);
-        channel.getJoiningUsers().add(userId);
-        channel.updateUpdatedAt(Instant.now());
-
-        return true;
+        return channel;
     }
 
     // 전체 채널 조회
     @Override
-    public List<Channel> findAllChannels() {
+    public List<Channel> findAll() {
         return new ArrayList<>(channels.values());
     }
 
     // 이름으로 채널 조회
     @Override
-    public List<Channel> findChannelUsingName(String channelName) {
+    public Optional<Channel> findChannelUsingName(String channelName) {
         return channels.values().stream()
-                .filter(channel -> channel.getChannelName().equalsIgnoreCase(channelName))
-                .collect(Collectors.toList());
+                .filter(channel -> channel.getName().equalsIgnoreCase(channelName))
+                .findFirst();
     }
 
     // 아이디로 채널 조회
     @Override
-    public Channel findChannelUsingId(UUID channelId) {
-        return channels.get(channelId);
-    }
-
-    // 채널 이름 수정
-    @Override
-    public boolean updateChannelName(UUID channelId, String newChannelName) {
-        Channel channel = findChannelUsingId(channelId);
-        channel.updateChannelName(newChannelName);
-        channel.updateUpdatedAt(Instant.now());
-
-        return true;
-    }
-
-    // 채널 공개상태로 수정
-    @Override
-    public boolean channelUnLocking(UUID channelId) {
-        Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(ChannelType.PUBLIC);
-        channel.updatePassword("");
-        channel.updateUpdatedAt(Instant.now());
-
-        return true;
-    }
-
-    // 채널 비공개상태로 수정
-    @Override
-    public boolean channelLocking(UUID channelId, String password) {
-        Channel channel = findChannelUsingId(channelId);
-        channel.updateIsLock(ChannelType.PRIVATE);
-        channel.updatePassword(password);
-        channel.updateUpdatedAt(Instant.now());
-
-        return true;
+    public Optional<Channel> findById(UUID channelId) {
+        return Optional.of(channels.get(channelId));
     }
 
     // 채널 삭제
     @Override
-    public boolean deleteChannel(UUID channelId) {
-        Channel channel = findChannelUsingId(channelId);
+    public void deleteById(UUID channelId) {
         channels.remove(channelId);
-
-        return true;
-    }
-
-    // 채널의 참여자 삭제
-    @Override
-    public boolean deleteUserInChannel(UUID channelId, UUID userId) {
-        Channel channel = findChannelUsingId(channelId);
-        channel.getJoiningUsers().remove(userId);
-        channel.updateUpdatedAt(Instant.now());
-
-        return true;
     }
 }

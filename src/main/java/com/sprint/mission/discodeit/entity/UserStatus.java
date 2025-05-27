@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
@@ -12,25 +13,27 @@ import java.util.UUID;
 @Getter
 public class UserStatus implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
     private UUID userId;
-    private OnlineStatus status;
+    private Instant lastActiveAt;
 
     public UserStatus() {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
-        this.status = OnlineStatus.ONLINE;
     }
 
-    public UserStatus(UUID userId) {
+    public UserStatus(UUID userId, Instant lastActiveAt) {
         this.id = UUID.randomUUID();;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         this.userId = userId;
-        this.status = OnlineStatus.ONLINE;
+        this.lastActiveAt = lastActiveAt;
     }
 
     public void updateId(UUID id) {
@@ -49,14 +52,22 @@ public class UserStatus implements Serializable {
         this.userId = userId;
     }
 
-    public void updateStatus(OnlineStatus status) {
-        this.status = status;
+    public void update(Instant lastActiveAt) {
+        boolean anyValueUpdated = false;
+        if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
+            this.lastActiveAt = lastActiveAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
     }
 
     public Boolean isOnline() {
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
 
-        return updatedAt.isAfter(instantFiveMinutesAgo);
+        return lastActiveAt.isAfter(instantFiveMinutesAgo);
     }
 
     @Override
@@ -69,7 +80,7 @@ public class UserStatus implements Serializable {
                 ", createdAt=" + formatter.format(createdAt) +
                 ", updatedAt=" + formatter.format(updatedAt) +
                 ", userId=" + userId +
-                ", status=" + status +
+                ", lastActiveAt=" + formatter.format(lastActiveAt) +
                 '}';
     }
 }

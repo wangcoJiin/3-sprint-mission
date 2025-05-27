@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -11,11 +12,15 @@ import java.util.UUID;
 @Getter
 public class ReadStatus implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private UUID id;
     private Instant createdAt;
     private Instant updatedAt;
     private UUID userId;
     private UUID channelId;
+    private Instant lastReadAt;
 
     public ReadStatus() {
         this.id = UUID.randomUUID();
@@ -23,12 +28,13 @@ public class ReadStatus implements Serializable {
         this.updatedAt = Instant.now();
     }
 
-    public ReadStatus(UUID userId, UUID channelId) {
+    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
         this.id = UUID.randomUUID();;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         this.userId = userId;
         this.channelId = channelId;
+        this.lastReadAt = lastReadAt;
     }
 
     public void updateId(UUID id) {
@@ -51,6 +57,18 @@ public class ReadStatus implements Serializable {
         this.channelId = channelId;
     }
 
+    public void updateLastReadAt(Instant newLastReadAt) {
+        boolean anyValueUpdated = false;
+        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+            this.lastReadAt = newLastReadAt;
+            anyValueUpdated = true;
+        }
+
+        if (anyValueUpdated) {
+            this.updatedAt = Instant.now();
+        }
+    }
+
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -62,6 +80,7 @@ public class ReadStatus implements Serializable {
                 ", updatedAt=" + formatter.format(updatedAt) +
                 ", userId=" + userId +
                 ", channelId=" + channelId +
+                ", lastReadAt=" + formatter.format(updatedAt) +
                 '}';
     }
 

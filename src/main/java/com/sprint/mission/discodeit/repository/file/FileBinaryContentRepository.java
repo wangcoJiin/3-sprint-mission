@@ -7,11 +7,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,15 +23,13 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     private static final Logger logger = Logger.getLogger(FileBinaryContentRepository.class.getName());
 
-    // 파일 저장 경로 설정
-    private static final String STORAGE_DIR = "data/BinaryContent";
-    private final String EXTENSION = ".ser";
     private final Path DIRECTORY;
-
+    private final String EXTENSION = ".ser";
 
     public FileBinaryContentRepository(
-    ){
-        DIRECTORY = Paths.get(System.getProperty("user.dir"), STORAGE_DIR, BinaryContent.class.getSimpleName());
+            @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+    ) {
+        this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory, BinaryContent.class.getSimpleName());
         if (Files.notExists(DIRECTORY)) {
             try {
                 Files.createDirectories(DIRECTORY);
@@ -50,14 +46,14 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     //바이너리 컨텐츠 저장
     @Override
-    public BinaryContent saveBinaryContent(BinaryContent binaryContent) {
+    public BinaryContent save(BinaryContent binaryContent) {
         Path path = resolvePath(binaryContent.getId());
         try (
                 FileOutputStream fos = new FileOutputStream(path.toFile());
              ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(binaryContent);
-            System.out.println("바이너리 파일이 저장 되었습니다");
+            logger.log(Level.INFO, "바이너리 파일이 저장 되었습니다");
         }
         catch (FileNotFoundException e) {
             // 파일 생성 실패 시 메시지
@@ -95,7 +91,7 @@ public class FileBinaryContentRepository implements BinaryContentRepository {
 
     // 다건 조회
     @Override
-    public List<BinaryContent> findAllByIds(List<UUID> ids) {
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         try (Stream<Path> paths = Files.list(DIRECTORY)) {
             return paths
                     .filter(path -> path.toString().endsWith(EXTENSION))

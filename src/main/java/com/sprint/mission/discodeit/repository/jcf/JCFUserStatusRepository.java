@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,7 +16,7 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     // 저장
     @Override
-    public UserStatus saveUserStatus(UserStatus userStatus) {
+    public UserStatus save(UserStatus userStatus) {
         userStatusMap.put(userStatus.getId(), userStatus);
         return userStatus;
     }
@@ -30,7 +29,7 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     // 유저 아이디로 조회
     @Override
-    public Optional<UserStatus> findStatus(UUID userId) {
+    public Optional<UserStatus> findByUserId(UUID userId) {
         return userStatusMap.values().stream()
                 .filter(userStatus -> userStatus.getUserId().equals(userId))
                 .findFirst();
@@ -38,27 +37,26 @@ public class JCFUserStatusRepository implements UserStatusRepository {
 
     // 전체 조회
     @Override
-    public List<UserStatus> findAllStatus() {
+    public List<UserStatus> findAll() {
         return new ArrayList<>(userStatusMap.values());
-    }
-
-    // 수정
-    @Override
-    public boolean updateUserStatus(UserStatus userStatus) {
-        userStatusMap.put(userStatus.getId(), userStatus);
-        return true;
     }
 
     // 아이디로 삭제
     @Override
     public void deleteById(UUID id) {
-        userStatusMap.remove(id);
+        this.userStatusMap.remove(id);
     }
 
-    // 삭제
+    // 유저 아이디로 삭제
     @Override
-    public void deleteUserStatus(UUID userId) {
-        findStatus(userId)
-                .ifPresent(userStatus -> deleteUserStatus(userStatus.getId()));
+    public void deleteByUserId(UUID userId) {
+        this.findByUserId(userId)
+                .ifPresent(userStatus -> this.deleteByUserId(userStatus.getId()));
+    }
+
+    // 존재 여부
+    @Override
+    public boolean existsById(UUID id) {
+        return this.userStatusMap.containsKey(id);
     }
 }

@@ -20,35 +20,38 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     // create
     @Override
-    public BinaryContent createBinaryContent(BinaryContentCreateRequest request) {
+    public BinaryContent create(BinaryContentCreateRequest request) {
 
         String fileName = request.fileName();
         String cotentType = request.contentType();
-        byte[] data = request.data();
+        byte[] bytes = request.bytes();
 
 
-        BinaryContent binaryContent = new BinaryContent(fileName, cotentType, data);
+        BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, cotentType, bytes);
 
-        return binaryContentRepository.saveBinaryContent(binaryContent);
+        return binaryContentRepository.save(binaryContent);
     }
 
     // find
     @Override
-    public BinaryContent findBinaryContentById(UUID id) {
+    public BinaryContent find(UUID id) {
         return binaryContentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("해당하는 바이너리 컨텐츠가 없습니다."));
     }
 
     // findAll
     @Override
-    public List<BinaryContent> findAllBinaryContent(List<UUID> ids) {
-        return binaryContentRepository.findAllByIds(ids).stream()
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
+        return binaryContentRepository.findAllByIdIn(ids).stream()
                 .toList();
     }
 
     // delete
     @Override
-    public boolean deleteBinaryContent(UUID id) {
+    public boolean delete(UUID id) {
+        binaryContentRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("해당하는 바이너리 컨텐츠가 없습니다."));
+
         return binaryContentRepository.deleteById(id);
     }
 }

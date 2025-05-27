@@ -10,21 +10,18 @@ import java.util.UUID;
 public interface MessageService {
 
     // 메시지 생성
-    Message CreateMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests);
+    Message create(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests);
 
     // 채널의 메시지 조회
-    List<Message> findallByChannelId(UUID channelId, UUID userId, String password);
+    List<Message> findAllByChannelId(UUID channelId);
 
     // 채널의 특정 메시지 조회
-    Message getMessageById(UUID channelId, UUID userId, String password, UUID messageId);
-
-    // 유저가 보낸 메시지 조회
-    List<Message> userMessage(UUID senderId, String password);
+    Message find(UUID messageId);
 
     // 메시지 수정
-    boolean updateMessage(MessageUpdateRequest request);
+    Message update(UUID messageId, MessageUpdateRequest request);
 
     // 메시지 삭제
-    boolean deletedMessage(UUID messageId, UUID senderId, String password);
+    void delete(UUID messageId);
 
 }

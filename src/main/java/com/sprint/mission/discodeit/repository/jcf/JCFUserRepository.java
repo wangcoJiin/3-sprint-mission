@@ -5,9 +5,7 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
@@ -17,28 +15,28 @@ public class JCFUserRepository implements UserRepository {
 
     // 유저 저장
     @Override
-    public boolean saveUser(User user) {
+    public User save(User user) {
         users.put(user.getId(), user);
-        return true;
+        return user;
     }
 
     // 전체 유저 조회
     @Override
-    public List<User> findUserAll() {
+    public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
     // 특정 유저 조회
     @Override
-    public User findUserById(UUID userId) {
-        return users.get(userId);
+    public Optional<User> findById(UUID userId) {
+        return Optional.of(users.get(userId));
     }
 
     // 이름으로 조회
     @Override
-    public Optional<User> findUserByName(String userName) {
+    public Optional<User> findByUsername(String userName) {
         return users.values().stream()
-                .filter(user -> user.getName().equalsIgnoreCase(userName))
+                .filter(user -> user.getUsername().equalsIgnoreCase(userName))
                 .findFirst();
     }
 
@@ -46,16 +44,8 @@ public class JCFUserRepository implements UserRepository {
     @Override
     public Optional<User> findUserByEmail(String userEmail) {
         return users.values().stream()
-                .filter(user -> user.getUserEmail().equalsIgnoreCase(userEmail))
+                .filter(user -> user.getEmail().equalsIgnoreCase(userEmail))
                 .findFirst();
-    }
-
-    // 유저 이름 변경
-    @Override
-    public boolean updateUserName(User user, String newName) {
-        user.updateName(newName);
-        user.updateUpdatedAt(Instant.now());
-        return true;
     }
 
     // 유저 삭제
