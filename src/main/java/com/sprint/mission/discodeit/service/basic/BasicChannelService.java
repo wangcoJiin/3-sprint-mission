@@ -178,7 +178,7 @@ public class BasicChannelService implements ChannelService {
 
         List<Message> messages = messageRepository.findAllByChannelId(channelId);
         for (Message message : messages) {
-            messageRepository.deleteAllByChannelId(message.getId());
+            messageRepository.deleteById(message.getId());
         }
         logger.info("ChannelService: 해당 채널의 메시지가 삭제되었습니다.");
 
