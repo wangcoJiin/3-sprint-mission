@@ -52,10 +52,6 @@ public class Channel implements java.io.Serializable{
         this.name = name;
     }
 
-    public void updateIsLock(ChannelType type) {
-        this.type = type;
-    }
-
     public void updateDescription(String description) {
         this.description = description;
     }
@@ -66,11 +62,12 @@ public class Channel implements java.io.Serializable{
                 .withZone(ZoneId.of("Asia/Seoul"));
 
         return "Channel{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", createdAt='" + formatter.format(createdAt) + '\'' +
                 ", updatedAt='" + formatter.format(updatedAt) + '\'' +
-                ", name=" + name + '\'' +
-                ", lockState=" + type +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", description='" + description + '\'' +
                 '}';
     }
 }

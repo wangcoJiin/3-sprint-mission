@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import lombok.Getter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
@@ -11,6 +12,9 @@ import java.util.UUID;
 
 @Getter
 public class UserStatus implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private UUID id;
     private Instant createdAt;
@@ -48,7 +52,7 @@ public class UserStatus implements Serializable {
         this.userId = userId;
     }
 
-    public void updateStatus(Instant lastActiveAt) {
+    public void update(Instant lastActiveAt) {
         boolean anyValueUpdated = false;
         if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
             this.lastActiveAt = lastActiveAt;
