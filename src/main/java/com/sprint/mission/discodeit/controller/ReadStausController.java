@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,11 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Tag(name = "ReadStatus", description = "Message 읽음 상태 API")
@@ -46,7 +43,7 @@ public class ReadStausController {
             @Parameter(description = "조회할 User ID")
             @RequestParam("userId") UUID userId
     ) {
-        List<ReadStatus> result = readStatusService.findReadStatusByUserId(userId);
+        List<ReadStatus> result = readStatusService.findAllByUserId(userId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -71,7 +68,7 @@ public class ReadStausController {
             @Parameter(description = "생성할 ReadStatus 정보")
             @RequestBody ReadStatusCreateRequest request
     ){
-        ReadStatus created = readStatusService.createReadStatus(request);
+        ReadStatus created = readStatusService.create(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -96,7 +93,7 @@ public class ReadStausController {
             @Parameter(description = "수정할 ReadStatus 정보")
             @RequestBody ReadStatusUpdateRequest request
     ) {
-        ReadStatus updated = readStatusService.updateReadStatus(readStatusId, request);
+        ReadStatus updated = readStatusService.update(readStatusId, request);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

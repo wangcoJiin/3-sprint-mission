@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
-import com.sprint.mission.discodeit.dto.response.UserCreateDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.UserService;
@@ -52,7 +51,7 @@ public class UserController {
         }
     )
     public ResponseEntity<List<UserDto>> findAll() {
-        List<UserDto> users = userService.getAllUsers();
+        List<UserDto> users = userService.findAll();
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -85,19 +84,8 @@ public class UserController {
                 Optional.ofNullable(profile)
                         .flatMap(this::resolveProfileRequest);
 
-        User createdUser = userService.createUser(userCreateRequest, profileRequest);
+        User createdUser = userService.create(userCreateRequest, profileRequest);
         System.out.println(createdUser);
-
-//        UserCreateDto response = new UserCreateDto(
-//                createdUser.getId(),
-//                createdUser.getCreatedAt(),
-//                createdUser.getUpdatedAt(),
-//                createdUser.getName(),
-//                createdUser.getUserEmail(),
-//                createdUser.getProfileId()
-//        );
-//
-//        System.out.println("response = " + response);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -155,7 +143,7 @@ public class UserController {
             @Parameter(description = "삭제할 User ID")
             @PathVariable("userId") UUID userId
     ){
-        boolean deleted = userService.deleteUserById(userId);
+        boolean deleted = userService.delete(userId);
 
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
@@ -178,7 +166,7 @@ public class UserController {
             @Parameter(description = "변경할 User 온라인 상태 정보")
             @RequestBody UserStatusUpdateRequest request
     ) {
-        UserStatus updatedStatus = userStatusService.updateUserStatus(userId, request);
+        UserStatus updatedStatus = userStatusService.updateByUserId(userId, request);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

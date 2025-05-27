@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +41,7 @@ public class BinaryContentController {
             @Parameter(description = "조회할 첨부파일 ID")
             @PathVariable("binaryContentId") UUID binaryContentId
     ) {
-        BinaryContent binaryContent = binaryContentService.findBinaryContentById(binaryContentId);
+        BinaryContent binaryContent = binaryContentService.find(binaryContentId);
         return ResponseEntity.ok(binaryContent);
     }
 
@@ -60,7 +57,7 @@ public class BinaryContentController {
     public ResponseEntity<List<BinaryContent>> findAllByIdIn(
             @Parameter(description = "조회할 첨부 파일 ID 목록")
             @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
-        List<BinaryContent> binaryContents = binaryContentService.findAllBinaryContent(binaryContentIds);
+        List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

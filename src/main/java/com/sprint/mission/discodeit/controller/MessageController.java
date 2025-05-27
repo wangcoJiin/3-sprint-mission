@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.request.MessageUpdateReq;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -56,7 +55,7 @@ public class MessageController {
     ){
         List<BinaryContentCreateRequest> attachedFileRequest = resolveAttachmentsRequest(attachedFiles);
 
-        Message createMessage = messageService.createMessage(request, attachedFileRequest);
+        Message createMessage = messageService.create(request, attachedFileRequest);
 //        System.out.println(createMessage);
 
         return ResponseEntity
@@ -78,7 +77,7 @@ public class MessageController {
             @Parameter(description = "조회할 Channel ID")
             @RequestParam("channelId") UUID channelId
     ){
-        List<Message> getMessage =  messageService.findallByChannelId(channelId);
+        List<Message> getMessage =  messageService.findAllByChannelId(channelId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -102,7 +101,7 @@ public class MessageController {
             @Parameter(description = "수정할 메시지 정보")
             @RequestBody MessageUpdateRequest request
     ){
-        Message updated = messageService.updateMessage(messageId, request);
+        Message updated = messageService.update(messageId, request);
 
 
         return ResponseEntity
@@ -125,7 +124,7 @@ public class MessageController {
             @PathVariable("messageId") UUID messageId
 
     ){
-        messageService.deletedMessage(messageId);
+        messageService.delete(messageId);
 
         return ResponseEntity.noContent().build();
     }
