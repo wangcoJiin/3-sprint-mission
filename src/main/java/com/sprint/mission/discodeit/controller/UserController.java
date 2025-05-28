@@ -85,7 +85,6 @@ public class UserController {
                         .flatMap(this::resolveProfileRequest);
 
         User createdUser = userService.create(userCreateRequest, profileRequest);
-        System.out.println(createdUser);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

@@ -61,7 +61,6 @@ public class BasicReadStatusService implements ReadStatusService {
         if(result.isEmpty()){
             throw new IllegalStateException("해당하는 ReadStatus가 없습니다.");
         }
-        System.out.println("ReadStatus 조회 성공");
         return result;
     }
 
@@ -73,8 +72,6 @@ public class BasicReadStatusService implements ReadStatusService {
         if(result == null){
             throw new IllegalStateException("해당하는 유저의 ReadStatus가 없습니다.");
         }
-        System.out.println("유저의 ReadStatus 조회 성공");
-
         return result;
     }
 

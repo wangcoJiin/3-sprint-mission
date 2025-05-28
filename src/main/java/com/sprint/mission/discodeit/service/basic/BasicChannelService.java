@@ -34,8 +34,6 @@ public class BasicChannelService implements ChannelService {
     @Override
     public Channel createPublicChannel(PublicChannelCreateRequest request) {
 
-        System.out.println("공개 채널 생성 메서드 들어옴");
-
         Channel channel = new Channel(
                 request.name(),
                 ChannelType.PUBLIC,
@@ -46,8 +44,6 @@ public class BasicChannelService implements ChannelService {
         if (channelRepository.findChannelUsingName(request.name()).isPresent()) {
             throw new IllegalArgumentException("채널 이름이 이미 존재합니다.");
         }
-
-        System.out.println("채널 생성됨");
 
         channelRepository.save(channel);
 

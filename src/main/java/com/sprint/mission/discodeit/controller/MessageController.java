@@ -56,7 +56,6 @@ public class MessageController {
         List<BinaryContentCreateRequest> attachedFileRequest = resolveAttachmentsRequest(attachedFiles);
 
         Message createMessage = messageService.create(request, attachedFileRequest);
-//        System.out.println(createMessage);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
