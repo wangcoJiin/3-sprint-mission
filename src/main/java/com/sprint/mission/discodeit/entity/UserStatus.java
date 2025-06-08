@@ -1,68 +1,51 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "user_statuses")
 @Getter
-public class UserStatus implements Serializable {
+public class UserStatus extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    // 지연 로딩
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    private User user;
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    private UUID userId;
+    @Column(name = "last_active_at", nullable = false)
     private Instant lastActiveAt;
 
-    public UserStatus() {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
 
-    public UserStatus(UUID userId, Instant lastActiveAt) {
-        this.id = UUID.randomUUID();;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-        this.userId = userId;
+
+    public UserStatus(User user, Instant lastActiveAt) {
+        this.user = user;
         this.lastActiveAt = lastActiveAt;
-    }
 
-    public void updateId(UUID id) {
-        this.id = id;
-    }
-
-    public void updateCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void updateUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void updateUserId(UUID userId) {
-        this.userId = userId;
     }
 
     public void update(Instant lastActiveAt) {
-        boolean anyValueUpdated = false;
         if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
             this.lastActiveAt = lastActiveAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
         }
     }
+
+    public void setUser(User user) {
+        this.user = user;
+        if (user != null && user.getStatus() != this) {
+            user.setStatus(this);
+        }
+    }
+
 
     public Boolean isOnline() {
         Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
@@ -76,11 +59,7 @@ public class UserStatus implements Serializable {
                 .withZone(ZoneId.of("Asia/Seoul"));
 
         return "UserStatus{" +
-                "id=" + id +
-                ", createdAt=" + formatter.format(createdAt) +
-                ", updatedAt=" + formatter.format(updatedAt) +
-                ", userId=" + userId +
-                ", lastActiveAt=" + formatter.format(lastActiveAt) +
-                '}';
+                "lastActiveAt=" + formatter.format(lastActiveAt) +
+                "} " + super.toString();
     }
 }

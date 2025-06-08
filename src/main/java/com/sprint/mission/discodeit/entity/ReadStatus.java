@@ -1,71 +1,50 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
-
-import java.io.Serial;
-import java.io.Serializable;
+import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "read_statuses", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "channel_id"}))
 @Getter
-public class ReadStatus implements Serializable {
+public class ReadStatus extends BaseUpdatableEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @ManyToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "user_id",nullable = false)
+    private User user;
 
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    private UUID userId;
-    private UUID channelId;
+    @ManyToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
+
+    @Column(name = "last_active_at")
     private Instant lastReadAt;
 
-    public ReadStatus() {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) {
-        this.id = UUID.randomUUID();;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-        this.userId = userId;
-        this.channelId = channelId;
+    public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+        this.user = user;
+        this.channel = channel;
         this.lastReadAt = lastReadAt;
     }
 
-    public void updateId(UUID id) {
-        this.id = id;
-    }
-
-    public void updateCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void updateUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void updateUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public void updateChannelId(UUID channelId) {
-        this.channelId = channelId;
+    public void update(User user, Channel channel) {
+        if (user != null && !user.equals(this.user)) {
+            this.user = user;
+        }
+        if (channel != null && !channel.equals(this.channel)) {
+            this.channel = channel;
+        }
     }
 
     public void updateLastReadAt(Instant newLastReadAt) {
-        boolean anyValueUpdated = false;
         if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
             this.lastReadAt = newLastReadAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
         }
     }
 
@@ -75,12 +54,7 @@ public class ReadStatus implements Serializable {
                 .withZone(ZoneId.of("Asia/Seoul"));
 
         return "ReadStatus{" +
-                "id=" + id +
-                ", createdAt=" + formatter.format(createdAt) +
-                ", updatedAt=" + formatter.format(updatedAt) +
-                ", userId=" + userId +
-                ", channelId=" + channelId +
-                ", lastReadAt=" + formatter.format(updatedAt) +
+                "lastReadAt=" + formatter.format(lastReadAt) +
                 '}';
     }
 

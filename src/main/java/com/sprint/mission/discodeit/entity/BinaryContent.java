@@ -1,51 +1,42 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.UUID;
-
-// 수정 불가능한 객체, 따라서 수정한다는 것은 곧 삭제하고 다시 생성한다는 의미임.
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "binary_contents")
 @Getter
-public class BinaryContent implements Serializable {
+public class BinaryContent extends BaseEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final UUID id;
-    private final Instant createdAt;
-
+    @Column(name = "filename", nullable = false)
     private String fileName;
-    private Long size;
-    private String contentType;
-    private byte[] bytes;
 
-    public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
+    @Column(name = "size", nullable = false)
+    private Long size;
+
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
+
+
+    public BinaryContent(String fileName, Long size, String contentType) {
         this.fileName = fileName;
         this.size = size;
         this.contentType = contentType;
-        this.bytes = bytes;
     }
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.of("Asia/Seoul"));
 
         return "BinaryContent{" +
-                "id=" + id +
-                ", createdAt=" + createdAt +
-                ", fileName='" + fileName + '\'' +
+                "fileName='" + fileName + '\'' +
                 ", size=" + size +
                 ", contentType='" + contentType + '\'' +
-                ", data=" + Arrays.toString(bytes) +
                 '}';
     }
 }
