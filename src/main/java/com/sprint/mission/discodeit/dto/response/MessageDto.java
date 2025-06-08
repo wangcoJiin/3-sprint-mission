@@ -1,17 +1,15 @@
 package com.sprint.mission.discodeit.dto.response;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-/**
- * 유저 조회 응답 DTO
- */
-
-public record UserCreateDto(
+public record MessageDto(
         UUID id,
         Instant createdAt,
         Instant updatedAt,
-        String name,
-        String userEmail,
-        UUID profileId
+        String content,
+        UUID channelId,
+        UserDto author,
+        List<BinaryContentDto> attachments
 ) { }
