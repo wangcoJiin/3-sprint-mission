@@ -1,88 +1,83 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.io.Serial;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
-
-/**
- * 유저 이메일 필드 추가된 테스트용 유저 도메인
- */
-
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "users")
 @Getter
-public class User implements java.io.Serializable {
+public class User extends BaseUpdatableEntity {
 
-    //serialVersionUID 필드 추가
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private UUID id;
-    private Instant createdAt;
-    private Instant updatedAt;
+    @Column(name = "username", length = 50, unique = true, nullable = false)
     private String username;
-    private String email;
-    private String password;
-    private UUID profileId;
 
-    public User() {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-    }
+    @Column(name = "email", length = 100, unique = true, nullable = false)
+    private String email;
+
+    @Column(name = "password", length = 60, nullable = false)
+    private String password;
+
+
+    @JoinColumn(name = "profile_id")
+    @OneToOne(optional = true, orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private BinaryContent profile;
+
+    // 이 양방향 연관 관계의 주인은 외래키를 가지고 있는 UserStatus에 있다
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserStatus status;
+
 
     public User(String username, String email, String password) {
-        this.id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
         this.username = username;
         this.email = email;
         this.password = password;
-
-    }
-    public void updateId(UUID id) {
-        this.id = id;
     }
 
-    public void updateCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
+    public void updateName(String newUsername) {
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+        }
     }
 
-    public void updateUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    public void updateEmail(String newEmail) {
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+        }
     }
 
-    public void updateUserName(String username) {
-        this.username = username;
+    public void updatePassword(String newPassword) {
+        if (newPassword != null && !newPassword.equals(this.password)) {
+            this.password = newPassword;
+        }
     }
 
-    public void updateEmail(String email) {
-        this.email = email;
+    public void updateProfile(BinaryContent newProfile) {
+        if (newProfile != null && !newProfile.equals(this.profile)) {
+            this.profile = newProfile;
+        }
     }
 
-    public void updatePassword(String password) {
-        this.password = password;
+    public void setStatus(UserStatus status) {
+        this.status = status;
+        if (status != null && status.getUser() != this) {
+            status.setUser(this);
+        }
     }
-
-    public void updateProfileId(UUID profileId) {
-        this.profileId = profileId;
-    }
-
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.of("Asia/Seoul"));
+
         return "User{" +
-                "id=" + id +
-                ", createdAt=" + formatter.format(createdAt) +
-                ", updatedAt=" + formatter.format(updatedAt) +
-                ", username='" + username + '\'' +
+                "username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", profileId=" + profileId +
                 '}';
     }
 }

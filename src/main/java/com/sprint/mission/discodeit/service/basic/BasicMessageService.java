@@ -3,16 +3,25 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.dto.response.MessageDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
@@ -28,81 +37,86 @@ public class BasicMessageService implements MessageService {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
+    private final MessageMapper messageMapper;
 
     //메시지 생성
     @Override
-    public Message createMessage(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+    @Transactional
+    public MessageDto create(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
 
-        User user = userRepository.findUserById(request.authorId())
+        User user = userRepository.findById(request.authorId())
                 .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
 
-        Channel channel = channelRepository.findChannelUsingId(request.channelId())
+        Channel channel = channelRepository.findById(request.channelId())
                 .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
 
+        // 프로필 이미지 처리 (기본 이미지 or 전달된 이미지)
+        List<BinaryContent> attachmets = binaryContentCreateRequests.stream()
+                .map(profileImage -> {
+                    BinaryContent content = new BinaryContent(
+                            profileImage.fileName(),
+                            (long) profileImage.bytes().length,
+                            profileImage.contentType()
+                    );
+                    binaryContentStorage.put(content.getId(), profileImage.bytes());
+                    return binaryContentRepository.save(content);
 
-        List<UUID> attachmentIds = binaryContentCreateRequests.stream()
-                .map(attachmentRequest -> {
-                    String fileName = attachmentRequest.fileName();
-                    String contentType = attachmentRequest.contentType();
-                    byte[] bytes = attachmentRequest.bytes();
-
-                    BinaryContent newBinaryContent = new BinaryContent(fileName, contentType, bytes);
-                    BinaryContent binaryContent = binaryContentRepository.saveBinaryContent(newBinaryContent);
-
-                    return binaryContent.getId();
                 })
                 .toList();
 
-        Message newMessage = new Message(request.channelId(), request.authorId(), request.content(), attachmentIds);
-        Message created = messageRepository.saveMessage(newMessage);
+        Message newMessage = new Message(
+                channel,
+                user,
+                request.content(),
+                attachmets
+        );
+        messageRepository.save(newMessage);
 
-        if (created == null) {
-            throw new IllegalStateException("MessageService: 메시지 저장 실패");
-        }
-
-        return messageRepository.saveMessage(newMessage);
+        return messageMapper.toDto(newMessage);
     }
 
     // 채널 메시지 조회 (findAll 수정 버전)
     @Override
-    public List<Message> findallByChannelId(UUID channelId) {
+    @Transactional(readOnly = true)
+    public List<Message> findAllByChannelId(UUID channelId) {
 
-        return messageRepository.findMessageByChannel(channelId).stream()
+        return messageRepository.findAllByChannelId(channelId).stream()
                 .toList();
     }
 
     // 메시지 아이디 이용한 조회
     @Override
-    public Message getMessageById(UUID messageId) {
+    @Transactional(readOnly = true)
+    public Message find(UUID messageId) {
 
-        return messageRepository.findMessageById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다."));
+        return messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
     }
 
     // 메시지 수정
     @Override
-    public Message updateMessage(UUID messageId, MessageUpdateRequest request) {
+    @Transactional
+    public MessageDto update(UUID messageId, MessageUpdateRequest request) {
 
-        Message message = messageRepository.findMessageById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다."));
+        String newContent = request.newContent();
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
 
-        message.updateContent(request.newContent());
+        message.updateContent(newContent);
 
-        return messageRepository.saveMessage(message);
+        return messageMapper.toDto(message);
     }
 
     // 메시지 삭제
     @Override
-    public void deletedMessage(UUID messageId) {
+    @Transactional
+    public void delete(UUID messageId) {
 
-        Message message = messageRepository.findMessageById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다."));
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
 
-        // 연관 첨부파일 삭제
-        message.getAttachmentIds()
-                .forEach(binaryContentRepository::deleteById);
-
-        messageRepository.deletedMessage(messageId);
+        messageRepository.deleteById(messageId);
 
     }
 

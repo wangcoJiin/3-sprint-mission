@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import java.util.List;
 
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 public class SwaggerConfig {
 
     /* http://localhost:8080/swagger-ui/index.html 확인 경로 */

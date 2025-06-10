@@ -1,88 +1,59 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.io.Serial;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "messages")
 @Getter
-public class Message implements java.io.Serializable{
+public class Message extends BaseUpdatableEntity {
 
-    //serialVersionUID 필드 추가
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private UUID Id;
-    private Instant createdAt;
-    private Instant updatedAt;
-    private UUID channelId;
-    private UUID authorId;
+    @Column(name = "content")
     private String content;
-    private List<UUID> attachmentIds;
 
+    @ManyToOne
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
 
-    public Message() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private User author;
 
-    public Message(UUID channelId, UUID authorId, String content, List<UUID> attachmentIds) {
-        this.Id = UUID.randomUUID();
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+    // 연속성 전이
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "message_attachments",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+    private List<BinaryContent> attachments = new ArrayList<>();
+
+    public Message(Channel channel, User author, String content, List<BinaryContent> attachments) {
         this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachmentIds;
+        this.channel = channel;
+        this.author = author;
+        this.attachments = attachments;
     }
-
-    public void updateId(UUID Id) {
-        this.Id = Id;
-    }
-
-    public void updateCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void updateUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void updateChannelId(UUID channelId) {
-        this.channelId = channelId;
-    }
-
-    public void updateAuthorId(UUID authorId) {
-        this.authorId = authorId;
-    }
-
-
+    
     public void updateContent(String newContent) {
-        boolean anyValueUpdated = false;
         if (newContent != null && !newContent.equals(this.content)) {
             this.content = newContent;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
         }
     }
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.of("Asia/Seoul"));
 
         return "Message{" +
-                "Id=" + Id +
-                ", createdAt=" + formatter.format(createdAt) +
-                ", updatedAt=" + formatter.format(updatedAt) +
-                ", channelId=" + channelId +
-                ", authorId=" + authorId +
-                ", content='" + content + '\'' +
+                "content='" + content +
                 '}';
     }
 }
