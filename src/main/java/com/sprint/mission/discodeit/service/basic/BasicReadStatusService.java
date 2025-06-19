@@ -74,10 +74,6 @@ public class BasicReadStatusService implements ReadStatusService {
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         List<ReadStatus> result = readStatusRepository.findAllByUserId(userId);
 
-        if(result.isEmpty()){
-            throw new IllegalStateException("해당하는 유저의 ReadStatus가 없습니다.");
-        }
-
         return result.stream()
                 .map(readStatusMapper::toDto)
                 .toList();
@@ -94,7 +90,6 @@ public class BasicReadStatusService implements ReadStatusService {
 
         readStatus.updateLastReadAt(request.newLastReadAt());
 
-//        return readStatusRepository.save(readStatus);
         return readStatusMapper.toDto(readStatus);
     }
 
