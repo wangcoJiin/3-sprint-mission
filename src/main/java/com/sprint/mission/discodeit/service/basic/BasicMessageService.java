@@ -4,25 +4,30 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.MessageDto;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -39,6 +44,7 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final MessageMapper messageMapper;
+    private final PageResponseMapper pageResponseMapper;
 
     //메시지 생성
     @Override
@@ -51,7 +57,7 @@ public class BasicMessageService implements MessageService {
         Channel channel = channelRepository.findById(request.channelId())
                 .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
 
-        // 프로필 이미지 처리 (기본 이미지 or 전달된 이미지)
+        // 첨부파일 처리
         List<BinaryContent> attachmets = binaryContentCreateRequests.stream()
                 .map(profileImage -> {
                     BinaryContent content = new BinaryContent(
@@ -59,8 +65,11 @@ public class BasicMessageService implements MessageService {
                             (long) profileImage.bytes().length,
                             profileImage.contentType()
                     );
+
+                    binaryContentRepository.save(content);
                     binaryContentStorage.put(content.getId(), profileImage.bytes());
-                    return binaryContentRepository.save(content);
+
+                    return content;
 
                 })
                 .toList();
@@ -76,21 +85,30 @@ public class BasicMessageService implements MessageService {
         return messageMapper.toDto(newMessage);
     }
 
-    // 채널 메시지 조회 (findAll 수정 버전)
+    // 채널의 메시지 조회
     @Override
     @Transactional(readOnly = true)
-    public List<Message> findAllByChannelId(UUID channelId) {
+    public PageResponse<MessageDto> getAllByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
 
-        return messageRepository.findAllByChannelId(channelId).stream()
-                .toList();
+        Slice<Message> sliceMessage = messageRepository.findAllByChannelIdWithAuthor(channelId, Optional.ofNullable(cursor).orElse(Instant.now()), pageable);
+
+        Slice<MessageDto> slice = sliceMessage.map(messageMapper::toDto);
+
+        Instant nextCursor = null;
+        if (!slice.getContent().isEmpty()){
+            nextCursor = slice.getContent().get(slice.getContent().size() - 1).createdAt();
+        }
+
+        return pageResponseMapper.fromSlice(slice, nextCursor);
     }
 
     // 메시지 아이디 이용한 조회
     @Override
     @Transactional(readOnly = true)
-    public Message find(UUID messageId) {
+    public MessageDto find(UUID messageId) {
 
         return messageRepository.findById(messageId)
+            .map(messageMapper::toDto)
                 .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
     }
 
