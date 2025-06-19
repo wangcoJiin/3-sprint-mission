@@ -69,21 +69,25 @@ public class BasicUserService implements UserService {
                             (long) profileImage.bytes().length,
                             profileImage.contentType()
                     );
+
+                    binaryContentRepository.save(content);
+
                     binaryContentStorage.put(content.getId(), profileImage.bytes());
                     savedUser.updateProfile(content);
 
-                    return binaryContentRepository.save(content);
+                    return content;
                 })
                 .orElseGet(() -> {
                     try {
                         ClassPathResource resource = new ClassPathResource("static/images/default-avatar.png");
                         byte[] data = resource.getInputStream().readAllBytes();
                         BinaryContent defaultContent = new BinaryContent("default-avatar.png", (long) data.length, "image/png");
-                        savedUser.updateProfile(defaultContent);
+                        binaryContentRepository.save(defaultContent);
 
                         binaryContentStorage.put(defaultContent.getId(), data);
+                        savedUser.updateProfile(defaultContent);
 
-                        return binaryContentRepository.save(defaultContent);
+                        return defaultContent;
                     } catch (IOException e) {
                         throw new RuntimeException("UserService: 기본 프로필 이미지 로드 실패", e);
                     }

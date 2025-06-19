@@ -69,12 +69,12 @@ public class BasicChannelService implements ChannelService {
                 ChannelType.PRIVATE,
                 null
         );
+        channelRepository.save(channel);
 
         request.participantIds().stream()
                 .map(userId -> new ReadStatus(userRepository.findById(userId).get(), channel, channel.getCreatedAt()))
                 .forEach(readStatusRepository::save
                 );
-        channelRepository.save(channel);
 
         return channelMapper.toDto(channel);
     }

@@ -25,7 +25,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     // create
     @Override
     @Transactional
-    public BinaryContent create(BinaryContentCreateRequest request) {
+    public BinaryContentDto create(BinaryContentCreateRequest request) {
 
         String fileName = request.fileName();
         String contentType = request.contentType();
@@ -33,8 +33,9 @@ public class BasicBinaryContentService implements BinaryContentService {
 
         BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length, contentType);
         binaryContentStorage.put(binaryContent.getId(), bytes);
+        binaryContentRepository.save(binaryContent);
 
-        return binaryContentRepository.save(binaryContent);
+        return binaryContentMapper.toDto(binaryContent);
     }
 
     // find
