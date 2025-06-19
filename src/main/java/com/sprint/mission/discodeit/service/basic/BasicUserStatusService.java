@@ -32,7 +32,7 @@ public class BasicUserStatusService implements UserStatusService {
     // 상태 생성
     @Override
     @Transactional
-    public UserStatus create(UserStatusCreateRequest request) {
+    public UserStatusDto create(UserStatusCreateRequest request) {
 
         //유저 조회
         User user = userRepository.findById(request.userId())
@@ -49,15 +49,17 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus userStatus = new UserStatus(user, lastActiveAt);
 
         userStatus.setUser(user);
+        userStatusRepository.save(userStatus);
 
-        return userStatusRepository.save(userStatus);
+        return userStatusMapper.toDto(userStatus);
     }
 
     // 접속 상태 조회
     @Override
     @Transactional(readOnly = true)
-    public UserStatus find(UUID userStatusId) {
+    public UserStatusDto find(UUID userStatusId) {
         return userStatusRepository.findById(userStatusId)
+            .map(userStatusMapper::toDto)
                 .orElseThrow(
                         () -> new NoSuchElementException("UserStatusService:  userStatus가 존재하지 않습니다. "+  userStatusId));
     }
@@ -65,14 +67,16 @@ public class BasicUserStatusService implements UserStatusService {
     // 접속 상태 전체 조회
     @Override
     @Transactional(readOnly = true)
-    public List<UserStatus> findAll() {
-        return userStatusRepository.findAll();
+    public List<UserStatusDto> findAll() {
+        return userStatusRepository.findAll().stream()
+            .map(userStatusMapper::toDto)
+            .toList();
     }
 
     // 접속 상태 아이디로 업데이트
     @Override
     @Transactional
-    public UserStatus update(UUID userStatusId, UserStatusUpdateRequest request) {
+    public UserStatusDto update(UUID userStatusId, UserStatusUpdateRequest request) {
         Instant newLastActiveAt = request.newLastActiveAt();
 
         UserStatus userStatus = userStatusRepository.findById(userStatusId)
@@ -81,7 +85,7 @@ public class BasicUserStatusService implements UserStatusService {
         userStatus.update(newLastActiveAt);
 
         // 변경 감지
-        return userStatus;
+        return userStatusMapper.toDto(userStatus);
 
     }
 
