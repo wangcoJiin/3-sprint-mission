@@ -122,7 +122,7 @@ public class BasicUserService implements UserService {
     @Transactional(readOnly = true)
     public List<UserDto> findAll() {
 
-        return userRepository.findAll()
+        return userRepository.findAllWithProfileAndStatus()
                 .stream()
                 .map(userMapper::toDto)
                 .toList();
