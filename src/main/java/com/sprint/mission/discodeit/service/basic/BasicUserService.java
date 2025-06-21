@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicUserService implements UserService {
@@ -40,6 +41,9 @@ public class BasicUserService implements UserService {
     @Override
     @Transactional
     public UserDto create(UserCreateRequest request, Optional<BinaryContentCreateRequest> optionalProfileImage) {
+
+        // 출력으로 확인만 하고 싶은 로그
+        log.info("BinaryContentStorage 구현체: {}", binaryContentStorage.getClass().getName());
 
         // 이메일 중복 검사
         if (userRepository.existsByEmail(request.email())){
@@ -161,11 +165,6 @@ public class BasicUserService implements UserService {
             user.updatePassword(userUpdateRequest.newPassword());
         }
 
-        // 기존 이미지 있으면 삭제
-        if (user.getProfile() != null){
-            binaryContentRepository.deleteById(user.getProfile().getId());
-        }
-
         // 프로필 이미지 처리 (기본 이미지 or 전달된 이미지)
         BinaryContent savedBinary = optionalProfileCreateRequest
                 .map(profileImage -> {
@@ -182,6 +181,7 @@ public class BasicUserService implements UserService {
                             (long) profileImage.bytes().length,
                             profileImage.contentType()
                     );
+                    binaryContentRepository.save(content);
                     binaryContentStorage.put(content.getId(), profileImage.bytes());
                     user.updateProfile(content);
 
