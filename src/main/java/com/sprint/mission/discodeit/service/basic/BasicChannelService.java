@@ -49,13 +49,7 @@ public class BasicChannelService implements ChannelService {
                 request.description()
         );
 
-        if (channelRepository.existsByName(request.name())) {
-            throw new IllegalArgumentException("ChannelService: 채널 이름이 이미 존재합니다.");
-        }
         channelRepository.save(channel);
-
-        logger.info("공개 채널 생성하고 저장함");
-        logger.info("이제 Mapper.toDto로 반환할거임");
         return channelMapper.toDto(channel);
     }
 
@@ -73,8 +67,7 @@ public class BasicChannelService implements ChannelService {
 
         request.participantIds().stream()
                 .map(userId -> new ReadStatus(userRepository.findById(userId).get(), channel, channel.getCreatedAt()))
-                .forEach(readStatusRepository::save
-                );
+                .forEach(readStatusRepository::save);
 
         return channelMapper.toDto(channel);
     }
