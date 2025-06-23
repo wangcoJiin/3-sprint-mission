@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -27,6 +28,8 @@ public class CustomMessageRepositoryImpl implements CustomMessageRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
+    private static final Logger logger = Logger.getLogger(CustomMessageRepositoryImpl.class.getName()); // 필드로 Logger 선언
+
     @Override
     public Slice<Message> findAllByChannelIdWithAuthor(UUID channelId, Instant createdAt, Pageable pageable) {
 
@@ -37,9 +40,8 @@ public class CustomMessageRepositoryImpl implements CustomMessageRepository {
         // createdAt이 null이 아닐 때만 조건 추가
         if (createdAt != null) {
             builder.and(message.createdAt.lt(createdAt));
-            System.out.println("createdAt 조건 추가: < " + createdAt);
         } else {
-            System.out.println("createdAt이 null이므로 시간 조건 없이 조회");
+            logger.info("[CustomMessageRepositoryImpl] createdAt이 null이므로 시간 조건 없이 조회");
         }
 
         JPAQuery<Message> query = jpaQueryFactory
