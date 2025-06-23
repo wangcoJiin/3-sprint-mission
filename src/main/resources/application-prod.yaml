@@ -1,0 +1,28 @@
+# 운영 환경 설정
+server:
+  port: 0
+
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-server:5432/discodeit_prod
+    username: ${DB_USERNAME:discodeit_prod_user}
+    password: ${DB_PASSWORD:discodeit_prod_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-init-sql: SET SESSION hibernate.jdbc.lob.non_contextual_creation=true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.sprint.mission.discodeit: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: WARN
+    org.apache.tomcat: WARN
+  file:
+    name: .logs/application-prod.log
