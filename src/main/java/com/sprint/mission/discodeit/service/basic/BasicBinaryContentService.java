@@ -3,13 +3,14 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.response.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,9 @@ public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentMapper binaryContentMapper;
+
+    private static final Logger logger = Logger.getLogger(BasicBinaryContentService.class.getName());
+
 
     // create
     @Override
@@ -43,7 +47,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Transactional(readOnly = true)
     public BinaryContentDto find(UUID id) {
         BinaryContent binaryContent = binaryContentRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("BinaryContentService: 해당하는 바이너리 컨텐츠가 없습니다."));
+                .orElseThrow(() -> new BinaryContentNotFoundException(id));
 
         return binaryContentMapper.toDto(binaryContent);
     }
@@ -62,7 +66,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Transactional
     public void delete(UUID id) {
         binaryContentRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("BinaryContentService: 해당하는 바이너리 컨텐츠가 없습니다."));
+                .orElseThrow(() -> new BinaryContentNotFoundException(id));
 
         binaryContentRepository.deleteById(id);
     }

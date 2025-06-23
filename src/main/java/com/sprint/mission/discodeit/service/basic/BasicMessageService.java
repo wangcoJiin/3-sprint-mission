@@ -9,6 +9,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -19,7 +22,6 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -33,10 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class BasicMessageService implements MessageService {
 
-    private static final Logger logger = Logger.getLogger(BasicMessageService.class.getName()); // 필드로 Logger 선언
-
-    private static final String FILE_PATH = "message.ser";
-
     // 의존성
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
@@ -46,19 +44,22 @@ public class BasicMessageService implements MessageService {
     private final MessageMapper messageMapper;
     private final PageResponseMapper pageResponseMapper;
 
+    private static final Logger logger = Logger.getLogger(BasicMessageService.class.getName());
+
     //메시지 생성
     @Override
     @Transactional
-    public MessageDto create(MessageCreateRequest request, List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+    public MessageDto create(MessageCreateRequest request,
+            List<BinaryContentCreateRequest> binaryContentCreateRequests) {
 
         User user = userRepository.findById(request.authorId())
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(request.authorId()));
 
         Channel channel = channelRepository.findById(request.channelId())
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 채널이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChannelNotFoundException(request.channelId()));
 
         // 첨부파일 처리
-        List<BinaryContent> attachmets = binaryContentCreateRequests.stream()
+        List<BinaryContent> attachments = binaryContentCreateRequests.stream()
                 .map(profileImage -> {
                     BinaryContent content = new BinaryContent(
                             profileImage.fileName(),
@@ -78,7 +79,7 @@ public class BasicMessageService implements MessageService {
                 channel,
                 user,
                 request.content(),
-                attachmets
+                attachments
         );
         messageRepository.save(newMessage);
 
@@ -90,12 +91,13 @@ public class BasicMessageService implements MessageService {
     @Transactional(readOnly = true)
     public PageResponse<MessageDto> getAllByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
 
-        Slice<Message> sliceMessage = messageRepository.findAllByChannelIdWithAuthor(channelId, Optional.ofNullable(cursor).orElse(Instant.now()), pageable);
+        Slice<Message> sliceMessage = messageRepository.findAllByChannelIdWithAuthor(channelId,
+                Optional.ofNullable(cursor).orElse(Instant.now()), pageable);
 
         Slice<MessageDto> slice = sliceMessage.map(messageMapper::toDto);
 
         Instant nextCursor = null;
-        if (!slice.getContent().isEmpty()){
+        if (!slice.getContent().isEmpty()) {
             nextCursor = slice.getContent().get(slice.getContent().size() - 1).createdAt();
         }
 
@@ -108,8 +110,8 @@ public class BasicMessageService implements MessageService {
     public MessageDto find(UUID messageId) {
 
         return messageRepository.findById(messageId)
-            .map(messageMapper::toDto)
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
+                .map(messageMapper::toDto)
+                .orElseThrow(() -> new MessageNotFoundException(messageId));
     }
 
     // 메시지 수정
@@ -119,7 +121,7 @@ public class BasicMessageService implements MessageService {
 
         String newContent = request.newContent();
         Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
+                .orElseThrow(() -> new MessageNotFoundException(messageId));
 
         message.updateContent(newContent);
 
@@ -132,7 +134,7 @@ public class BasicMessageService implements MessageService {
     public void delete(UUID messageId) {
 
         Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("MessageService: 메시지가 존재하지 않습니다. " + messageId));
+                .orElseThrow(() -> new MessageNotFoundException(messageId));
 
         messageRepository.deleteById(messageId);
 

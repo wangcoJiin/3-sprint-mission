@@ -34,7 +34,7 @@ public class BasicAuthService implements AuthService {
                 .orElseThrow(
                         () -> new UserNotFoundByNameException(username));
 
-        if (!Objects.equals(user.getPassword(), password)){
+        if (!Objects.equals(user.getPassword(), password)) {
             throw new InvalidUserPasswordException(password);
         }
 
