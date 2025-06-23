@@ -16,10 +16,14 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND("메시지를 찾을 수 없습니다. "),
 
     BINARY_CONTENT_NOT_FOUND("바이너리 컨텐츠를 찾을 수 없습니다. "),
+    RESOURCE_LOAD_FAILED("바이너리 컨텐츠 로드에 실패했습니다. "),
 
     USER_STATUS_NOT_FOUND("유저 접속 상태를 찾을 수 없습니다. "),
+    USER_STATUS_NOT_FOUND_BY_USER("유저 접속 상태를 찾을 수 없습니다. "),
+    USER_STATUS_ALREADY_EXIST("이미 존재하는 user status 입니다. "),
 
-    READ_STATUS_NOT_FOUND("유저의 읽음 상태를 찾을 수 없습니다. ");
+    READ_STATUS_NOT_FOUND("유저의 읽음 상태를 찾을 수 없습니다. "),
+    READ_STATUS_ALREADY_EXIST("이미 존재하는 read status 입니다. ");
 
     private final String message;
 

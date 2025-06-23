@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
 import java.util.Map;
+import lombok.Getter;
 
-//@RestControllerAdvice
-//@RequiredArgsConstructor
+@Getter
 public class DiscodeitException extends RuntimeException{
 
     private final Instant timestamp;
