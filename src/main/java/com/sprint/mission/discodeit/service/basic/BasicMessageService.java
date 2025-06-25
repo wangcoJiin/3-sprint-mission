@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.ValidationException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -22,6 +23,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -51,6 +53,9 @@ public class BasicMessageService implements MessageService {
     @Transactional
     public MessageDto create(MessageCreateRequest request,
             List<BinaryContentCreateRequest> binaryContentCreateRequests) {
+
+        // 첨부 파일 없으면 메시지 내용 필수
+        validateMessageContent(request, binaryContentCreateRequests);
 
         User user = userRepository.findById(request.authorId())
                 .orElseThrow(() -> new UserNotFoundException(request.authorId()));
@@ -138,6 +143,20 @@ public class BasicMessageService implements MessageService {
 
         messageRepository.deleteById(messageId);
 
+    }
+
+    private void validateMessageContent(MessageCreateRequest request, List<BinaryContentCreateRequest> attachments){
+
+        boolean hasContent = request.content() !=null && !request.content().trim().isEmpty();
+        boolean hasAttachments = attachments != null && !attachments.isEmpty();
+
+        // 메시지 내용도 없고 첨부파일도 없는 경우
+        if (!hasContent && !hasAttachments) {
+            Map<String, Object> details = Map.of(
+                    "메시지를 생성하려고 한 채널", request.channelId()
+            );
+            throw new ValidationException("메시지 내용 또는 첨부파일 중 하나는 필수입니다.", details);
+        }
     }
 
 }
