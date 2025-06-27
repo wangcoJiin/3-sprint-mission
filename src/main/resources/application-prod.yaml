@@ -3,6 +3,10 @@ server:
   port: 0
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
   datasource:
     url: jdbc:h2:file:./data/discodeit_prod;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
     username: discodeit_prod
@@ -26,9 +30,19 @@ logging:
   level:
     com.sprint.mission.discodeit: INFO
     org.springframework: WARN
+    org.springframework.boot: WARN
     org.hibernate: WARN
     org.hibernate.SQL: INFO
     org.hibernate.orm.jdbc.bind: WARN
     org.apache.tomcat: WARN
-  file:
-    name: .logs/application-prod.log
+
+
+
+info:
+  # 최소한의 정보만 (선택사항)
+  datasource:
+    type: "H2 Database"
+    driver: "H2"
+
+  storage:
+    type: "local"

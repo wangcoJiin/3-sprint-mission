@@ -2,18 +2,53 @@ spring:
   application:
     name: discodeit
 
+
+
   profiles:
     active: dev
 
   jpa:
     generate-ddl: false
     database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
     open-in-view: false
+
+management:
+  endpoints:
+    web:
+      base-path: /discodeit/monitor
+      exposure:
+        include: health, info, metrics, loggers
+  endpoint:
+    info:
+      cache:
+        time-to-live: 60s  # 60초간 info를 메모리에 저장
+    health:
+      show-details: always      # 건강 상태 상세 정보 표시
+
+  # Actuator info 엔드포인트 설정
+  info:
+    env:
+      enabled: true             # 환경 변수 정보 포함
+    java:
+      enabled: false             # Java 정보 포함
+    os:
+      enabled: false             # OS 정보 포함
+
+
+info:
+  app:
+    name: "Discodeit"
+    version: "1.7.0"
+    java:
+      version: "17"
+  test:
+    status: "working"
+    environment: "test"
 
 # 공통 로깅 설정
 logging:
