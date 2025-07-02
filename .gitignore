@@ -40,3 +40,8 @@ out/
 .vscode/
 
 /src/main/generated/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
