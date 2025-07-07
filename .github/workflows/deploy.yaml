@@ -93,15 +93,30 @@ jobs:
             --cluster ${{ vars.ECS_CLUSTER }} \
             --services ${{ vars.ECS_SERVICE }}
 
-      - name: Register new task definition
-        id: register-task
-        run: |
-          echo "TASK_DEF_ARN=${{ steps.task-def.outputs.task-definition }}" >> $GITHUB_ENV
+#      - name: Register new task definition
+#        id: register-task
+#        run: |
+#          echo "TASK_DEF_ARN=${{ steps.task-def.outputs.task-definition }}" >> $GITHUB_ENV
+
+#      - name: Deploy updated task definition
+#        run: |
+#          aws ecs update-service \
+#            --cluster ${{ vars.ECS_CLUSTER }} \
+#            --service ${{ vars.ECS_SERVICE }} \
+#            --task-definition $TASK_DEF_ARN \
+#            --desired-count 1
 
       - name: Deploy updated task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          service: ${{ vars.ECS_SERVICE }}
+          wait-for-service-stability: true
+
+      - name: Start ECS service
         run: |
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \
-            --service ${{ vars.ECS_SERVICE }} \
-            --task-definition $TASK_DEF_ARN \
+            --service ${{ vars.ECS_SERVICE }}\
             --desired-count 1
