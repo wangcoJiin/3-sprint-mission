@@ -28,7 +28,7 @@ RUN ./gradlew dependencies --no-daemon --quiet
 COPY src src
 
 # 애플리케이션 빌드 (bootJar 사용)
-RUN ./gradlew bootJar
+RUN ./gradlew clean build -x test
 
 ########################################################################################
 # 2단계: 실행 환경 (최적화된 런타임)
@@ -41,6 +41,9 @@ LABEL maintainer="jiin" \
 
 WORKDIR /app
 
+RUN mkdir -p /app/.logs/prod
+RUN chmod -R 755 /app/.logs/prod
+
 # JVM 옵션 환경 변수 설정
 ENV PROJECT_NAME=discodeit \
      PROJECT_VERSION=1.2-M8 \
@@ -49,7 +52,7 @@ ENV PROJECT_NAME=discodeit \
 COPY --from=builder /app/build/libs/discodeit-1.2-M8.jar /app/discodeit-1.2-M8.jar
 
 # 기본 이미지 파일 처리
-COPY --from=builder /app/src/main/resources/static /app/static/images
+COPY --from=builder /app/src/main/resources/static/images /app/static/images
 
 ########################################################################################
 # 컨테이너 실행 설정
@@ -58,4 +61,4 @@ COPY --from=builder /app/src/main/resources/static /app/static/images
 EXPOSE 80
 
 # 애플리케이션 실행
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar /app/${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar /app/${PROJECT_NAME}-${PROJECT_VERSION}.jar --spring.profiles.active=prod --server.port=80"]
