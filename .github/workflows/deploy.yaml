@@ -11,6 +11,8 @@ jobs:
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -38,7 +40,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
-          $ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
         run: |
           chmod +x ./gradlew
           ./gradlew bootJar
