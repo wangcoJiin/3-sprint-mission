@@ -41,8 +41,7 @@ LABEL maintainer="jiin" \
 
 WORKDIR /app
 
-RUN mkdir -p /app/.logs/prod
-RUN chmod -R 755 /app/.logs/prod
+RUN mkdir -p /app/.logs/prod && chmod -R 755 /app/.logs/prod
 
 # JVM 옵션 환경 변수 설정
 ENV PROJECT_NAME=discodeit \
