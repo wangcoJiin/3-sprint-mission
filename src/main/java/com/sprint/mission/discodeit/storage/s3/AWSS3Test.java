@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 
-import com.sprint.mission.discodeit.config.AwsS3Properties;
+import com.sprint.mission.discodeit.configuration.AwsS3Properties;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.logging.Logger;
