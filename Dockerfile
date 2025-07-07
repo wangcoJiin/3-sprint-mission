@@ -48,7 +48,7 @@ ENV PROJECT_NAME=discodeit \
      PROJECT_VERSION=1.2-M8 \
      JVM_OPTS=""
 
-COPY --from=builder /app/build/libs/discodeit-1.2-M8.jar /app/discodeit-1.2-M8.jar
+COPY --from=builder /app/build/libs/discodeit-1.2-M8.jar /app/app.jar
 
 # 기본 이미지 파일 처리
 COPY --from=builder /app/src/main/resources/static/images /app/static/images
@@ -60,4 +60,4 @@ COPY --from=builder /app/src/main/resources/static/images /app/static/images
 EXPOSE 80
 
 # 애플리케이션 실행
-ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar /app/${PROJECT_NAME}-${PROJECT_VERSION}.jar --spring.profiles.active=prod --server.port=80"]
+ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar /app/app.jar --spring.profiles.active=prod --server.port=80"]
