@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
     private final UserMapper userMapper;
     private final BinaryContentStorage binaryContentStorage;
+    private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = Logger.getLogger(BasicUserService.class.getName());
 
@@ -62,11 +64,14 @@ public class BasicUserService implements UserService {
             throw new UserNameDuplicationException(request.username());
         }
 
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(request.password());
+
         // 유저 생성
         User user = new User(
                 request.username(),
                 request.email(),
-                request.password()
+                encodedPassword
         );
 
         // 영속성 컨테이너 등록
@@ -172,7 +177,9 @@ public class BasicUserService implements UserService {
         }
 
         if ((userUpdateRequest.newPassword()) != null) {
-            user.updatePassword(userUpdateRequest.newPassword());
+            // 비밀번호 암호화
+            String encodedPassword = passwordEncoder.encode(userUpdateRequest.newPassword());
+            user.updatePassword(encodedPassword);
         }
 
         // 프로필 이미지 처리 (기본 이미지 or 전달된 이미지)
