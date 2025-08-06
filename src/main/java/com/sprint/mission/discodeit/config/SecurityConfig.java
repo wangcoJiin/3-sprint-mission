@@ -50,8 +50,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-            );
-
+            )
+            .formLogin(form -> form
+                // 로그인 처리 URL
+                .loginProcessingUrl("/api/auth/login")
+            )
+            ;
         return http.build();
     }
 }
