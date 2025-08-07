@@ -23,6 +23,9 @@ public class User extends BaseUpdatableEntity {
     @Column(name = "password", length = 60, nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20, nullable = false)
+    private Role role;
 
     @JoinColumn(name = "profile_id")
     @OneToOne(optional = true, orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
@@ -38,6 +41,7 @@ public class User extends BaseUpdatableEntity {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = Role.USER;
     }
 
     public void updateName(String newUsername) {
@@ -61,6 +65,12 @@ public class User extends BaseUpdatableEntity {
     public void updateProfile(BinaryContent newProfile) {
         if (newProfile != null && !newProfile.equals(this.profile)) {
             this.profile = newProfile;
+        }
+    }
+
+    public void updateRole(Role role){
+        if (!role.equals(this.role)){
+            this.role = role;
         }
     }
 
