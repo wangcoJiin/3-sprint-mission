@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -9,13 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -32,6 +36,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 @Slf4j
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity
 @Configuration
 public class SecurityConfig {
 
@@ -72,6 +77,34 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
             )
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+
+                .requestMatchers("/api/auth/csrf-token").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/logout").permitAll()
+
+                // 퍼블릭 채널 생성, 수정, 삭제는 CHANNEM_MANAGER 권한을 가져야 함
+                .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
+                .requestMatchers(HttpMethod.PATCH, "/api/channels/**").hasRole("CHANNEL_MANAGER")
+                .requestMatchers(HttpMethod.DELETE, "/api/channels/**").hasRole("CHANNEL_MANAGER")
+
+                // 사용자 권한 수정은 ADMIN 권한을 가져야 함
+                .requestMatchers(HttpMethod.PUT, "/api/auth/role").hasRole("ADMIN")
+
+                .anyRequest().authenticated()
+            )
+
+            // 세션 관리 설정
+            .sessionManagement(session -> session
+                .maximumSessions(1)
+                .sessionRegistry(sessionRegistry())
+            )
+
             // Form 기반 로그인 활성화
             .formLogin(formLogin -> formLogin
                 // 로그인 처리 URL
@@ -79,6 +112,7 @@ public class SecurityConfig {
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler)
             )
+
             // 로그아웃 설정
             .logout(logout -> logout
                 // 로그아웃 처리 URL
@@ -87,8 +121,24 @@ public class SecurityConfig {
                     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
                 )
             )
+
+            // 예외 처리 설정
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) ->
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+            )
             ;
         return http.build();
+    }
+
+    // WebSecurity 설정 - 정적 리소스는 Spring Security 필터 체인에서 완전히 제외
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+            // 브라우저 기본 요청 및 에러 페이지
+            .requestMatchers("/favicon.ico", "/error")
+            // 정적 리소스 (CSS, JavaScript, 이미지 등)
+            .requestMatchers("/index.html", "/static/**", "/assets/**", "/images/**");
     }
 
     // SessionRegistry Bean 설정
@@ -121,8 +171,8 @@ public class SecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
 
-        RoleHierarchy hierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > CHANNEL_MANAGER > ROLE_USER");
-        log.info("[SecurityConfig] RoleHierarchy 설정 완료: ROLE_ADMIN > CHANNEL_MANAGER > ROLE_USER");
+        RoleHierarchy hierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_CHANNEL_MANAGER > ROLE_USER");
+        log.info("[SecurityConfig] RoleHierarchy 설정 완료: ROLE_ADMIN > ROLE_CHANNEL_MANAGER > ROLE_USER");
 
         return hierarchy;
     }
