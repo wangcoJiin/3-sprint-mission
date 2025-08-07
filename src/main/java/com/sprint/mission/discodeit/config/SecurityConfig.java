@@ -1,25 +1,44 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
+import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import java.util.List;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
+/**
+ * Spring Security 설정
+ */
+@Slf4j
+@RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
-    /* 설명. 필터 체인 디버깅을 위한 Bean 설정
-     *  CommandLineRunner를 사용해 애플리케이션 시작 시 필터 체인의 클래스 이름을 출력하여 디버깅 용도로 사용한다.
-     * */
+    /*
+     * 필터 체인 디버깅을 위한 Bean 설정
+     * CommandLineRunner를 사용해 애플리케이션 시작 시 필터 체인의 클래스 이름을 출력하여 디버깅 용도로 사용한다.
+     */
     @Bean
     public CommandLineRunner debugFilterChain(SecurityFilterChain filterChain) {
 
@@ -36,26 +55,86 @@ public class SecurityConfig {
         };
     }
 
-    /*
-     * 사용자의 비밀번호를 BCrypt 암호화하기 위한 Bean 설정
-     */
+
+     // 사용자의 비밀번호를 BCrypt 암호화하기 위한 Bean 설정
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http
+                                , LoginSuccessHandler loginSuccessHandler
+                                , LoginFailureHandler loginFailureHandler
+    ) throws Exception {
         http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
             )
-            .formLogin(form -> form
+            // Form 기반 로그인 활성화
+            .formLogin(formLogin -> formLogin
                 // 로그인 처리 URL
                 .loginProcessingUrl("/api/auth/login")
+                .successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler)
+            )
+            // 로그아웃 설정
+            .logout(logout -> logout
+                // 로그아웃 처리 URL
+                .logoutUrl("/api/auth/logout")
+                .logoutSuccessHandler(
+                    new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
+                )
             )
             ;
         return http.build();
+    }
+
+    // SessionRegistry Bean 설정
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        // 세션 레지스트리 구현체를 상속받아 커스터마이징
+        return new SessionRegistryImpl() {
+
+            @Override
+            public void registerNewSession(String sessionId, Object principal) {
+                log.info("[SecurityConfig] 새로운 세션 등록 - 사용자 : {}", principal);
+                super.registerNewSession(sessionId, principal);
+            }
+
+            @Override
+            public SessionInformation getSessionInformation(String sessionId) {
+                log.info("[SecurityConfig] 세션 정보 조회 - 세션 id: {}", sessionId);
+                return super.getSessionInformation(sessionId);
+            }
+
+            @Override
+            public void removeSessionInformation(String sessionId) {
+                log.info("[SecurityConfig] 세션 제거 - 세션 id: {}", sessionId);
+                super.removeSessionInformation(sessionId);
+            }
+        };
+    }
+
+    // RoleHierarchy Bean 설정
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+
+        RoleHierarchy hierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > CHANNEL_MANAGER > ROLE_USER");
+        log.info("[SecurityConfig] RoleHierarchy 설정 완료: ROLE_ADMIN > CHANNEL_MANAGER > ROLE_USER");
+
+        return hierarchy;
+    }
+
+    // Method Security에서 RoleHierarchy를 사용하기 위한 설정
+    @Bean
+    static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+
+        RoleHierarchy roleHierarchy) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy);
+        log.info("[SecurityConfig] MethodSecurityExpressionHandler 설정 완료");
+        return handler;
     }
 }
