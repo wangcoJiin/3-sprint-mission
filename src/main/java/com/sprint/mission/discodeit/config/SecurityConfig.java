@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -71,6 +72,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http
                                 , LoginSuccessHandler loginSuccessHandler
                                 , LoginFailureHandler loginFailureHandler
+                                , CustomAccessDeniedHandler customAccessDeniedHandler
     ) throws Exception {
         http
             .csrf(csrf -> csrf
@@ -122,10 +124,10 @@ public class SecurityConfig {
                 )
             )
 
-            // 예외 처리 설정
+            // 권한 실패 예외 처리 설정
             .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) ->
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
+                .accessDeniedHandler(customAccessDeniedHandler)
             )
             ;
         return http.build();
