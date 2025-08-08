@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
+import com.sprint.mission.discodeit.auth.handler.CustomSecuritySessionExpiredStrategy;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
 import java.util.List;
@@ -70,6 +71,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http
+                                , SessionRegistry sessionRegistry
                                 , LoginSuccessHandler loginSuccessHandler
                                 , LoginFailureHandler loginFailureHandler
                                 , CustomAccessDeniedHandler customAccessDeniedHandler
@@ -103,8 +105,13 @@ public class SecurityConfig {
 
             // 세션 관리 설정
             .sessionManagement(session -> session
-                .maximumSessions(1)
-                .sessionRegistry(sessionRegistry())
+                .sessionFixation().migrateSession()
+                .sessionConcurrency(concurrency -> concurrency
+                    .maximumSessions(1)
+                    .maxSessionsPreventsLogin(false)
+                    .sessionRegistry(sessionRegistry())
+                    .expiredSessionStrategy(new CustomSecuritySessionExpiredStrategy())
+                )
             )
 
             // Form 기반 로그인 활성화
