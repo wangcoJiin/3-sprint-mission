@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.auth.service.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
-import com.sprint.mission.discodeit.exception.auth.UnauthorizedException;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +53,7 @@ public class AuthController implements AuthApi {
         if (userDetails == null) {
             // @AuthenticationPrincipal로 주입받은 userDetails가 null이면 인증되지 않은 상태
             log.warn("[AuthController] 인증된 사용자가 아님 (인증 정보 null)");
-            throw new UnauthorizedException();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
         log.info("[AuthController] 사용자 정보 조회 완료");
 
