@@ -68,8 +68,6 @@ public class BasicAuthService implements AuthService {
 
             // 해당 사용자의 모든 세션 정보 찾기
             for (Object principal : allPrincipals) {
-                log.info("[BasicUserService] Principal 실제 타입: {}", principal.getClass().getName());
-
                 UserDetails userDetails = (UserDetails) principal;
                 String principalName = userDetails.getUsername();
 
