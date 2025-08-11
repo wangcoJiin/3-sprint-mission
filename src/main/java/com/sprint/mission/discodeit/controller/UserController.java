@@ -16,6 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -63,6 +64,7 @@ public class UserController implements UserApi {
 
 
     //유저 정보 수정
+    @PreAuthorize("#userId == principal.id")
     @PatchMapping(path = "/{userId}"
             , consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
@@ -84,6 +86,7 @@ public class UserController implements UserApi {
 
 
     //유저 삭제
+    @PreAuthorize("#userId == principal.id")
     @DeleteMapping(path = "{userId}")
     public ResponseEntity<Void> delete(
             @PathVariable("userId") UUID userId
