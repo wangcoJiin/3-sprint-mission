@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.repository.custom.impl;
 import static com.sprint.mission.discodeit.entity.QBinaryContent.binaryContent;
 import static com.sprint.mission.discodeit.entity.QMessage.message;
 import static com.sprint.mission.discodeit.entity.QUser.user;
-import static com.sprint.mission.discodeit.entity.QUserStatus.userStatus;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -47,7 +46,6 @@ public class CustomMessageRepositoryImpl implements CustomMessageRepository {
         JPAQuery<Message> query = jpaQueryFactory
             .selectFrom(message)
             .leftJoin(message.author, user).fetchJoin()
-            .join(user.status, userStatus).fetchJoin()
             .leftJoin(user.profile, binaryContent).fetchJoin()
             .leftJoin(message.attachments).fetchJoin()
             .where(

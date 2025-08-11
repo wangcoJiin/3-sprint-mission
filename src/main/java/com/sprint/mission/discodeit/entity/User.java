@@ -32,11 +32,6 @@ public class User extends BaseUpdatableEntity {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private BinaryContent profile;
 
-    // 이 양방향 연관 관계의 주인은 외래키를 가지고 있는 UserStatus에 있다
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserStatus status;
-
-
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
@@ -74,12 +69,6 @@ public class User extends BaseUpdatableEntity {
         }
     }
 
-    public void setStatus(UserStatus status) {
-        this.status = status;
-        if (status != null && status.getUser() != this) {
-            status.setUser(this);
-        }
-    }
 
     @Override
     public String toString() {
