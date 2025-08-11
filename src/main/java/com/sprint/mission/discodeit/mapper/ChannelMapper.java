@@ -45,7 +45,7 @@ public abstract class ChannelMapper {
                 .map(ReadStatus::getUser)
 
                 .map(user -> {
-                    boolean isOnline = onlineStatusUtil.isOnlineUser(user.getUsername());
+                    boolean isOnline = onlineStatusUtil.isOnlineUser(user.getId());
                     return userMapper.toDto(user, isOnline);
                 })
                 .forEach(participants::add);

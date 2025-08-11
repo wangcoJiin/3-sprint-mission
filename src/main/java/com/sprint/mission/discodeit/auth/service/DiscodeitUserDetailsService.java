@@ -27,7 +27,7 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
 
-        boolean isOnline = onlineStatusUtil.isOnlineUser(username);
+        boolean isOnline = onlineStatusUtil.isOnlineUser(user.getId());
         UserDto userDto = userMapper.toDto(user, isOnline);
 
         return new DiscodeitUserDetails(userDto, user.getPassword());

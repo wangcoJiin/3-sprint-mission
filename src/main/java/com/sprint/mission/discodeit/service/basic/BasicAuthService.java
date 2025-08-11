@@ -56,7 +56,7 @@ public class BasicAuthService implements AuthService {
         }
 
         log.info("[BasicAuthService] 기존 권한과 동일합니다.");
-        boolean isOnline = onlineStatusUtil.isOnlineUser(user.getUsername());
+        boolean isOnline = onlineStatusUtil.isOnlineUser(user.getId());
         return userMapper.toDto(user, isOnline);
     }
 

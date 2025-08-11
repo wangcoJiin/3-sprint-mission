@@ -109,7 +109,7 @@ public class BasicUserService implements UserService {
                 });
 
         // 로그인 여부 (온라인 여부)
-        boolean isOnline = onlineStatusUtil.isOnlineUser(request.username());
+        boolean isOnline = onlineStatusUtil.isOnlineUser(savedUser.getId());
         return userMapper.toDto(savedUser, isOnline);
     }
 
@@ -122,7 +122,7 @@ public class BasicUserService implements UserService {
                 .orElseThrow(
                         () -> new UserNotFoundException(id));
 
-        boolean isOnline = onlineStatusUtil.isOnlineUser(user.getUsername());
+        boolean isOnline = onlineStatusUtil.isOnlineUser(user.getId());
         return userMapper.toDto(user, isOnline);
     }
 
@@ -134,9 +134,8 @@ public class BasicUserService implements UserService {
 
         return userRepository.findAllWithProfileAndStatus()
                 .stream()
-//                .map(userMapper::toDto)
             .map( user -> {
-                boolean isOnline = onlineStatusUtil.isOnlineUser(user.getUsername());
+                boolean isOnline = onlineStatusUtil.isOnlineUser(user.getId());
                 return userMapper.toDto(user, isOnline);
             })
                 .toList();
