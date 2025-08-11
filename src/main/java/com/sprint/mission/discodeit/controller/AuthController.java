@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.UserService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthApi {
 
     private final AuthService authService;
+    private final UserService userService;
 
     // CSRF 토큰을 발급하는 API
     @GetMapping(path = "/csrf-token")
@@ -55,11 +58,15 @@ public class AuthController implements AuthApi {
             log.warn("[AuthController] 인증된 사용자가 아님 (인증 정보 null)");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
+
+        UUID userId = userDetails.getId();
+        UserDto updatedUserDto = userService.find(userId);
+
         log.info("[AuthController] 사용자 정보 조회 완료");
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(userDetails.getUserDto());
+            .body(updatedUserDto);
     }
 
     @PutMapping(path = "/role")
