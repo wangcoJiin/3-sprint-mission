@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.response.UserDto;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +28,11 @@ public class DiscodeitUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + userDto.role().name()));
+    }
+
+    // SpEL에서 접근하기 위함
+    public UUID getId() {
+        return userDto.id();
     }
 
     @Override
