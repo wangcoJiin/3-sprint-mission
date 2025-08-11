@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -45,8 +44,6 @@ public class BasicMessageService implements MessageService {
     private final BinaryContentStorage binaryContentStorage;
     private final MessageMapper messageMapper;
     private final PageResponseMapper pageResponseMapper;
-
-    private static final Logger logger = Logger.getLogger(BasicMessageService.class.getName());
 
     //메시지 생성
     @Override
