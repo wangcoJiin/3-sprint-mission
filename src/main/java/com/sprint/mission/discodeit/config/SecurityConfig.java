@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 /**
  * Spring Security 설정
@@ -195,5 +196,10 @@ public class SecurityConfig {
         handler.setRoleHierarchy(roleHierarchy);
         log.info("[SecurityConfig] MethodSecurityExpressionHandler 설정 완료");
         return handler;
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 }
