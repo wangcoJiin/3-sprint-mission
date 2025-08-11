@@ -132,6 +132,13 @@ public class SecurityConfig {
                 )
             )
 
+            // remember-me 설정
+            .rememberMe(remember -> remember
+                .rememberMeParameter("remember-me")
+                .tokenValiditySeconds(3600)
+                .alwaysRemember(false)
+            )
+
             // 권한 실패 예외 처리 설정
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
