@@ -23,6 +23,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +140,7 @@ public class BasicUserService implements UserService {
 
 
     // 유저 정보와 프로필 이미지 수정
+    @PreAuthorize("#userId == authentication.principal.id")
     @Override
     @Transactional
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
@@ -202,6 +204,7 @@ public class BasicUserService implements UserService {
 
 
     // 유저 삭제
+    @PreAuthorize("#id == authentication.principal.id")
     @Override
     @Transactional
     public void delete(UUID id) {
