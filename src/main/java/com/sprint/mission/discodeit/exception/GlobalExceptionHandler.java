@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -20,9 +19,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class.getName());
-
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
@@ -88,17 +84,19 @@ public class GlobalExceptionHandler {
             details.put("globalErrors", globalErrors);
         }
 
+        ErrorCode errorCode = ErrorCode.VALIDATION_FAILED;
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(Instant.now())
-                .code("VALIDATION_FAILED")
-                .message("입력값 검증에 실패했습니다.")
+                .code(errorCode.name())
+                .message(errorCode.getMessage())
                 .details(details)
                 .exceptionType("MethodArgumentNotValidException")
-                .status(400)
+                .status(errorCode.getStatus())
                 .build();
 
         return ResponseEntity
-                .badRequest()
+                .status(errorCode.getHttpStatus())
                 .body(errorResponse);
     }
 

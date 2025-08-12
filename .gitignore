@@ -55,8 +55,6 @@ application-*.yaml
 aws-credentials.txt
 .aws/
 credentials
-config
-!config/AwsS3Properties.java
 
 ### Docker 관련 ###
 docker-compose.override.yml
