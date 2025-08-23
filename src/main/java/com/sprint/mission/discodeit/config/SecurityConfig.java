@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
+import com.sprint.mission.discodeit.auth.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.auth.jwt.handler.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.auth.jwt.handler.JwtLogoutHandler;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -75,7 +78,9 @@ public class SecurityConfig {
                                 , SessionRegistry sessionRegistry
                                 , JwtLoginSuccessHandler jwtLoginSuccessHandler
                                 , LoginFailureHandler loginFailureHandler
+                                , JwtLogoutHandler jwtLogoutHandler
                                 , CustomAccessDeniedHandler customAccessDeniedHandler
+                                , JwtAuthenticationFilter jwtAuthenticationFilter
     ) throws Exception {
         http
             .csrf(csrf -> csrf
@@ -122,10 +127,13 @@ public class SecurityConfig {
             .logout(logout -> logout
                 // 로그아웃 처리 URL
                 .logoutUrl("/api/auth/logout")
+                .addLogoutHandler(jwtLogoutHandler)
                 .logoutSuccessHandler(
                     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
                 )
             )
+
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
             // 권한 실패 예외 처리 설정
             .exceptionHandling(ex -> ex
