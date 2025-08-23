@@ -92,6 +92,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/logout").permitAll()
+                .requestMatchers("/api/auth/refresh").permitAll()
 
                 // 퍼블릭 채널 생성, 수정, 삭제는 CHANNEM_MANAGER 권한을 가져야 함
                 .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
@@ -124,13 +125,6 @@ public class SecurityConfig {
                 .logoutSuccessHandler(
                     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)
                 )
-            )
-
-            // remember-me 설정
-            .rememberMe(remember -> remember
-                .rememberMeParameter("remember-me")
-                .tokenValiditySeconds(3600)
-                .alwaysRemember(false)
             )
 
             // 권한 실패 예외 처리 설정
