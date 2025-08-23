@@ -1,9 +1,8 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.auth.handler.CustomAccessDeniedHandler;
-import com.sprint.mission.discodeit.auth.handler.CustomSecuritySessionExpiredStrategy;
 import com.sprint.mission.discodeit.auth.handler.LoginFailureHandler;
-import com.sprint.mission.discodeit.auth.handler.LoginSuccessHandler;
+import com.sprint.mission.discodeit.auth.jwt.handler.JwtLoginSuccessHandler;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +20,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -73,7 +73,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http
                                 , SessionRegistry sessionRegistry
-                                , LoginSuccessHandler loginSuccessHandler
+                                , JwtLoginSuccessHandler jwtLoginSuccessHandler
                                 , LoginFailureHandler loginFailureHandler
                                 , CustomAccessDeniedHandler customAccessDeniedHandler
     ) throws Exception {
@@ -106,20 +106,14 @@ public class SecurityConfig {
 
             // 세션 관리 설정
             .sessionManagement(session -> session
-                .sessionFixation().migrateSession()
-                .sessionConcurrency(concurrency -> concurrency
-                    .maximumSessions(1)
-                    .maxSessionsPreventsLogin(false)
-                    .sessionRegistry(sessionRegistry())
-                    .expiredSessionStrategy(new CustomSecuritySessionExpiredStrategy())
-                )
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
             // Form 기반 로그인 활성화
             .formLogin(formLogin -> formLogin
                 // 로그인 처리 URL
                 .loginProcessingUrl("/api/auth/login")
-                .successHandler(loginSuccessHandler)
+                .successHandler(jwtLoginSuccessHandler)
                 .failureHandler(loginFailureHandler)
             )
 
