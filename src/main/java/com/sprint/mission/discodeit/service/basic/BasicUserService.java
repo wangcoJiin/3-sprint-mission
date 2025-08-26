@@ -131,10 +131,7 @@ public class BasicUserService implements UserService {
 
         return userRepository.findAllWithProfileAndStatus()
                 .stream()
-            .map( user -> {
-                boolean isOnline = onlineStatusUtil.isOnlineUser(user.getId());
-                return userMapper.toDto(user, isOnline);
-            })
+                .map(userMapper::toDto)
                 .toList();
     }
 
