@@ -54,9 +54,7 @@ public class BasicAuthService implements AuthService {
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-        boolean isOnline = jwtRegistry.hasActiveJwtInformationByUserId(user.getId());
-
-        return userMapper.toDto(user, isOnline);
+        return userMapper.toDto(user);
     }
 
     @Override

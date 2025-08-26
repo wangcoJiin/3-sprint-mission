@@ -10,4 +10,7 @@ public interface UserMapper {
 
     @Mapping(target = "online", source = "online")
     UserDto toDto(User user, Boolean online);
+
+    @Mapping(target = "online", expression = "java(jwtRegistry.hasActiveJwtInformationByUserId(user.getId()))")
+    UserDto toDto(User user);
 }
