@@ -240,7 +240,21 @@ public class JwtTokenProvider {
             return subject;
 
         } catch (Exception e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException("[TokenProvider] getUsernameFromToken: 예외 발생 - {}", e);
+        }
+    }
+
+    public UUID getUserIdFromToken(String token) {
+        try {
+            log.debug("[TokenProvider] userId 추출 시작");
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            String userIdStr = (String) signedJWT.getJWTClaimsSet().getClaim("userId");
+            if (userIdStr == null) {
+                throw new IllegalArgumentException("[TokenProvider] JWT 토큰에서 User Id 클레임 찾을 수 없음");
+            }
+            return UUID.fromString(userIdStr);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("[TokenProvider] getUserIdFromToken: 예외 발생 - {}", e);
         }
     }
 
