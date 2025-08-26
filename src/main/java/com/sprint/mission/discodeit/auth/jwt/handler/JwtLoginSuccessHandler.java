@@ -45,6 +45,10 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         try {
             // 사용자 정보 추출
             UserDto userDto = userDetails.getUserDto();
+            
+            // 디버그: 로그인한 사용자 권한 확인
+            log.info("[JwtLoginSuccessHandler] 로그인 성공 사용자: {}, 권한: {}", 
+                userDto.username(), userDto.role());
 
             // 토큰 생성 (Access, Refresh)
             String accessToken  = jwtTokenProvider.generateAccessToken(userDetails);
