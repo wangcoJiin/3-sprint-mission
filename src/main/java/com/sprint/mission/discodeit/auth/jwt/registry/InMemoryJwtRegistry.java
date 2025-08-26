@@ -23,7 +23,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     }
 
     @Override
-    public void registerJwt(JwtInformation jwtInformation) {
+    public void registerJwtInformation(JwtInformation jwtInformation) {
         UUID userId = jwtInformation.getUserDto().id();
         String username = jwtInformation.getUserDto().username();
         log.info("[JwtRegistry] 등록 시작 - user: {}, userId: {}", username, userId);
