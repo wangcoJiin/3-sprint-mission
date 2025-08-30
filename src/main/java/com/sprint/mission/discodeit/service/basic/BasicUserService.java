@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.ResourceLoadFailedException;
 import com.sprint.mission.discodeit.exception.user.UserEmailDuplicationException;
 import com.sprint.mission.discodeit.exception.user.UserNameDuplicationException;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +41,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentStorage binaryContentStorage;
     private final PasswordEncoder passwordEncoder;
     private final OnlineStatusUtil onlineStatusUtil;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -82,7 +85,16 @@ public class BasicUserService implements UserService {
 
                     binaryContentRepository.save(content);
 
-                    binaryContentStorage.put(content.getId(), profileImage.bytes());
+//                    binaryContentStorage.put(content.getId(), profileImage.bytes());
+
+                    // 이벤트 객체를 생성
+                    BinaryContentCreatedEvent binaryContentEvent = BinaryContentCreatedEvent.now(
+                        content.getId(),
+                        profileImage.bytes()
+                    );
+                    // 생성된 이벤트 객체를 전달인자로 이벤트 발행
+                    eventPublisher.publishEvent(binaryContentEvent);
+
                     savedUser.updateProfile(content);
 
                     return content;
@@ -96,7 +108,16 @@ public class BasicUserService implements UserService {
                                 (long) data.length, "image/png");
                         binaryContentRepository.save(defaultContent);
 
-                        binaryContentStorage.put(defaultContent.getId(), data);
+//                        binaryContentStorage.put(defaultContent.getId(), data);
+
+                        // 이벤트 객체를 생성
+                        BinaryContentCreatedEvent binaryContentEvent = BinaryContentCreatedEvent.now(
+                            defaultContent.getId(),
+                            data
+                        );
+                        // 생성된 이벤트 객체를 전달인자로 이벤트 발행
+                        eventPublisher.publishEvent(binaryContentEvent);
+
                         savedUser.updateProfile(defaultContent);
 
                         return defaultContent;
@@ -178,7 +199,7 @@ public class BasicUserService implements UserService {
                     // 기존 이미지 있으면 삭제
                     Optional.ofNullable(user.getProfile())
                             .ifPresent(profile -> {
-                                binaryContentStorage.delete(profile.getId());
+//                                binaryContentStorage.delete(profile.getId());
                                 binaryContentRepository.deleteById(profile.getId());
                             });
 
@@ -189,7 +210,16 @@ public class BasicUserService implements UserService {
                             profileImage.contentType()
                     );
                     binaryContentRepository.save(content);
-                    binaryContentStorage.put(content.getId(), profileImage.bytes());
+//                    binaryContentStorage.put(content.getId(), profileImage.bytes());
+
+                    // 이벤트 객체를 생성
+                    BinaryContentCreatedEvent binaryContentEvent = BinaryContentCreatedEvent.now(
+                        content.getId(),
+                        profileImage.bytes()
+                    );
+                    // 생성된 이벤트 객체를 전달인자로 이벤트 발행
+                    eventPublisher.publishEvent(binaryContentEvent);
+                    
                     user.updateProfile(content);
 
                     return content;
