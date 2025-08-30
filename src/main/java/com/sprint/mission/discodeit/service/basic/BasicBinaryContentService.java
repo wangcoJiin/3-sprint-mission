@@ -69,6 +69,20 @@ public class BasicBinaryContentService implements BinaryContentService {
                 .toList();
     }
 
+    // update
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus status) {
+
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+            .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
+
+        binaryContent.updateStatus(status);
+        BinaryContent savedBinaryContent = binaryContentRepository.save(binaryContent);
+
+        return binaryContentMapper.toDto(savedBinaryContent);
+    }
+
     // delete
     @Override
     @Transactional
