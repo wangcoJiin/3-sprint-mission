@@ -19,14 +19,14 @@ CREATE TABLE IF NOT EXISTS binary_contents
 (
     id UUID,
     created_at timestamptz NOT NULL,
+    updated_at timestamptz,
     file_name varchar(255) NOT NULL,
     size bigint NOT NULL,
     content_type varchar(100) NOT NULL,
---     bytes bytea NOT NULL,
+    status varchar(20) NOT NULL,
 
     CONSTRAINT pk_binary_id PRIMARY KEY (id)
 );
-
 
 -- users 테이블 생성
 CREATE TABLE IF NOT EXISTS users
