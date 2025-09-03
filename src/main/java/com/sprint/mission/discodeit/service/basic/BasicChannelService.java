@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +75,7 @@ public class BasicChannelService implements ChannelService {
     // 채널 공개 여부 별로 조건 달아준 전체 조회
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "channelsByUser", key = "#userId")
     public List<ChannelDto> findAllByUserId(UUID userId) {
 
         List<UUID> participants = readStatusRepository.findAllByUserId(userId).stream()
