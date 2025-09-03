@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -148,6 +149,7 @@ public class BasicUserService implements UserService {
     // 전체 유저 조회
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "usersAll")
     public List<UserDto> findAll() {
 
         return userRepository.findAllWithProfileAndStatus()
