@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.S3UploadFailEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -93,6 +94,18 @@ public class NotificationRequiredEventListener {
         Notification notification = new Notification(receiver, title, content);
 
         notificationRepository.save(notification);
+    }
+
+    @Async("notificationTaskExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void on(S3UploadFailEvent event) {
+
+        String jobName = "s3 파일 업로드 작업 실패";
+        UUID binaryContentId = event.binaryContentId();
+        String requestId = event.requestId();
+        String errorMsg = event.errorMsg();
+
+        notificationService.notifyS3StoreFail(jobName, binaryContentId, requestId, errorMsg);
     }
 
 }
