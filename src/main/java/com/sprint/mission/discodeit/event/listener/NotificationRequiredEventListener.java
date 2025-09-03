@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -39,6 +40,7 @@ public class NotificationRequiredEventListener {
 
 
     // 채널의 알림 여부를 활성화한 유저에게 알림 생성
+    @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(MessageCreatedEvent event) {
         UUID channelId = event.channelId();
@@ -73,6 +75,7 @@ public class NotificationRequiredEventListener {
     }
 
     // 권한이 변경된 당사자에게 알림 생성
+    @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(RoleUpdatedEvent event) {
         UUID userId = event.userId();
