@@ -117,3 +117,16 @@ CREATE TABLE IF NOT EXISTS message_attachments
     CONSTRAINT fk_message_id FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE,
     CONSTRAINT fk_attachment_id FOREIGN KEY (attachment_id) REFERENCES binary_contents (id) ON DELETE CASCADE
 );
+
+-- notifications 테이블 생성
+CREATE TABLE IF NOT EXISTS notifications
+(
+    id UUID,
+    created_at timestamptz NOT NULL,
+    receiver_id UUID NOT NULL,
+    title       VARCHAR(200) NOT NULL,
+    content     TEXT NOT NULL,
+
+    CONSTRAINT pk_notifications_id PRIMARY KEY (id),
+    CONSTRAINT fk_users_receiver_id FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
+)
