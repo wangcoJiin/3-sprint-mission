@@ -14,4 +14,7 @@ public interface NotificationService {
     void deleteNotification(UUID notificationId, UUID requestId);
 
     void saveAllNotifications(List<Notification> notifications);
+
+    // 관리자에게 알림 가도록
+    void notifyS3StoreFail(String jobName, UUID binaryContentId, String requestId, String errorMessage);
 }
