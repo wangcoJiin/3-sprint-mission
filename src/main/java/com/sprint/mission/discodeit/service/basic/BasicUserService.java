@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
@@ -46,6 +47,7 @@ public class BasicUserService implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "usersAll", allEntries = true)
     public UserDto create(UserCreateRequest request,
             Optional<BinaryContentCreateRequest> optionalProfileImage) {
 
@@ -163,6 +165,7 @@ public class BasicUserService implements UserService {
     @PreAuthorize("#userId == authentication.principal.id")
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "usersAll", allEntries = true)
     public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
             Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
 
@@ -236,6 +239,7 @@ public class BasicUserService implements UserService {
     @PreAuthorize("#id == authentication.principal.id")
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "usersAll", allEntries = true)
     public void delete(UUID id) {
         // 유저 조회
         User user = userRepository.findById(id)
