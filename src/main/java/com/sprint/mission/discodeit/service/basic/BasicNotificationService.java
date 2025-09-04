@@ -11,10 +11,16 @@ import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +33,11 @@ public class BasicNotificationService implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("principal.id == #receiverId")
     @Cacheable(value = "notificationsByUser", key = "#receiverId")
     public List<NotificationDto> findAllNotifications(UUID receiverId) {
        return notificationRepository.findAllByReceiverId(receiverId)
@@ -40,6 +48,8 @@ public class BasicNotificationService implements NotificationService {
 
     @Override
     @Transactional
+    @PreAuthorize("principal.id == #receiverId")
+    @CacheEvict(cacheNames = "notificationsByUser", key = "#requestId")
     public void deleteNotification(UUID notificationId, UUID requestId) {
         Notification notification = notificationRepository.findById(notificationId)
             .orElseThrow(() ->new NotificationNotFoundException(notificationId));
@@ -50,11 +60,19 @@ public class BasicNotificationService implements NotificationService {
         }
 
         notificationRepository.deleteById(notificationId);
+
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveAllNotifications(List<Notification> notifications) {
         notificationRepository.saveAll(notifications);
+
+        // 캐시 무효화
+        Set<UUID> userIds = notifications.stream()
+            .map(notification -> notification.getReceiver().getId())
+            .collect(Collectors.toSet());
+
+        evictNotificationUser(userIds);
     }
 
     // 관리자에게 알림
@@ -82,6 +100,20 @@ public class BasicNotificationService implements NotificationService {
             } catch (Exception saveEx) {
                 log.error("실패 알림 저장 중 오류", saveEx);
             }
+        }
+    }
+
+    // 알림 받는 유저 캐시 삭제를 위한 메서드
+    private void evictNotificationUser(Set<UUID> userIds) {
+        Cache cache = cacheManager.getCache("notificationsByUser");
+
+        if (cache != null) {
+            for (UUID userId : userIds) {
+                cache.evict(userId);
+            }
+        }
+        else {
+            log.warn("알림 캐시가 존재하지 않습니다.");
         }
     }
 }
