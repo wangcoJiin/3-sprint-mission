@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.service.AuthService;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -65,7 +66,7 @@ public class AuthController implements AuthApi {
 
     @PutMapping(path = "/role")
     public ResponseEntity<UserDto> updateUserRole(
-        @RequestBody UserRoleUpdateRequest updateRequest
+        @Valid @RequestBody UserRoleUpdateRequest updateRequest
     ){
         log.info("[AuthController] 사용자 권한 수정 요청 들어옴");
 
