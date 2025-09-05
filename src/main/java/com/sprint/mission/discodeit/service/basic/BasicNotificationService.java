@@ -48,7 +48,7 @@ public class BasicNotificationService implements NotificationService {
 
     @Override
     @Transactional
-    @PreAuthorize("principal.id == #receiverId")
+    @PreAuthorize("principal.id == #requestId")
     @CacheEvict(cacheNames = "notificationsByUser", key = "#requestId")
     public void deleteNotification(UUID notificationId, UUID requestId) {
         Notification notification = notificationRepository.findById(notificationId)
