@@ -32,6 +32,9 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     # Spring Security 관련 디버그 로그 활성화
     org.springframework.security: TRACE
+    # 캐시 인터셉터 로그
+    org.springframework.cache: TRACE
+    org.springframework.cache.interceptor: TRACE
 
 
 info:
