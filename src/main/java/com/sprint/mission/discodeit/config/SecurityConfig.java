@@ -113,6 +113,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/logout").permitAll()
                 .requestMatchers(
                     AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/refresh")).permitAll()
+                .requestMatchers("/discodeit/monitor/caches/**").permitAll()
 
                 // 퍼블릭 채널 생성, 수정, 삭제는 CHANNEM_MANAGER 권한을 가져야 함
                 .requestMatchers(HttpMethod.POST, "/api/channels/public").hasRole("CHANNEL_MANAGER")
