@@ -44,13 +44,13 @@ public class NotificationRequiredEventListener {
     @Async("notificationTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(MessageCreatedEvent event) {
-        UUID channelId = event.channelId();
-        UUID authorId = event.authorId();
+        UUID channelId = event.messageDto().channelId();
+        UUID authorId = event.messageDto().author().id();
 
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new ChannelNotFoundException(channelId));
-        Message message = messageRepository.findById(event.messageId())
-            .orElseThrow(() -> new MessageNotFoundException(event.messageId()));
+        Message message = messageRepository.findById(event.messageDto().id())
+            .orElseThrow(() -> new MessageNotFoundException(event.messageDto().id()));
 
         String title = message.getAuthor().getUsername() + " (#" + channel.getName() + ")";
 
