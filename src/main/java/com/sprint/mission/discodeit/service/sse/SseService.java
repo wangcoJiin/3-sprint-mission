@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.service.sse;
 
+import com.sprint.mission.discodeit.entity.SseMessage;
 import com.sprint.mission.discodeit.repository.sse.SseEmitterRepository;
+import com.sprint.mission.discodeit.repository.sse.SseMessageRepository;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class SseService {
 
     private final SseEmitterRepository sseEmitterRepository;
+    private final SseMessageRepository sseMessageRepository;
 
     // 사용자별 SseEmitter 객체를 생성
     public SseEmitter connect(UUID receiverId, UUID lastEventId) {
@@ -40,6 +43,10 @@ public class SseService {
             log.warn("[SseService] 초기 ping 실패 - 제거: userId: {}", receiverId);
         }
 
+        // 유실 복원
+        int sent = sseMessageRepository.send(receiverId, lastEventId, emitter);
+        log.info("[SseService] 유실 복원한 메시지: {}개, 유저: {}", sent, receiverId);
+
         log.info("[SseService] SSE 구독 완료 - userId: {}", receiverId);
         return emitter;
     }
@@ -49,6 +56,7 @@ public class SseService {
         if (receiverIds == null || receiverIds.isEmpty()) {
             return;
         }
+        SseMessage sseMessage = sseMessageRepository.saveEvent(receiverIds, eventName, data);
 
         for (UUID receiverId : receiverIds) {
             List<SseEmitter> emitters = sseEmitterRepository.findAllByUserId(receiverId);
@@ -61,8 +69,9 @@ public class SseService {
                 try {
                     emitter.send(
                         SseEmitter.event()
-                            .name(eventName)
-                            .data(data)
+                            .id(sseMessage.id().toString())
+                            .name(sseMessage.eventName())
+                            .data(sseMessage.data())
                     );
                     log.debug("[SseService] send - 전송 성공: userId: {}, event: {}", receiverId, eventName);
 
@@ -80,6 +89,10 @@ public class SseService {
 
     // SseEmitter 객체를 통해 이벤트를 전송
     public void broadcast(String eventName, Object data) {
+
+        // 브로드캐스트로 저장
+        SseMessage sseMessage = sseMessageRepository.appendBroadcast(eventName, data);
+
         for (UUID userId : sseEmitterRepository.userIds()) {
             List<SseEmitter> emitters = sseEmitterRepository.findAllByUserId(userId);
 
@@ -87,8 +100,9 @@ public class SseService {
                 try {
                     emitter.send(
                         SseEmitter.event()
-                            .name(eventName)
-                            .data(data)
+                            .id(sseMessage.id().toString())
+                            .name(sseMessage.eventName())
+                            .data(sseMessage.data())
                     );
                     log.debug("[SseService] broadcast - 전송 성공: userId: {}, event: {}", userId, eventName);
 
@@ -125,7 +139,7 @@ public class SseService {
             sseEmitter.send(
                 SseEmitter.event()
                     .name("ping")
-                    .data("keepalive")
+                    .data("keepAlive")
             );
             log.info("[SseService] 최초 연결 또는 만료 여부 확인을 위한 더미 이벤트 전송");
             return true;
